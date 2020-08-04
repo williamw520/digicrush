@@ -3,12 +3,14 @@
     "version": "0.0.0",
     "description": "",
     "scripts": {
-        "liveserver": "live-server --open=src",
         "compileglsl": "./scripts/compileglslfiles.sh src/shaders build"
     },
     "author": "",
     "devDependencies": {
+        "rollup": "^2.22.1",
+        "rollup-plugin-root-import": "^1.0.0",
         "gulp": "^4.0.2",
+        "gulp-live-server": "^0.0.31",
         "gulp-uglify-es": "^2.0.0",
         "gulp-usemin": "^0.3.30",
         "gulp-htmlmin": "^5.0.1",
@@ -16,10 +18,9 @@
         "gulp-clean-css": "^4.3.0",
         "gulp-zip": "5.0.2",
         "del": "^5.1.0",
-        "live-server": "^1.2.1",
+        "gulp-better-rollup": "^4.0.1",
         "uglifycss": "^0.0.29",
         "glslmin": "0.0.0"
     },
-    "dependencies": {
-    }
+    "dependencies": {}
 }

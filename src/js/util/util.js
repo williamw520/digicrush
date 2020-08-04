@@ -28,18 +28,3 @@ let M = (function() {
 }());
 
 export default M;
-
-
-// Unit Tests
-let _RUNTEST_UTIL = true;
-if (_RUNTEST_UTIL) {
-    let util = M;
-    console.log(util.bitOn(0, 0));
-    console.log(util.bitOn(0, 1));
-    console.log(util.bitOn(0, 2));
-    console.log(util.bitOn(0, 3));
-    console.log(util.bitTest(util.bitOn(0, 3), 3));
-    console.log(util.bitTest(util.bitOn(0, 3), 1));
-    
-}
-
