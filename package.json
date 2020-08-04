@@ -3,13 +3,11 @@
     "version": "0.0.0",
     "description": "",
     "scripts": {
-        "compileglsl": "./scripts/compileglslfiles.sh src/shaders build",
         "liveserver": "live-server --open=src",
-        "start": "npm run watch & npm run liveserver"
+        "compileglsl": "./scripts/compileglslfiles.sh src/shaders build"
     },
     "author": "",
     "devDependencies": {
-        "glslmin": "0.0.0",
         "gulp": "^4.0.2",
         "gulp-uglify-es": "^2.0.0",
         "gulp-usemin": "^0.3.30",
@@ -20,7 +18,8 @@
         "del": "^5.1.0",
         "live-server": "^1.2.1",
         "uglifycss": "^0.0.29",
-        "wr": "^1.3.1"
+        "glslmin": "0.0.0"
     },
-    "dependencies": {}
+    "dependencies": {
+    }
 }
