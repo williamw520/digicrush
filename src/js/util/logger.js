@@ -6,10 +6,8 @@
 */
 
 // logger module, for lightweight logging with prefix on app name and module name for easier filtering when viewing the log.
-let M = (function() {
-    "use strict";
-
-    const M = { NAME: "logger" };
+let MD = (function() {
+    const MD = { NAME: "logger" };
 
     // Log levels
     const NONE = 0;
@@ -76,15 +74,15 @@ let M = (function() {
     }
 
     // module public symbols.
-    M.NONE = NONE;
-    M.ERROR = ERROR;
-    M.WARN = WARN;
-    M.INFO = INFO;
-    M.LOG = LOG;
-    M.Logger = Logger;
+    MD.NONE = NONE;
+    MD.ERROR = ERROR;
+    MD.WARN = WARN;
+    MD.INFO = INFO;
+    MD.LOG = LOG;
+    MD.Logger = Logger;
 
-    return M;
+    return MD;
 
 }());
 
-export default M;
+export default MD;

@@ -9,22 +9,20 @@ import logger from "/js/util/logger.js";
 
 
 // util module
-let M = (function() {
-    "use strict";
-
-    const M = { NAME: "util" };
-    const log = new logger.Logger(M.NAME);
+let MD = (function() {
+    const MD = { NAME: "util" };
+    const L  = new logger.Logger(MD.NAME);
 
     // Bit operations on 32-bit array at bit position (0th to 31st)
-    M.bitOn     = (bits, position)      => bits |  (1 << position);
-    M.bitOff    = (bits, position)      => bits & ~(1 << position);
-    M.bitToggle = (bits, position)      => bits ^  (1 << position);
-    M.bitSet    = (bits, position,bool) => bool ? M.bitOn(bits, position) : M.bitOff(bits, position);
-    M.bitTest   = (bits, position)      => !!(bits & (1 << position));
+    MD.bitSet       = (bits, position)      => bits |  (1 << position);
+    MD.bitClear     = (bits, position)      => bits & ~(1 << position);
+    MD.bitFlip      = (bits, position)      => bits ^  (1 << position);
+    MD.bitPut       = (bits, position,bool) => bool ? MD.bitSet(bits, position) : MD.bitClear(bits, position);
+    MD.bitOn        = (bits, position)      => !(!(bits & (1 << position)));
+    MD.bitOff       = (bits, position)      =>   !(bits & (1 << position));
 
-    log.info("module loaded");
-    return M;
-
+    L.info("module loaded");
+    return MD;
 }());
 
-export default M;
+export default MD;
