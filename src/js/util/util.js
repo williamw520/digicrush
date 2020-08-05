@@ -5,8 +5,9 @@
   williamw520@gmail.com
 */
 
-import logger from "/js/util/logger.js";
+// Serves as sample template for module file.
 
+import logger from "/js/util/logger.js";
 
 // util module
 let MD = (function() {

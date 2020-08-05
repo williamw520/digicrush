@@ -8,7 +8,12 @@
 // The main entry point of unit tests.
 import logger from "./util/logger.js";
 import util from "/js/util/util.js";
-import {Vec2}  from "/js/pgengine/vec2.js";
+
+import {Vec2} from "/js/engine/vec2.js";
+import {BaseNode} from "/js/engine/basenode.js";
+import {Engine} from "/js/engine/engine.js";
+import {World} from "/js/game/world.js";
+
 
 const L  = new logger.Logger("test");
 const A  = console.assert;
