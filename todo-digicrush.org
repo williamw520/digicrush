@@ -1,0 +1,40 @@
+
+* Story
+  The war of the digital fractions.
+  The Numerato faction is on the left and the Denominato faction is on the right,
+  with a dividing chasm between them.  The evil Denominato faction is sending digits
+  over the divide to build a high voltage digital pathway to destroy the Numerato.
+
+* Game Design
+** Mechanics
+*** A stream of digits, of 1-9, moving from right to left across a chasm.
+*** More random digits are sent from right as time passes.
+*** As the story goes, it's building a digital pathway.
+*** When the digits reach the left side, a bolt of high voltage zaps through.
+*** CANCELED Pressing 1-9 keys or touching the 1-9 keypad triggers a digit match attempt.
+    Too many controls/choices; reduce choices for player.
+*** Pressing 1-6 keys, UIO/JKL keys, or touching the 1-6 UI keypad triggers a digit match..
+*** A single matched digit has no effect.  Flash digit matched for feedback.
+*** When more than one digit matched, the matching digits are eliminated.
+*** After elimination, the remaining digits snap back together, to the right.
+*** When there're gaps in the stream, enters the snapback mode.
+*** During snapback if consecutive digits matched, a new round of elimination starts.
+*** A 2-digit elimination scores 1x.  3-digit elimination scores 2x.  4-digit scores 4x.
+*** Score-multiplier = (|digits| - 2) ^ 2.
+*** Release golden stars when scored.  Number of stars = score-multiplier X 2.
+*** Non-digit blocks can be sprinkled in the stream, which cannot be digit matched.
+*** The blocks can be eliminated when 3 or more of them are lined up consecutively.
+** Power blocks.
+*** Elimination of consecutive digits or blocks generates a power block.
+*** Consecutive of 3 digits of (1-3) creates a wildcard block, matching any digit.
+    Wildcard adds 1 digit to any other matching digits, 1+1=2, 1+2=3, 1+3=4 mached.
+*** Consecutive of 3 digits of (4-6) creates a bomb block with a random digit label.
+    Match the digit bomb to trigger the bomb.  Wildcard can match it.
+    Bomb eliminates 3 neighboring digits.  Snapback mode starts after bomb.
+*** Consecutive of 4 non-digit blocks creates a super-bomb, with a random digit label.
+    Super-bomb eliminates 6 neighboring digits.
+** Digit Preview
+*** On the right side, dimmed digits are hovering/dancing nervously in the background.
+*** The pending digit drops through a vertical tube on the right side.
+*** The digit drops to the horizontal pathway, and starts marching to the left.
+

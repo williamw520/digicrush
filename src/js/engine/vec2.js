@@ -22,6 +22,7 @@ export class Vec2 {
     get len()       { return M.sqrt(this.x * this.x + this.y * this.y) }            // return the magnitude of the vector.
     get radian()    { return M.atan2(this.y, this.x)    }                           // the radian angle counter-clockwise from x-axis, from -pi to pi.
     get unit()      { return this.clone().asUnit()      }                           // return the unit vector.
+    get normal()    { return new Vec2(-this.y/this.len, this.x/this.len) }          // return the normal vector.
     clone()         { return new Vec2(this.x, this.y)   }
     adding(b)       { return this.clone().add(b)        }                           // return a new vec by adding two vectors.
     subing(b)       { return this.clone().sub(b)        }
