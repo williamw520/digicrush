@@ -1,4 +1,17 @@
 
+* Development setup
+** Dependent libraries and packages defined in package.json.
+** Use gulp for build.  See gulpfile.js for details.
+** Gulp commands
+*** gulp liveserver
+*** gulp build
+*** gulp clean
+** Directories
+*** The 'build' directory is for staging files.
+*** The 'dist' directory has the final distribution package.
+*** src/index.html is the main entry point for the app.
+*** src/test.html is the main entry point for running tests.
+
 * Story
   The war of the digital fractions.
   The Numerato faction is on the left and the Denominato faction is on the right,

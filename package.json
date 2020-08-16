@@ -20,7 +20,7 @@
         "del": "^5.1.0",
         "gulp-better-rollup": "^4.0.1",
         "uglifycss": "^0.0.29",
-        "glslmin": "0.0.0"
+        "gulp-glsl": "^1.2.4"
     },
     "dependencies": {}
 }

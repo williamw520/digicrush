@@ -7,23 +7,20 @@
 
 // Serves as sample template for module file.
 
-import logger from "/js/util/logger.js";
-
 // util module
-let MD = (function() {
-    const MD = { NAME: "util" };
-    const L  = new logger.Logger(MD.NAME);
+let U = (function() {
+    const U = {};
 
     // Bit operations on 32-bit array at bit position (0th to 31st)
-    MD.bitSet       = (bits, position)      => bits |  (1 << position);
-    MD.bitClear     = (bits, position)      => bits & ~(1 << position);
-    MD.bitFlip      = (bits, position)      => bits ^  (1 << position);
-    MD.bitPut       = (bits, position,bool) => bool ? MD.bitSet(bits, position) : MD.bitClear(bits, position);
-    MD.bitOn        = (bits, position)      => !(!(bits & (1 << position)));
-    MD.bitOff       = (bits, position)      =>   !(bits & (1 << position));
+    U.bitSet    = (bits, position)      => bits |  (1 << position);
+    U.bitClear  = (bits, position)      => bits & ~(1 << position);
+    U.bitFlip   = (bits, position)      => bits ^  (1 << position);
+    U.bitPut    = (bits, position,bool) => bool ? U.bitSet(bits, position) : U.bitClear(bits, position);
+    U.bitOn     = (bits, position)      => !(!(bits & (1 << position)));
+    U.bitOff    = (bits, position)      =>   !(bits & (1 << position));
 
     L.info("module loaded");
-    return MD;
+    return U;
 }());
 
-export default MD;
+export default U;

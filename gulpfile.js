@@ -6,6 +6,7 @@ const uglify = require("gulp-uglify-es").default;
 const usemin = require("gulp-usemin");
 const htmlmin = require("gulp-htmlmin");
 const cleanCss = require("gulp-clean-css");
+const glsl = require("gulp-glsl");
 const rollup = require("gulp-better-rollup");
 const rootImport = require("rollup-plugin-root-import");
 const fs = require("fs");
@@ -45,6 +46,16 @@ function setupTmpDirs(cb) {
     mkdir(DIST);
     mkdir(DIST_APP);
     cb();
+}
+
+function glslify(cb) {
+    return src("src/shader/**/*.glsl")
+        .pipe(glsl({
+            format: 'module',                       // convert .glsl file to module file,
+            es6:    true                            // to ES6 module.
+        }))
+        .pipe(dest("src/js/glsl"));                 // 
+        //.pipe(dest(BUILD_JS));                      // The combined glsl file is saved in the staging BUILD_JS directory.
 }
 
 // This rollup task resolves module imports and combines all the JS files into one file, app.js.
@@ -93,7 +104,7 @@ function zip(cb) {
 }
 
 // The whole build pipeline.
-const build = series(setupTmpDirs, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
+const build = series(setupTmpDirs, glslify, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
 
 async function clean(cb) {
     await del([DIST + "/**", BUILD + "/**"], {force:true});
@@ -101,6 +112,7 @@ async function clean(cb) {
 }
 
 exports.liveserver = liveserver;
+exports.glslify = glslify;
 exports.build = build;
 exports.clean = clean;
 exports.default = series(clean, build);

@@ -5,38 +5,45 @@
   williamw520@gmail.com
 */
 
+L.info("module starts");
+
 
 // Game engine
 export class Engine {
-    constructor(canvasId, world, ui) {
-        this.aframe = null;
-        this.prevTime = 0;
-        this.world = world;
-        this.ui = ui;
-        this.ctx = document.getElementById(canvasId).getContext("2d");
+    constructor(canvas, world, ui) {
+        this.frameId = null;                    // current frame id.
+        this.prevTime = 0;                      // previous frame's time
+        this.cv = canvas;
+        this.world = world;                     // world node
+        this.ui = ui;                           // UI node
+        this.ctx = this.cv.getContext("2d");
+        //this.ctx = this.cv.getContext("webgl");   // The gl context
     }
 
     start() {
+        L.info("start");
         this.prevTime = performance.now();
         this._animate(this.prevTime);           // start the first animation frame.
     }
 
     stop() {
-        if (this.aframe)
-            cancelAnimationFrame(this.aframe);
-        this.aframe = null;
+        L.info("stop");
+        if (this.frameId)
+            cancelAnimationFrame(this.frameId);
+        this.frameId = null;
     }
 
-    get running() { return this.aframe != null }
+    get running() { return this.frameId != null }
 
-    _animate(time) {
-        this.aframe = requestAnimationFrame( time => this._animate(time) ); // schedule the next animation frame; should be 60 fps.
-        let dt = time - this.prevTime;
-        this.prevTime = time;
+    _animate(currTime) {
+        this.frameId = requestAnimationFrame( time => this._animate(time) ); // schedule the next animation frame; should be 60 fps.
+        let dt = currTime - this.prevTime;
+        this.prevTime = currTime;
         if (dt > 0) {
             this.world.onUpdate(dt);            // update game world state
-            this.world.onDraw(this.ctx);        // render the game world
-            this.ui.onDraw(this.ctx);           // render the surrounding UI
+            this.ui.onUpdate(dt);
+            this.world.onDraw(this);            // render the game world
+            this.ui.onDraw(this);               // render the surrounding UI
         }
     }
 
