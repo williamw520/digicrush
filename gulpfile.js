@@ -48,14 +48,15 @@ function setupTmpDirs(cb) {
     cb();
 }
 
+// Rerun when the shader files in src/shader have been changed, to re-generate the shader.*.js files in src/js/glsl.
+// Other JS files are importing from src/js/glsl.
 function glslify(cb) {
     return src("src/shader/**/*.glsl")
         .pipe(glsl({
-            format: 'module',                       // convert .glsl file to module file,
+            format: 'module',                       // convert .glsl files to JS module files,
             es6:    true                            // to ES6 module.
         }))
-        .pipe(dest("src/js/glsl"));                 // 
-        //.pipe(dest(BUILD_JS));                      // The combined glsl file is saved in the staging BUILD_JS directory.
+        .pipe(dest("src/js/glsl"));                 // the generated JS ES6 module files saved here.
 }
 
 // This rollup task resolves module imports and combines all the JS files into one file, app.js.
