@@ -16,9 +16,7 @@ const guzip = require("gulp-zip");
 
 // Temp directories for build and distribution.
 const BUILD     = "build";
-const BUILD_JS  = "build/js";
 const DIST      = "dist";
-const DIST_APP  = "dist/digicrush";
 
 
 // Start a Live Server on the "src" directory.
@@ -44,7 +42,7 @@ function setupTmpDirs(cb) {
 
     mkdir(BUILD);
     mkdir(DIST);
-    mkdir(DIST_APP);
+    mkdir(DIST + "/digicrush");
     cb();
 }
 
@@ -77,10 +75,10 @@ function rollupJsToBuild(cb) {
         }, {
             format: "iife",                         // Use Immediately-Invoked Function Expression format for running in browser.
         }))
-        .pipe(dest(BUILD_JS));                      // The resolved and combined file is saved in the staging BUILD_JS directory.
+        .pipe(dest(BUILD + "/js"));                 // The resolved and combined file is saved in the staging $BUILD/js directory.
 }
 
-// Copy the html files to BUILD so they can reference the staging app.js in BUILD_JS.
+// Copy the html files to BUILD so they can reference the staging app.js in $BUILD/js.
 function htmlToBuild(cb) {
     return src("src/**/*.html").pipe(dest(BUILD));
 }
@@ -95,11 +93,11 @@ function uglifyToHtml(cb) {
             inlinejs:   [ uglify() ],               // minify the combined js files in the build:inlinejs block.
             inlinecss:  [ cleanCss(), "concat" ],   // minify the combined css files in the build:css block.
         }))
-        .pipe(dest(DIST_APP));
+        .pipe(dest(DIST + "/digicrush"));
 }
 
 function zip(cb) {
-    return src(DIST_APP + "/*")
+    return src(DIST + "/digicrush/*")
         .pipe(guzip("digicrush.zip"))
         .pipe(dest(DIST));
 }
