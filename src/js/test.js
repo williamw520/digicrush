@@ -91,6 +91,12 @@ let offset = 0;
 let count = 18;  // 6 triangles in the 'F', 3 points per triangle
 gl.drawArrays(gl.TRIANGLES, offset, count);
 
+for (let i = 0; i < 10; i++) {
+    translation[0] = i * 120;
+    gl.uniform2fv(test2d_uniforms.u_translation, translation);
+    gl.drawArrays(gl.TRIANGLES, offset, count);
+}    
+
 e.start();
 
 setTimeout(() => e.stop(), 1000);
