@@ -5,7 +5,7 @@
   williamw520@gmail.com
 */
 
-// webgl-util module
+// webgl util module
 let wgl = (function() {
     const wgl = {};
 

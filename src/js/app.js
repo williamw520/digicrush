@@ -7,13 +7,13 @@
 
 // The main entry point of the JS app.  Rollup starts from here to include all other module imports.
 import U from "/js/util/util.js";
-import wgl from "/js/engine/webgl-util.js";
-import {Vec2} from "/js/engine/vec2.js";
+import wgl from "/js/engine/webgl.js";
+import {v2, v3} from "/js/engine/vector.js";
+import {m4} from "/js/engine/matrix.js";
 import {BaseNode} from "/js/engine/basenode.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/game/world.js";
 import {UI} from "/js/game/ui.js";
-import m4 from "/js/engine/m4.js";
 
 import test2d_vert from "/js/glsl/test2d.vert.js";
 import test2d_frag from "/js/glsl/test2d.frag.js";

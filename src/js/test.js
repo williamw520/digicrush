@@ -7,13 +7,13 @@
 
 // The main entry point of unit tests.
 import util from "/js/util/util.js";
-import wgl from "/js/engine/webgl-util.js";
-import {Vec2} from "/js/engine/vec2.js";
+import wgl from "/js/engine/webgl.js";
+import {v2, v3} from "/js/engine/vector.js";
 import {BaseNode} from "/js/engine/basenode.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/game/world.js";
 import {UI} from "/js/game/ui.js";
-import m4 from "/js/engine/m4.js";
+import {m4} from "/js/engine/matrix.js";
 
 import test2d_vert from "/js/glsl/test2d.vert.js";
 import test2d_frag from "/js/glsl/test2d.frag.js";
@@ -22,18 +22,6 @@ import test3d_frag from "/js/glsl/test3d.frag.js";
 import test3d from "/js/data/test3d.js";
 
 // L.info("Running tests");
-
-// L.info(new Vec2(3, 4).len);
-// L.info(new Vec2(1, 1).unit);
-// L.info(new Vec2(1, 1).radian);
-// L.info(new Vec2(1, 2).radian);
-// L.info(new Vec2(-1, 2).radian);
-// L.info(new Vec2(-1, -2).radian);
-// L.info(new Vec2(-1, 9).radian);
-// L.info(new Vec2(1, 1).scale(2));
-
-// L.info(new Vec2(1, 1).asUnit());
-// L.info(new Vec2(1, 1).asUnit().asUnit());
 
 
 let c = document.getElementById("game");
@@ -86,7 +74,7 @@ gl.clear(gl.COLOR_BUFFER_BIT);
 gl.useProgram(test2d_shader);
 wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, false, 0, 0);
 
-let color = [MA.random(), MA.random(), MA.random(), 1];
+let color = [M.random(), M.random(), M.random(), 1];
 let translation = [10, 5];
 gl.uniform2f(test2d_uniforms.u_resolution, gl.canvas.width, gl.canvas.height);
 gl.uniform4fv(test2d_uniforms.u_color, color);
@@ -134,7 +122,7 @@ var rotation = [degToRad(40), degToRad(25), degToRad(325)];
 var scale = [1, 1, 1];
 var fudgeFactor = 1;
 
-var matrix = m4.project(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+var matrix = m4.project_mat(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
 matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
 matrix = m4.rotatex(matrix, rotation[0]);
 matrix = m4.rotatey(matrix, rotation[1]);
