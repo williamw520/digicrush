@@ -13,6 +13,7 @@ import {BaseNode} from "/js/engine/basenode.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/game/world.js";
 import {UI} from "/js/game/ui.js";
+import m4 from "/js/engine/m4.js";
 
 import test2d_vert from "/js/glsl/test2d.vert.js";
 import test2d_frag from "/js/glsl/test2d.frag.js";
@@ -23,6 +24,7 @@ let MD = (function() {
     const MD    = {};
     const log   = new L.Logger("app");
 
+let abc = m4.scale(null, 1,1,1);
 
 let gl = document.getElementById("wgl").getContext("webgl");
 let mesh = new Float32Array([
@@ -50,7 +52,7 @@ let mesh = new Float32Array([
           67, 60,
           67, 90,
 ]);
-let meshBuffer = wgl.uploadModelToBuffer(gl, mesh);
+let meshBuffer = wgl.uploadToBuffer(gl, mesh);
 L.info(meshBuffer);
 
 let test2d_shader = wgl.createProgram(gl, test2d_vert, test2d_frag);
@@ -65,7 +67,7 @@ gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.useProgram(test2d_shader);
-wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, 0, 0);
+wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, false, 0, 0);
 
 let color = [MA.random(), MA.random(), MA.random(), 1];
 let translation = [10, 5];
