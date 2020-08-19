@@ -26,10 +26,10 @@ let wgl = (function() {
     // After this call, it's ready to call gl.drawArrays(gl.TRIANGLES, offset-of-beginning, number-of-vertices) or its variants.
     // Call this after calling gl.useProgram(shaderProgram) to activate the current shader program.
     // This should be called every time the frame is rendered in onDraw() in the game loop.
-    wgl.assignBufferToAttr = (gl, buffer, attrIndex, componentsPerAttr, componentType, normalize, stride, offset) => {
+    wgl.assignBufferToAttr = (gl, buffer, attrLoc, componentsPerAttr, componentType, normalize, stride, offset) => {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer)          // Set the buffer as the current buffer for ARRAY_BUFFER, to use the uploaded data in it.
-        gl.enableVertexAttribArray(attrIndex);          // Turn on the vertex attribute array for the attribute index.
-        gl.vertexAttribPointer(attrIndex,               // Bind the current buffer of ARRAY_BUFFER to the attribute, linking it to buffer.
+        gl.enableVertexAttribArray(attrLoc);            // Turn on the vertex attribute array for the attribute location.
+        gl.vertexAttribPointer(attrLoc,                 // Bind the current buffer of ARRAY_BUFFER to the attribute, linking it to buffer.
                                componentsPerAttr, componentType || gl.FLOAT,
                                normalize || false, stride || 0, offset || 0);
     }
@@ -38,10 +38,10 @@ let wgl = (function() {
     // After this call, it's ready to call gl.drawArrays(gl.TRIANGLES, array-offset, number-of-vertices) or its variants.
     // Call this after calling gl.useProgram(shaderProgram) to activate the current shader program.
     // This should be called every time the frame is rendered in onDraw() in the game loop.
-    wgl.assignDataToAttr = (gl, attrIndex, attrValueTuple) => {
-        gl.disableVertexAttribArray(attrIndex);         // Turn off vertex array for the attribute since data is simple value.
+    wgl.assignDataToAttr = (gl, attrLoc, attrValueTuple) => {
+        gl.disableVertexAttribArray(attrLoc);           // Turn off vertex array for the attribute since data is simple value.
         let funcname = vafuncs[attrValueTuple.length];  // Look up the setter function name by the size of the tuple.
-        gl[funcname](attrIndex, attrValueTuple);        // Call the setter by name.
+        gl[funcname](attrLoc, attrValueTuple);          // Call the setter by name.
     }
     let vafuncs = [null, "vertexAttrib1fv", "vertexAttrib2fv", "vertexAttrib3fv", "vertexAttrib4fv"];    // put null 0th position to crash if index is out of range
 
@@ -65,18 +65,18 @@ let wgl = (function() {
         return progam;
     }
 
-    // Get all attributes in the shader program.  Return { attrib-name: attrib-index }
-    // The indexes returned can be used in assignBufferToAttr() or assignDataToAttr().
+    // Get all attributes in the shader program.  Return { attrib-name: attrib-location }
+    // The attr locations returned can be used in assignBufferToAttr() or assignDataToAttr().
     wgl.getAttrMap = (gl, prog) => {
         let n = gl.getProgramParameter(prog, gl.ACTIVE_ATTRIBUTES);
         return [...Array(n).keys()]
             .map(i              => gl.getActiveAttrib(prog, i) )                        // -> [ info ]
             .map(info           => info.name )                                          // -> [ name ]
-            .reduce((m, name)   => (m[name] = gl.getAttribLocation(prog, name), m), {}) // -> { attrib-name: attrib-index }
+            .reduce((m, name)   => (m[name] = gl.getAttribLocation(prog, name), m), {}) // -> { attr-name: attr-loc }
     }
 
-    // Get all the uniform variables in the shader program.  Return { uniform-key : uniform-index }
-    // The uniform-index returned can be used in gl.uniform1f(uniformIndex, v), gl.uniform2fv(uniformIndex, v), or variants.
+    // Get all the uniform variables in the shader program.  Return { uniform-key : uniform-loc }
+    // The uniform-loc returned can be used in gl.uniform1f(uniformLoc, v), gl.uniform2fv(uniformLoc, v), or variants.
     wgl.getUniformMap = (gl, prog) => {
         let n = gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS);
         return [...Array(n).keys()]
@@ -86,7 +86,7 @@ let wgl = (function() {
                 let key = cleanUniName(name);
                 m[key] = gl.getUniformLocation(prog, name);
                 return m;
-            }, {});                                                                     // -> { uniform-key : uniform-index }
+            }, {});                                                                     // -> { uniform-key : uniform-loc }
     }
 
     function cleanUniName(name) {
