@@ -6,4 +6,5 @@ pkg
 *.zip
 *~
 \#*\#
+src/js/gen
 src/js/glsl

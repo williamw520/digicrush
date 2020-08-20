@@ -16,11 +16,14 @@ import {UI} from "/js/game/ui.js";
 import {m4} from "/js/engine/matrix.js";
 import {m4u} from "/js/engine/matrix-util.js";
 
-import test2d_vert from "/js/glsl/test2d.vert.js";
-import test2d_frag from "/js/glsl/test2d.frag.js";
-import test3d_vert from "/js/glsl/test3d.vert.js";
-import test3d_frag from "/js/glsl/test3d.frag.js";
-import test3d from "/js/data/test3d.js";
+import test2d_vert from "/js/gen/glsl/test2d.vert.js";
+import test2d_frag from "/js/gen/glsl/test2d.frag.js";
+import test3d_vert from "/js/gen/glsl/test3d.vert.js";
+import test3d_frag from "/js/gen/glsl/test3d.frag.js";
+//import test3d from "/js/data/test3d.js";
+//import cube from "/js/data/cube.js";
+//import test3d from "/js/data/cube.js";
+import test3d from "/js/gen/model/rcube.js";
 
 // L.info("Running tests");
 
@@ -33,63 +36,63 @@ let e = new Engine(c, w, u);
 
 let gl = document.getElementById("wgl").getContext("webgl");
 
-let mesh = new Float32Array([
-          // left column
-          0, 0,
-          30, 0,
-          0, 150,
-          0, 150,
-          30, 0,
-          30, 150,
+// let mesh = new Float32Array([
+//           // left column
+//           0, 0,
+//           30, 0,
+//           0, 150,
+//           0, 150,
+//           30, 0,
+//           30, 150,
 
-          // top rung
-          30, 0,
-          100, 0,
-          30, 30,
-          30, 30,
-          100, 0,
-          100, 30,
+//           // top rung
+//           30, 0,
+//           100, 0,
+//           30, 30,
+//           30, 30,
+//           100, 0,
+//           100, 30,
 
-          // middle rung
-          30, 60,
-          67, 60,
-          30, 90,
-          30, 90,
-          67, 60,
-          67, 90,
-]);
-let meshBuffer = wgl.uploadToBuffer(gl, mesh);
-L.info(meshBuffer);
+//           // middle rung
+//           30, 60,
+//           67, 60,
+//           30, 90,
+//           30, 90,
+//           67, 60,
+//           67, 90,
+// ]);
+// let meshBuffer = wgl.uploadToBuffer(gl, mesh);
+// L.info(meshBuffer);
 
-let test2d_shader = wgl.createProgram(gl, test2d_vert, test2d_frag);
-let test2d_attrs = wgl.getAttrMap(gl, test2d_shader);
-let test2d_uniforms = wgl.getUniformMap(gl, test2d_shader);
-L.info(test2d_attrs);
-L.info(test2d_uniforms);
+// let test2d_shader = wgl.createProgram(gl, test2d_vert, test2d_frag);
+// let test2d_attrs = wgl.getAttrMap(gl, test2d_shader);
+// let test2d_uniforms = wgl.getUniformMap(gl, test2d_shader);
+// L.info(test2d_attrs);
+// L.info(test2d_uniforms);
 
-//webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-gl.clear(gl.COLOR_BUFFER_BIT);
+// //webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+// gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+// gl.clear(gl.COLOR_BUFFER_BIT);
 
 
-gl.useProgram(test2d_shader);
-wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, false, 0, 0);
+// gl.useProgram(test2d_shader);
+// wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, false, 0, 0);
 
-let color = [M.random(), M.random(), M.random(), 1];
-let translation = [10, 5];
-gl.uniform2f(test2d_uniforms.u_resolution, gl.canvas.width, gl.canvas.height);
-gl.uniform4fv(test2d_uniforms.u_color, color);
-gl.uniform2fv(test2d_uniforms.u_translation, translation);
+// let color = [M.random(), M.random(), M.random(), 1];
+// let translation = [10, 5];
+// gl.uniform2f(test2d_uniforms.u_resolution, gl.canvas.width, gl.canvas.height);
+// gl.uniform4fv(test2d_uniforms.u_color, color);
+// gl.uniform2fv(test2d_uniforms.u_translation, translation);
 
-let offset = 0;
-let count = 18;  // 6 triangles in the 'F', 3 points per triangle
-gl.drawArrays(gl.TRIANGLES, offset, count);
+// let offset = 0;
+// let count = 18;  // 6 triangles in the 'F', 3 points per triangle
+// gl.drawArrays(gl.TRIANGLES, offset, count);
 
-for (let i = 0; i < 10; i++) {
-    translation[0] = i * 120;
-    gl.uniform2fv(test2d_uniforms.u_translation, translation);
-    gl.drawArrays(gl.TRIANGLES, offset, count);
-}    
+// for (let i = 0; i < 10; i++) {
+//     translation[0] = i * 120;
+//     gl.uniform2fv(test2d_uniforms.u_translation, translation);
+//     gl.drawArrays(gl.TRIANGLES, offset, count);
+// }    
 
 
 let test3d_shader = wgl.createProgram(gl, test3d_vert, test3d_frag);
@@ -97,6 +100,15 @@ let test3d_attrs = wgl.getAttrMap(gl, test3d_shader);
 let test3d_uniforms = wgl.getUniformMap(gl, test3d_shader);
 L.info(test3d_attrs);
 L.info(test3d_uniforms);
+
+
+let pointCount = test3d.mesh.length;
+L.info("pointCount: " + pointCount);
+
+test3d.mesh = new Float32Array(test3d.mesh);
+test3d.texcoords = new Float32Array(test3d.texcoords);
+test3d.normal = new Float32Array(test3d.normal);
+
 
   // Center the F around the origin and Flip it around. We do this because
   // we're in 3D now with and +Y is up where as before when we started with 2D
@@ -115,7 +127,8 @@ L.info(test3d_uniforms);
   }
 
 let mesh3dBuffer  = wgl.uploadToBuffer(gl, test3d.mesh);
-let color3dBuffer = wgl.uploadToBuffer(gl, test3d.color);
+//let color3dBuffer = wgl.uploadToBuffer(gl, test3d.color);
+let color3dBuffer = wgl.uploadToBuffer(gl, test3d.mesh);
 
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -135,7 +148,7 @@ let radius = 200;
 var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 var zNear = 1;
 var zFar = 2000;
-var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+var projectionMatrix = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
 
 // Compute the position of the first F
 var fPosition = [radius, 0, 0];
@@ -179,7 +192,7 @@ var numFs = 5;
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
       // Draw the geometry.
-      gl.drawArrays(gl.TRIANGLES, 0, 16*6);
+      gl.drawArrays(gl.TRIANGLES, 0, pointCount / 3);
     }
 
 

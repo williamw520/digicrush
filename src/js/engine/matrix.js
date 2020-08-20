@@ -24,11 +24,21 @@ m4.rotatez      = (m, radian)   => m4u.multiply4x4(m, m4.rot_z_mat(radian));
 // Create a 4x4 projection matrix, for projecting fully to the bounding cube (width, height, depth).
 // The returning matrix flips the y-axis; y's 0 is at the top.
 m4.project_mat  = (w, h, d)     =>  [ 2/w,      0,      0,      0,
-                                      0,   -2/h,      0,      0,
-                                      0,      0,    2/d,      0,
-                                     -1,      1,      0,      1,  ];
+                                        0,   -2/h,      0,      0,
+                                        0,      0,    2/d,      0,
+                                       -1,      1,      0,      1,  ];
 
-m4.perspective  = (fieldOfViewAngle, aspect, near, far) => {
+// Create a 4x4 orthographic projection matrix, for projecting fully to the bounding cube (left, right) : (top, bottom) : (near, far)
+// The returning matrix flips the y-axis; y's 0 is at the top.
+m4.orthographic_mat = (left, right, bottom, top, near, far) =>
+    [
+        2 / (right - left),  0,  0,  0,
+        0,  2 / (top - bottom),  0,  0,
+        0,  0,    2 / (near - far),  0,
+        (left + right) / (left - right),  (bottom + top) / (bottom - top),  (near + far) / (near - far),  1,
+    ];
+
+m4.perspective_mat  = (fieldOfViewAngle, aspect, near, far) => {
     let f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewAngle);        // fieldOfViewAngle radian 
     let f1 = f / aspect;
     let f3 = (near + far) / (near - far);
@@ -50,13 +60,13 @@ m4.lookat_mat = (cameraPosition, target, up) => {
 }
 
 // Create a 4x4 scaling matrix, for scaling to the size (x,y,z)
-m4.scale_mat   = (x, y, z)     => [    x,  0,  0,  0,
+m4.scale_mat   = (x, y, z)     => [     x,  0,  0,  0,
                                         0,  y,  0,  0,
                                         0,  0,  z,  0,
                                         0,  0,  0,  1,  ];
 
 // Create a 4x4 translation matrix, for moving to the point (x,y,z)
-m4.trans_mat   = (x, y, z)     => [    1,  0,  0,  0,
+m4.trans_mat   = (x, y, z)     => [     1,  0,  0,  0,
                                         0,  1,  0,  0,
                                         0,  0,  1,  0,
                                         x,  y,  z,  1,  ];

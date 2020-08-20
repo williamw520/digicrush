@@ -15,8 +15,9 @@ import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/game/world.js";
 import {UI} from "/js/game/ui.js";
 
-import test2d_vert from "/js/glsl/test2d.vert.js";
-import test2d_frag from "/js/glsl/test2d.frag.js";
+import test2d_vert from "/js/gen/glsl/test2d.vert.js";
+import test2d_frag from "/js/gen/glsl/test2d.frag.js";
+import rcube from "/js/gen/model/rcube.js";
 
 
 // app module
@@ -53,7 +54,9 @@ let mesh = new Float32Array([
           67, 90,
 ]);
 let meshBuffer = wgl.uploadToBuffer(gl, mesh);
-L.info(meshBuffer);
+    L.info(meshBuffer);
+
+    L.info(rcube.texcoords);
 
 let test2d_shader = wgl.createProgram(gl, test2d_vert, test2d_frag);
 let test2d_attrs = wgl.getAttrMap(gl, test2d_shader);

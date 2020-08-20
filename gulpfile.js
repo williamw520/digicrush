@@ -12,6 +12,7 @@ const rootImport = require("rollup-plugin-root-import");
 const fs = require("fs");
 const del = require("del");
 const guzip = require("gulp-zip");
+const objparser = require("./tool/objparser.js");
 
 
 // Temp directories for build and distribution.
@@ -46,6 +47,13 @@ function setupTmpDirs(cb) {
     cb();
 }
 
+// Generate model data from .obj files.
+function objgen(cb) {
+    return src("data/**/*.obj")
+        .pipe(objparser({}))
+        .pipe(dest("src/js/gen/model"));
+}
+
 // Rerun when the shader files in src/shader have been changed, to re-generate the shader.*.js files in src/js/glsl.
 // Other JS files are importing from src/js/glsl.
 function glslify(cb) {
@@ -54,7 +62,7 @@ function glslify(cb) {
             format: 'module',                       // convert .glsl files to JS module files,
             es6:    true                            // to ES6 module.
         }))
-        .pipe(dest("src/js/glsl"));                 // the generated JS ES6 module files saved here.
+        .pipe(dest("src/js/gen/glsl"));             // the generated JS ES6 module files saved here.
 }
 
 // This rollup task resolves module imports and combines all the JS files into one file, app.js.
@@ -103,16 +111,19 @@ function zip(cb) {
 }
 
 // The whole build pipeline.
-const build = series(setupTmpDirs, glslify, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
+const build = series(setupTmpDirs, objgen, glslify, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
 
 async function clean(cb) {
     await del([DIST + "/**", BUILD + "/**"], {force:true});
     await del([DIST, BUILD]);
+    await del(["src/js/gen/**"], {force:true});
+    await del(["src/js/gen"]);
 }
 
 exports.liveserver = liveserver;
 exports.glslify = glslify;
 exports.build = build;
 exports.clean = clean;
+exports.objgen = objgen;
 exports.default = series(clean, build);
 
