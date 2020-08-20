@@ -5,6 +5,8 @@
   williamw520@gmail.com
 */
 
+L.info("module starts");
+
 // webgl util module
 let wgl = (function() {
     const wgl = {};
@@ -93,7 +95,6 @@ let wgl = (function() {
         return name.substr(-3) === "[0]" ? name.substr(0, name.length - 3) : name;
     }
 
-    L.info("module loaded");
     return wgl;
 }());
 

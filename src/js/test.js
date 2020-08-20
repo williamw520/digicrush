@@ -20,10 +20,13 @@ import test2d_vert from "/js/gen/glsl/test2d.vert.js";
 import test2d_frag from "/js/gen/glsl/test2d.frag.js";
 import test3d_vert from "/js/gen/glsl/test3d.vert.js";
 import test3d_frag from "/js/gen/glsl/test3d.frag.js";
+import rcube_vert from "/js/gen/glsl/rcube.vert.js";
+import rcube_frag from "/js/gen/glsl/rcube.frag.js";
+
 //import test3d from "/js/data/test3d.js";
 //import cube from "/js/data/cube.js";
 //import test3d from "/js/data/cube.js";
-import test3d from "/js/gen/model/rcube.js";
+import rcube from "/js/gen/model/rcube.js";
 
 // L.info("Running tests");
 
@@ -98,16 +101,19 @@ let gl = document.getElementById("wgl").getContext("webgl");
 let test3d_shader = wgl.createProgram(gl, test3d_vert, test3d_frag);
 let test3d_attrs = wgl.getAttrMap(gl, test3d_shader);
 let test3d_uniforms = wgl.getUniformMap(gl, test3d_shader);
-L.info(test3d_attrs);
-L.info(test3d_uniforms);
 
+let rcube_shader = wgl.createProgram(gl, rcube_vert, rcube_frag);
+let rcube_attrs = wgl.getAttrMap(gl, rcube_shader);
+let rcube_uniforms = wgl.getUniformMap(gl, rcube_shader);
+L.info("rcube_attrs", rcube_attrs);
+L.info("rcube_uniforms", rcube_uniforms);
 
-let pointCount = test3d.mesh.length;
+let pointCount = rcube.mesh.length;
 L.info("pointCount: " + pointCount);
 
-test3d.mesh = new Float32Array(test3d.mesh);
-test3d.texcoords = new Float32Array(test3d.texcoords);
-test3d.normal = new Float32Array(test3d.normal);
+rcube.mesh = new Float32Array(rcube.mesh);
+rcube.texcoords = new Float32Array(rcube.texcoords);
+rcube.normal = new Float32Array(rcube.normal);
 
 
   // Center the F around the origin and Flip it around. We do this because
@@ -119,25 +125,25 @@ test3d.normal = new Float32Array(test3d.normal);
   // never do stuff at draw time if you can do it at init time.
   var flip_matrix = m4.rot_x_mat(Math.PI);
   flip_matrix = m4.translate(flip_matrix, -50, -75, -15);
-  for (var ii = 0; ii < test3d.mesh.length; ii += 3) {
-    var vector = m4.v4_multiply_m4([test3d.mesh[ii + 0], test3d.mesh[ii + 1], test3d.mesh[ii + 2], 1], flip_matrix);
-    test3d.mesh[ii + 0] = vector[0];
-    test3d.mesh[ii + 1] = vector[1];
-    test3d.mesh[ii + 2] = vector[2];
+  for (var ii = 0; ii < rcube.mesh.length; ii += 3) {
+    var vector = m4.v4_multiply_m4([rcube.mesh[ii + 0], rcube.mesh[ii + 1], rcube.mesh[ii + 2], 1], flip_matrix);
+    rcube.mesh[ii + 0] = vector[0];
+    rcube.mesh[ii + 1] = vector[1];
+    rcube.mesh[ii + 2] = vector[2];
   }
 
-let mesh3dBuffer  = wgl.uploadToBuffer(gl, test3d.mesh);
-//let color3dBuffer = wgl.uploadToBuffer(gl, test3d.color);
-let color3dBuffer = wgl.uploadToBuffer(gl, test3d.mesh);
+let mesh3dBuffer  = wgl.uploadToBuffer(gl, rcube.mesh);
+//let color3dBuffer = wgl.uploadToBuffer(gl, rcube.color);
+let color3dBuffer = wgl.uploadToBuffer(gl, rcube.mesh);
 
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
 
-gl.useProgram(test3d_shader);
-wgl.assignBufferToAttr(gl, mesh3dBuffer,  test3d_attrs.a_position,  3, gl.FLOAT,            false, 0, 0);
-wgl.assignBufferToAttr(gl, color3dBuffer, test3d_attrs.a_color,     3, gl.UNSIGNED_BYTE,    true,  0, 0);
+gl.useProgram(rcube_shader);
+wgl.assignBufferToAttr(gl, mesh3dBuffer,  rcube_attrs.a_position,  3, gl.FLOAT,            false, 0, 0);
+wgl.assignBufferToAttr(gl, color3dBuffer, rcube_attrs.a_color,     3, gl.UNSIGNED_BYTE,    true,  0, 0);
 
 
 var cameraAngleRadians = v2.deg_to_rad(90);
@@ -148,7 +154,7 @@ let radius = 200;
 var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 var zNear = 1;
 var zFar = 2000;
-var projectionMatrix = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
+var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
 
 // Compute the position of the first F
 var fPosition = [radius, 0, 0];
@@ -169,13 +175,16 @@ var up = [0, 1, 0];
 var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
 
 // Make a view matrix from the camera matrix
-var viewMatrix = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
 
 // Compute a view projection matrix
 
-var viewProjectionMatrix = m4u.multiply4x4(projectionMatrix, viewMatrix);
+var viewProjectionMatrix = m4u.multiply4x4(projection, facingView);
 
-var matrixLocation = gl.getUniformLocation(test3d_shader, "u_matrix");
+let time = new Date().getTime();
+let timeSec = time / 1000;
+let world = m4.rot_y_mat(timeSec);
+// world = m4.translate(u_world, ...objOffset);
 
 var numFs = 5;
     for (var ii = 0; ii < numFs; ++ii) {
@@ -188,8 +197,9 @@ var numFs = 5;
       var matrix = m4.translate(viewProjectionMatrix, x, 0, y);
         console.log("matrix", matrix);
 
-      // Set the matrix.
-      gl.uniformMatrix4fv(matrixLocation, false, matrix);
+      gl.uniformMatrix4fv(rcube_uniforms.u_projection, false, projection);
+      gl.uniformMatrix4fv(rcube_uniforms.u_view, false, facingView);
+      gl.uniformMatrix4fv(rcube_uniforms.u_world, false, world);
 
       // Draw the geometry.
       gl.drawArrays(gl.TRIANGLES, 0, pointCount / 3);

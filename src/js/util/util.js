@@ -7,6 +7,8 @@
 
 // Serves as sample template for module file.
 
+L.info("module starts");
+
 // util module
 let U = (function() {
     const U = {};
@@ -19,7 +21,6 @@ let U = (function() {
     U.bitOn     = (bits, position)      => !(!(bits & (1 << position)));
     U.bitOff    = (bits, position)      =>   !(bits & (1 << position));
 
-    L.info("module loaded");
     return U;
 }());
 
