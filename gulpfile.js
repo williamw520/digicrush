@@ -120,10 +120,17 @@ async function clean(cb) {
     await del(["src/js/gen"]);
 }
 
+const dist = series(clean, build);
+
+function gen_watcher(cb) {
+    watch(["data/**/*.obj", "src/shader/**/*.glsl"], series(objgen, glslify));
+    cb();
+}
+
 exports.liveserver = liveserver;
+exports.objgen = objgen;
 exports.glslify = glslify;
 exports.build = build;
 exports.clean = clean;
-exports.objgen = objgen;
-exports.default = series(clean, build);
+exports.default = gen_watcher;
 
