@@ -65,6 +65,13 @@ function glslify(cb) {
         .pipe(dest("src/js/gen/glsl"));             // the generated JS ES6 module files saved here.
 }
 
+const gen = parallel(objgen, glslify);
+
+function gen_watcher(cb) {
+    watch(["data/**/*.obj", "src/shader/**/*.glsl"], gen);
+    cb();
+}
+
 // This rollup task resolves module imports and combines all the JS files into one file, app.js.
 // It's not doing minify.  uglifyToHtml() will do the uglify part on the combined JS.
 function rollupJsToBuild(cb) {
@@ -111,7 +118,7 @@ function zip(cb) {
 }
 
 // The whole build pipeline.
-const build = series(setupTmpDirs, objgen, glslify, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
+const build = series(setupTmpDirs, gen, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
 
 async function clean(cb) {
     await del([DIST + "/**", BUILD + "/**"], {force:true});
@@ -120,17 +127,13 @@ async function clean(cb) {
     await del(["src/js/gen"]);
 }
 
-const dist = series(clean, build);
-
-function gen_watcher(cb) {
-    watch(["data/**/*.obj", "src/shader/**/*.glsl"], series(objgen, glslify));
-    cb();
-}
 
 exports.liveserver = liveserver;
 exports.objgen = objgen;
 exports.glslify = glslify;
+exports.gen = gen;
+exports.genw = gen_watcher;
 exports.build = build;
 exports.clean = clean;
-exports.default = gen_watcher;
+exports.default = series(clean, build);
 
