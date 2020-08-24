@@ -15,11 +15,11 @@ const cos = Math.cos;
 
 const m4 = {};
 
-m4.scale        = (m, x, y, z)  => m4u.multiply4x4(m, m4.scale_mat(x, y, z));
-m4.translate    = (m, x, y, z)  => m4u.multiply4x4(m, m4.trans_mat(x, y, z));
-m4.rotatex      = (m, radian)   => m4u.multiply4x4(m, m4.rot_x_mat(radian));
-m4.rotatey      = (m, radian)   => m4u.multiply4x4(m, m4.rot_y_mat(radian));
-m4.rotatez      = (m, radian)   => m4u.multiply4x4(m, m4.rot_z_mat(radian));
+m4.scale        = (m, x, y, z)  => m4u.multiply(m, m4.scale_mat(x, y, z));
+m4.translate    = (m, x, y, z)  => m4u.multiply(m, m4.trans_mat(x, y, z));
+m4.rotatex      = (m, radian)   => m4u.multiply(m, m4.rot_x_mat(radian));
+m4.rotatey      = (m, radian)   => m4u.multiply(m, m4.rot_y_mat(radian));
+m4.rotatez      = (m, radian)   => m4u.multiply(m, m4.rot_z_mat(radian));
 
 // Create a 4x4 projection matrix, for projecting fully to the bounding cube (width, height, depth).
 // The returning matrix flips the y-axis; y's 0 is at the top.

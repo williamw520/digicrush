@@ -110,8 +110,6 @@ let wgl = (function() {
         return name.substr(-3) === "[0]" ? name.substr(0, name.length - 3) : name;
     }
 
-    wgl.isPowerOf2 = (value) => (value & (value - 1)) == 0;
-
     return wgl;
 }());
 

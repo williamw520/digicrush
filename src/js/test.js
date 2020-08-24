@@ -25,6 +25,8 @@ import rcube_frag from "/js/gen/glsl/rcube.frag.js";
 
 import flag_render from "/js/game/flag_render.js";
 
+import texgen from "/js/game/texgen.js";
+
 
 let gl = document.getElementById("wgl").getContext("webgl");
 
@@ -189,7 +191,7 @@ let gl = document.getElementById("wgl").getContext("webgl");
 
 // // Compute a view projection matrix
 
-// var viewProjectionMatrix = m4u.multiply4x4(projection, facingView);
+// var viewProjectionMatrix = m4u.multiply(projection, facingView);
 
 // let time = new Date().getTime();
 // let timeSec = time / 1000;
@@ -250,12 +252,18 @@ let gl = document.getElementById("wgl").getContext("webgl");
 // // gl.drawArrays(gl.TRIANGLES, 0, 16*6);
 
 
+texgen.setup("tex");
+//texgen.drawGrid();
+["1", "2", "3", "4", "5", "6", "@", "$"].forEach((tx, i) => texgen.drawAt(tx, (i+1)));
+
+
 let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], function(images){
 
     flag_render.setup(gl, images[0].width);
     
     images.forEach( (image, i) => {
-        flag_render.setupTexture(gl, gl.TEXTURE0 + i, image);
+        //flag_render.setupTexture(gl, gl.TEXTURE0 + i, image);
+        flag_render.setupTexture(gl, gl.TEXTURE0 + i, texgen.textureCanvas(), 8);
     });
 
     var speed = 1
@@ -286,7 +294,7 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
             draw()
             if (timeNow - startTime > 2000) {
                 startTime = timeNow;
-                textureUnit = (textureUnit + 1) % 3;
+                textureUnit = (textureUnit + 1) % 8;
             }
         }
         requestAnimationFrame(tick)
@@ -297,7 +305,7 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
 
     setTimeout(() => {
         stop = true;
-    }, 1000*10);
+    }, 1000*20);
     
 })
 

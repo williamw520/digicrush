@@ -21,6 +21,15 @@ let U = (function() {
         return images;
     }
 
+    U.isPowerOf2 = (value) => (value & (value - 1)) == 0;
+
+    U.ensurePowerOf2 = (uptoValue, startingPowerValue) => {
+	let power2Value = startingPowerValue || 1;
+	while (power2Value < uptoValue)
+	    power2Value *= 2;
+	return power2Value;
+    }
+
     // Bit operations on 32-bit array at bit position (0th to 31st)
     U.bitSet    = (bits, position)      => bits |  (1 << position);
     U.bitClear  = (bits, position)      => bits & ~(1 << position);

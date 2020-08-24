@@ -2,7 +2,7 @@ attribute vec2 a_position;
 
 uniform float u_distance;
 
-varying vec2 v_uvTexCoord;
+varying vec2 v_uv_texcoord;
 varying float v_slope;
 
 float PI = 3.14159;
@@ -25,7 +25,7 @@ void main() {
     // The mesh has the same dimension as the image.
     // Use the vertex's (x, y) for texture coordinate.
     // Shrink the vertex (x, y) a bit before copying over to texcoord.
-    v_uvTexCoord = (s_t_mat * vec3(x, y, 1.0)).xy;
+    v_uv_texcoord = (s_t_mat * vec3(x, y, 1.0)).xy;
 
     y += amplitude * ( (x + scale) / waveLength ) * sin(2.0 * PI * (x - u_distance));
 

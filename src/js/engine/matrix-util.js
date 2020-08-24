@@ -6,8 +6,8 @@
 const m4u = {};
 
 
-// multiply4x4 two 4x4 matrices, returning a 4x4 matrix.
-m4u.multiply4x4 = (a, b) => {
+// multiply two 4x4 matrices, returning a 4x4 matrix.
+m4u.multiply = (a, b) => {
     let a00 = a[0 + 0];
     let a01 = a[0 + 1];
     let a02 = a[0 + 2];

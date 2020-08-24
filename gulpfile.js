@@ -93,9 +93,14 @@ function rollupJsToBuild(cb) {
         .pipe(dest(BUILD + "/js"));                 // The resolved and combined file is saved in the staging $BUILD/js directory.
 }
 
-// Copy the html files to BUILD so they can reference the staging app.js in $BUILD/js.
-function htmlToBuild(cb) {
-    return src("src/**/*.html").pipe(dest(BUILD));
+// Copy the html and other files to BUILD so they can reference the staging app.js in $BUILD/js.
+function filesToBuild(cb) {
+    return src(["src/**/*.html", "src/**/*.png"]).pipe(dest(BUILD));
+}
+
+// Copy files to DIST so they can be referenced in $DIST/digicrush
+function filesToDist(cb) {
+    return src(["src/**/*.png"]).pipe(dest(DIST + "/digicrush"));
 }
 
 function uglifyToHtml(cb) {
@@ -111,6 +116,8 @@ function uglifyToHtml(cb) {
         .pipe(dest(DIST + "/digicrush"));
 }
 
+
+
 function zip(cb) {
     return src(DIST + "/digicrush/*")
         .pipe(guzip("digicrush.zip"))
@@ -118,7 +125,7 @@ function zip(cb) {
 }
 
 // The whole build pipeline.
-const build = series(setupTmpDirs, gen, rollupJsToBuild, htmlToBuild, uglifyToHtml, zip)
+const build = series(setupTmpDirs, gen, rollupJsToBuild, filesToBuild, uglifyToHtml, filesToDist, zip)
 
 async function clean(cb) {
     await del([DIST + "/**", BUILD + "/**"], {force:true});

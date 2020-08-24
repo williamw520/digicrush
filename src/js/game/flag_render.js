@@ -37,7 +37,7 @@ let flag_render = (function() {
 
     // E.g. for textureUnitId = gl.TEXTURE0, Call gl.uniform1i(u_sampler, 0) before drawing.
     // E.g. for textureUnitId = gl.TEXTURE1, Call gl.uniform1i(u_sampler, 1) before drawing.
-    flag_render.setupTexture = (gl, textureUnitId, image) => {
+    flag_render.setupTexture = (gl, textureUnitId, image, itemCount) => {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
 
         let texture = gl.createTexture()
@@ -52,6 +52,8 @@ let flag_render = (function() {
         const srcFormat = gl.RGBA;
         const srcType = gl.UNSIGNED_BYTE;
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image);
+
+        gl.uniform1f(flag_uniforms.u_item_count, itemCount);
     }
 
     flag_render.draw = (gl, distance, textureUnit) => {
@@ -59,7 +61,8 @@ let flag_render = (function() {
         // gl.clear(gl.COLOR_BUFFER_BIT)
         gl.useProgram(flagShader);
         gl.uniform1f(flag_uniforms.u_distance, distance);
-        gl.uniform1i(flag_uniforms.u_sampler, textureUnit);
+        gl.uniform1f(flag_uniforms.u_item_index, textureUnit);
+        gl.uniform1i(flag_uniforms.u_sampler, 0);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
     }
 
