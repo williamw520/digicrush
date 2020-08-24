@@ -13,6 +13,14 @@ L.info("module starts");
 let U = (function() {
     const U = {};
 
+    U.loadImages = (urls, onDone) => {
+        let pendingCount = urls.length;
+        let images = urls.map(() => new Image());
+        let onload = () => --pendingCount === 0 && onDone(images);
+        images.forEach( (img, i) => (img.src = urls[i], img.onload = onload) );
+        return images;
+    }
+
     // Bit operations on 32-bit array at bit position (0th to 31st)
     U.bitSet    = (bits, position)      => bits |  (1 << position);
     U.bitClear  = (bits, position)      => bits & ~(1 << position);

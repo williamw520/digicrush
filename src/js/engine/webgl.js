@@ -27,7 +27,9 @@ let wgl = (function() {
     // This pipes the data items in the array of buffer to the vertex shader one at a time via the attribute.
     // After this call, it's ready to call gl.drawArrays(gl.TRIANGLES, offset-of-beginning, number-of-vertices) or its variants.
     // Call this after calling gl.useProgram(shaderProgram) to activate the current shader program.
-    // This should be called every time the frame is rendered in onDraw() in the game loop.
+    // This should be called every time the vertex data in the buffer changed.
+    // It's called once during model setup if the vertex data don't change.
+    // If the vertex data changes every frame, this should be called every time the frame is rendered in onDraw() in the game loop.
     wgl.assignBufferToAttr = (gl, buffer, attrLoc, componentsPerAttr, componentType, normalize, stride, offset) => {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer)          // Set the buffer as the current buffer for ARRAY_BUFFER, to use the uploaded data in it.
         gl.enableVertexAttribArray(attrLoc);            // Turn on the vertex attribute array for the attribute location.
@@ -39,7 +41,9 @@ let wgl = (function() {
     // Assign simple value to attribute of a vertex shader.  Value can be: [1f], [1f,2f], [1f,2f,3f], [1f,2f,3f,4f].
     // After this call, it's ready to call gl.drawArrays(gl.TRIANGLES, array-offset, number-of-vertices) or its variants.
     // Call this after calling gl.useProgram(shaderProgram) to activate the current shader program.
-    // This should be called every time the frame is rendered in onDraw() in the game loop.
+    // This should be called every time the attribute data in the buffer changed.
+    // It's called once during model setup if the attribute data don't change.
+    // If the attribute data changes every frame, this should be called every time the frame is rendered in onDraw() in the game loop.
     wgl.assignDataToAttr = (gl, attrLoc, attrValueTuple) => {
         gl.disableVertexAttribArray(attrLoc);           // Turn off vertex array for the attribute since data is simple value.
         let funcname = vafuncs[attrValueTuple.length];  // Look up the setter function name by the size of the tuple.
@@ -66,6 +70,17 @@ let wgl = (function() {
         gl.linkProgram(progam);
         return progam;
     }
+
+    // Typical rendering loop
+    // onDraw() {
+    //      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //      gl.useProgram(shaderProgram1)
+    //      gl.uniformXX(...);
+    //      gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount1)
+    //      gl.useProgram(shaderProgram2)
+    //      gl.uniformXX(...);
+    //      gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount2)
+    // }
 
     // Get all attributes in the shader program.  Return { attrib-name: attrib-location }
     // The attr locations returned can be used in assignBufferToAttr() or assignDataToAttr().
@@ -94,6 +109,8 @@ let wgl = (function() {
     function cleanUniName(name) {
         return name.substr(-3) === "[0]" ? name.substr(0, name.length - 3) : name;
     }
+
+    wgl.isPowerOf2 = (value) => (value & (value - 1)) == 0;
 
     return wgl;
 }());
