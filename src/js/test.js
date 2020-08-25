@@ -148,50 +148,51 @@ let gl = document.getElementById("wgl").getContext("webgl");
 // let mesh3dBuffer  = wgl.uploadToBuffer(gl, rcube.position);
 // let color3dBuffer = wgl.uploadToBuffer(gl, rcube.color);
 
-// gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 // gl.enable(gl.CULL_FACE);
-// gl.enable(gl.DEPTH_TEST);
+gl.enable(gl.DEPTH_TEST);
 
 // gl.useProgram(rcube_shader);
 // wgl.assignBufferToAttr(gl, mesh3dBuffer,  rcube_attrs.a_position,  3, gl.FLOAT, false, 0, 0);
 // wgl.assignBufferToAttr(gl, color3dBuffer, rcube_attrs.a_color,     3, gl.FLOAT, false, 0, 0);
 
 
-// var cameraAngleRadians = v2.deg_to_rad(90);
-// var fieldOfViewRadians = v2.deg_to_rad(60);
-// let radius = 200;
+var cameraAngleRadians = v2.deg_to_rad(90);
+//var fieldOfViewRadians = v2.deg_to_rad(60);
+var fieldOfViewRadians = v2.deg_to_rad(60);
+let radius = 200;
 
-// // Compute the projection matrix
-// var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-// var zNear = 1;
-// var zFar = 2000;
-// var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
+// Compute the projection matrix
+var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+var zNear = 1;
+var zFar = 2000;
+var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
 
-// // Compute the position of the first F
-// var fPosition = [0, 0, 0];
+// Compute the position of the first F
+var fPosition = [0, 0, 0];
 
-// // Use matrix math to compute a position on a circle where the camera is.
-// var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadians);                 // turn the camera to the angle.
-// cameraPosMatrix = m4.translate(cameraPosMatrix, 0, 200, radius * 2.);    // move the camera to the position (0, 0, radius * 1.5) of the circle at 1.5 radius.
+// Use matrix math to compute a position on a circle where the camera is.
+var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadians);                 // turn the camera to the angle.
+cameraPosMatrix = m4.translate(cameraPosMatrix, 0, 200, radius * 2.);    // move the camera to the position (0, 0, radius * 1.5) of the circle at 1.5 radius.
 
-// // Save the camera's position after the computation.
-// var cameraPosition = [
-//     cameraPosMatrix[12],       // the new positions are in the last 3 elements of the computated matrix.
-//     cameraPosMatrix[13],
-//     cameraPosMatrix[14],
-// ];
+// Save the camera's position after the computation.
+var cameraPosition = [
+    cameraPosMatrix[12],       // the new positions are in the last 3 elements of the computated matrix.
+    cameraPosMatrix[13],
+    cameraPosMatrix[14],
+];
 
-// // Compute the camera's matrix using look at.
-// var up = [0, 1, 0];
-// var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+// Compute the camera's matrix using look at.
+var up = [0, 1, 0];
+var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
 
-// // Make a view matrix from the camera matrix
-// var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+// Make a view matrix from the camera matrix
+var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
 
 // // Compute a view projection matrix
 
-// var viewProjectionMatrix = m4u.multiply(projection, facingView);
+var viewProjectionMatrix = m4u.multiply(projection, facingView);
 
 // let time = new Date().getTime();
 // let timeSec = time / 1000;
@@ -259,8 +260,21 @@ texgen.setup("tex");
 
 let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], function(images){
 
-    flag_render.setup(gl, images[0].width);
+    L.info("projection", projection);
     
+    let worldDim = { width: gl.canvas.clientWidth,  height: gl.canvas.clientHeight };
+    L.info("worldDim", worldDim);
+    projection = m4.project_mat(worldDim.width, worldDim.height, 400);
+    L.info("projection", projection);
+
+//  let world = m4.trans_mat(64, 128, 0);
+    let world = m4.trans_mat(0.5, -0.25, 0);
+
+    let worldToModelRatio = 4;
+    //let modelScale = worldDim.width / (worldToModelRatio * 2);
+    let modelScale = 0.25;
+    flag_render.setup(gl, images[0].width/16, modelScale);
+
     images.forEach( (image, i) => {
         //flag_render.setupTexture(gl, gl.TEXTURE0 + i, image);
         flag_render.setupTexture(gl, gl.TEXTURE0 + i, texgen.textureCanvas(), 8);
@@ -276,15 +290,16 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     var fps = 70
     var interval = 1000 / fps
 
-    var distance = 0
+    var waveSpeed = 0;
     var textureUnit = 0;
+    var background4f = [0.5, 1.0, 0.0, 1.0];
 
     // Set the color for the clear() operation to transparent.
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        flag_render.draw(gl, distance, textureUnit, [0.5, 1.0, 0.0, 1.0]);
+        flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world );
     }
 
     function tick() {
@@ -293,7 +308,7 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
         delta = timeNow - timeLast
         if (delta > interval) {
             timeLast = timeNow
-            distance += delta * 0.001 * speed
+            waveSpeed += delta * 0.001 * speed;
             draw()
             if (timeNow - startTime > 2000) {
                 startTime = timeNow;

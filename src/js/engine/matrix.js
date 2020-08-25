@@ -21,7 +21,8 @@ m4.rotatex      = (m, radian)   => m4u.multiply(m, m4.rot_x_mat(radian));
 m4.rotatey      = (m, radian)   => m4u.multiply(m, m4.rot_y_mat(radian));
 m4.rotatez      = (m, radian)   => m4u.multiply(m, m4.rot_z_mat(radian));
 
-// Create a 4x4 projection matrix, for projecting fully to the bounding cube (width, height, depth).
+// Create a 4x4 projection matrix.
+// This maps the world space (width, height, depth) to the clip space (2, 2, 2).
 // The returning matrix flips the y-axis; y's 0 is at the top.
 m4.project_mat  = (w, h, d)     =>  [ 2/w,      0,      0,      0,
                                         0,   -2/h,      0,      0,
