@@ -56,13 +56,14 @@ let flag_render = (function() {
         gl.uniform1f(flag_uniforms.u_item_count, itemCount);
     }
 
-    flag_render.draw = (gl, distance, textureUnit) => {
+    flag_render.draw = (gl, distance, textureUnit, background4fv) => {
         // assume gl.clear() has been called.
         // gl.clear(gl.COLOR_BUFFER_BIT)
         gl.useProgram(flagShader);
         gl.uniform1f(flag_uniforms.u_distance, distance);
         gl.uniform1f(flag_uniforms.u_item_index, textureUnit);
         gl.uniform1i(flag_uniforms.u_sampler, 0);
+        gl.uniform4fv(flag_uniforms.u_background, background4fv || [0, 0, 0, 0]);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
     }
 

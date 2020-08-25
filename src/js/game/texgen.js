@@ -26,6 +26,11 @@ let texgen = (function() {
         lineHeight = lineH || 256;
 
         ctx = canvas.getContext("2d");
+
+        // // Set background to the color.
+        // ctx.fillStyle = "blue";
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         ctx.fillStyle = "#333333"; 	// text colour
         ctx.textAlign = "center";	// center alignment of text
         ctx.textBaseline = "middle";	// text baseline at middle

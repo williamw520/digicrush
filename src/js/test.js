@@ -279,9 +279,12 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     var distance = 0
     var textureUnit = 0;
 
+    // Set the color for the clear() operation to transparent.
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        flag_render.draw(gl, distance, textureUnit);
+        flag_render.draw(gl, distance, textureUnit, [0.5, 1.0, 0.0, 1.0]);
     }
 
     function tick() {
