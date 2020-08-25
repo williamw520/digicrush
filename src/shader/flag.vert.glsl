@@ -11,8 +11,13 @@ uniform float u_wave_speed;
 varying vec2 v_texcoord;
 varying float v_slope;
 
-float PI_2 = 2.0 * 3.141592653589;  // 2PI 
-float scale = 0.90;                 // controls the wave intensity and speed. slowest = .99, fastest = 0.01
+float PI_2 = 2.0 * 3.141592653589;  // 2PI
+
+// scale controls the wave amplitude and intensity. calmest = .99, roughest = 0.01
+float fixed_portion = 0.85;
+float model_portion = 0.15;
+float scale = fixed_portion + (0.9 - u_model_scale) * model_portion;
+
 
 void main() {
 

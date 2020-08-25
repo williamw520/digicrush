@@ -299,7 +299,7 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world );
+        flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world);
     }
 
     function tick() {
