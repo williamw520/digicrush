@@ -158,41 +158,43 @@ gl.enable(gl.DEPTH_TEST);
 // wgl.assignBufferToAttr(gl, color3dBuffer, rcube_attrs.a_color,     3, gl.FLOAT, false, 0, 0);
 
 
-var cameraAngleRadians = v2.deg_to_rad(90);
-//var fieldOfViewRadians = v2.deg_to_rad(60);
-var fieldOfViewRadians = v2.deg_to_rad(60);
-let radius = 200;
+var fieldOfViewRadians = v2.deg_to_rad(90);    // how wide the cone of view is.
 
-// Compute the projection matrix
-var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-var zNear = 1;
-var zFar = 2000;
-var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
+var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;    // correct the apsect of the model by projecting with the aspect of the client view dimension
+var zNear = 1;                                                  // the near-side boundary of the z-axis
+var zFar = 2000;                                                // the far-size boundary of the z-axis
+var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);   // perspective projection to make far things appear far and near things appear near.
+
+let radius = 200;
 
 // Compute the position of the first F
 var fPosition = [0, 0, 0];
 
-// Use matrix math to compute a position on a circle where the camera is.
-var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadians);                 // turn the camera to the angle.
-cameraPosMatrix = m4.translate(cameraPosMatrix, 0, 200, radius * 2.);    // move the camera to the position (0, 0, radius * 1.5) of the circle at 1.5 radius.
 
-// Save the camera's position after the computation.
-var cameraPosition = [
-    cameraPosMatrix[12],       // the new positions are in the last 3 elements of the computated matrix.
-    cameraPosMatrix[13],
-    cameraPosMatrix[14],
-];
 
-// Compute the camera's matrix using look at.
-var up = [0, 1, 0];
-var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+// // Use matrix math to compute a position on a circle where the camera is.
+// var cameraAngleDegree = 0;                                         // angle to turn the camera along the y-axis
+// var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
+// var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
+// cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
 
-// Make a view matrix from the camera matrix
-var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+// var cameraPosition = [          // Save the camera's position after the computation.
+//     cameraPosMatrix[12],        // the new positions are in the last 3 elements of the computated matrix.
+//     cameraPosMatrix[13],
+//     cameraPosMatrix[14],
+// ];
+
+// // Compute the camera's matrix using look at.
+// var up = [0, 1, 0];             // constant vector designates "up" so the camera can orient.
+// var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+
+// // Make a view matrix from the camera matrix
+// var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+
+
 
 // // Compute a view projection matrix
-
-var viewProjectionMatrix = m4u.multiply(projection, facingView);
+// var viewProjectionMatrix = m4u.multiply(projection, facingView);
 
 // let time = new Date().getTime();
 // let timeSec = time / 1000;
@@ -264,8 +266,6 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     
     let worldDim = { width: gl.canvas.clientWidth,  height: gl.canvas.clientHeight };
     L.info("worldDim", worldDim);
-    projection = m4.project_mat(worldDim.width, worldDim.height, 400);
-    L.info("projection", projection);
 
 //  let world = m4.trans_mat(64, 128, 0);
     let world = m4.trans_mat(0.0, -0., 0);
@@ -275,10 +275,11 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     let modelScale = 1
     flag_render.setup(gl, images[0].width/16, modelScale);
 
-    images.forEach( (image, i) => {
-        //flag_render.setupTexture(gl, gl.TEXTURE0 + i, image);
-        flag_render.setupTexture(gl, gl.TEXTURE0 + i, texgen.textureCanvas(), 8);
-    });
+    flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), 8);
+
+    // images.forEach( (image, i) => {
+    //     flag_render.setupTexture(gl, gl.TEXTURE0 + i, image);
+    // });
 
     var speed = 1
 
@@ -293,6 +294,27 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     var waveSpeed = 0;
     var textureUnit = 0;
     var background4f = [0.5, 1.0, 0.0, 1.0];
+
+
+// Use matrix math to compute a position on a circle where the camera is.
+var cameraAngleDegree = 0;                                         // angle to turn the camera along the y-axis
+var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
+var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
+cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
+
+var cameraPosition = [          // Save the camera's position after the computation.
+    cameraPosMatrix[12],        // the new positions are in the last 3 elements of the computated matrix.
+    cameraPosMatrix[13],
+    cameraPosMatrix[14],
+];
+
+// Compute the camera's matrix using look at.
+var up = [0, 1, 0];             // constant vector designates "up" so the camera can orient.
+var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+
+// Make a view matrix from the camera matrix
+var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+    
 
     // Set the color for the clear() operation to transparent.
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -314,6 +336,24 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
                 startTime = timeNow;
                 textureUnit = (textureUnit + 1) % 8;
             }
+
+            //world = m4.translate(world, 0.01, 0, 0);
+            //world = m4.translate(world, 0, 0.01, 0);
+            //world = m4.translate(world, 0, 0, 0.01);
+            //world = m4.scale(world, 0.95, 0.95, 1);
+            
+            //cameraAngleDegree += 6;
+            cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
+            cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);
+            cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);
+            cameraPosition = [
+                cameraPosMatrix[12],
+                cameraPosMatrix[13],
+                cameraPosMatrix[14],
+            ];
+            cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+            facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+
         }
         requestAnimationFrame(tick)
     }
