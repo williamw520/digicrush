@@ -268,11 +268,11 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
     L.info("projection", projection);
 
 //  let world = m4.trans_mat(64, 128, 0);
-    let world = m4.trans_mat(0.5, -0.25, 0);
+    let world = m4.trans_mat(0.0, -0., 0);
 
     let worldToModelRatio = 4;
     //let modelScale = worldDim.width / (worldToModelRatio * 2);
-    let modelScale = 0.25;
+    let modelScale = 1
     flag_render.setup(gl, images[0].width/16, modelScale);
 
     images.forEach( (image, i) => {

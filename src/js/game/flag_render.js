@@ -20,7 +20,8 @@ let flag_render = (function() {
     let vertexCount = 0;
     let flag_attrs = {};
     let flag_uniforms = {};
-    let componentsPerVertexAttr = 2;                    // the attribute vector dimension.
+    let componentsPerVertexAttr = 3;                    // the attribute vector dimension, with (x, y, z).
+    let componentsPerTexcoordAttr = 2;                  // the attribute vector dimension, with (u, v).
     let elementSize = Float32Array.BYTES_PER_ELEMENT;
 
     // stripeCount - number of vertical stripes for the flag.
@@ -40,9 +41,9 @@ let flag_render = (function() {
         flag_uniforms   = wgl.getUniformMap(gl, flagShader);
 
         gl.useProgram(flagShader);
-        wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr, gl.FLOAT, false, elementSize * 2, 0);
-        wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerVertexAttr, gl.FLOAT, false, elementSize * 2, 0);
-        
+        wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr,     gl.FLOAT, false, elementSize * 3, 0);
+        wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerTexcoordAttr,   gl.FLOAT, false, elementSize * 2, 0);
+
         // L.info("flag_attrs", flag_attrs);
         // L.info("flag_uniforms", flag_uniforms);
 
@@ -100,16 +101,17 @@ let flag_render = (function() {
     function generateVertices(stripeCount, modelScale) {
         let vertices    = [];
         let texcoord    = [];
-        let modelWidth  = modelScale + modelScale;          // the width of [-modelScale, +modelScale].
+        let modelWidth  = modelScale + modelScale;      // the width of [-modelScale, +modelScale].
         L.info("modelWidth", modelWidth);
-        let vstep       = modelWidth / stripeCount;         // one fraction step of N-stripes over the model width.
-        let tstep       = 1.0 / stripeCount;                // one fraction step of N-stripes over the texture width of 1.
+        let vstep       = modelWidth / stripeCount;     // one fraction step of N-stripes over the model width.
+        let tstep       = 1.0 / stripeCount;            // one fraction step of N-stripes over the texture width of 1.
         for (let i = 0; i <= stripeCount; i++) {
-            let vx  = -modelScale + vstep * i;              // vx stepping from -modelScale to +modelScale on x-axis.
-            let vy  = -modelScale;
-            let tx  = 0 + tstep * i;                        // tx stepping from 0 to 1 on x-axis
-            vertices.push(vx, vy,  vx, vy + modelWidth);    // vy has a fixed height of (-modelScale, +modelScale) on y-axis
-            texcoord.push(tx, 0,   tx, 1);                  // ty has fixed height of (0, 1) on y-axis.
+            let vx  = -modelScale + vstep * i;          // vx stepping from -modelScale to +modelScale on x-axis.
+            let vy1 = -modelScale;
+            let vy2 =  modelScale;
+            let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
+            vertices.push(vx, vy1, 0,  vx, vy2, 0);     // vy has a fixed height of (-modelScale, +modelScale) on y-axis
+            texcoord.push(tx, 0,       tx, 1);          // ty has fixed height of (0, 1) on y-axis.
         }
         return [ new Float32Array(vertices), new Float32Array(texcoord) ];
     }

@@ -1,5 +1,5 @@
 
-attribute vec2 a_position;
+attribute vec3 a_position;
 attribute vec2 a_texcoord;
 
 uniform mat4 u_projection;
@@ -23,8 +23,8 @@ void main() {
 
     // gl_Position = u_projection * u_facingView * u_world * position;
     // vec4 position = u_projection * u_world * vec4(a_position, 0, 1);
-    vec4 position = u_world * vec4(a_position, 0, 1);
-//   vec4 position = vec4(a_position, 0, 1);
+    vec4 position = u_world * vec4(a_position, 1);
+//   vec4 position = vec4(a_position, 1);
 
     float amplitude     = 1.0 - scale; 
     float waveLength    = 2.0 * scale;
