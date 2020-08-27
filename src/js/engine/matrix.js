@@ -60,17 +60,24 @@ m4.lookat_mat = (cameraPosition, target, up) => {
                 cameraPosition[0],  cameraPosition[1],  cameraPosition[2],  1, ];
 }
 
+m4.identity_mat = ()            => [    1,  0,  0,  0,
+                                        0,  1,  0,  0,
+                                        0,  0,  1,  0,
+                                        0,  0,  0,  1,  ];
+
 // Create a 4x4 scaling matrix, for scaling to the size (x,y,z)
-m4.scale_mat   = (x, y, z)     => [     x,  0,  0,  0,
+m4.scale_mat    = (x, y, z)     => [    x,  0,  0,  0,
                                         0,  y,  0,  0,
                                         0,  0,  z,  0,
                                         0,  0,  0,  1,  ];
 
 // Create a 4x4 translation matrix, for moving to the point (x,y,z)
-m4.trans_mat   = (x, y, z)     => [     1,  0,  0,  0,
+m4.trans_mat    = (x, y, z)     => [    1,  0,  0,  0,
                                         0,  1,  0,  0,
                                         0,  0,  1,  0,
                                         x,  y,  z,  1,  ];
+
+m4.trans_set    = (m, xyz)      => (m[12] = xyz[0], m[13] = xyz[1], m[14] = xyz[2], m);
 
 // Rotate along the x-axis by the radian angle.
 m4.rot_x_mat    = (r)           => [        1,          0,          0,          0,
@@ -78,17 +85,23 @@ m4.rot_x_mat    = (r)           => [        1,          0,          0,          
                                             0,    -sin(r),     cos(r),          0,
                                             0,          0,          0,          1,  ];
 
+m4.rot_x_set    = (m, r)        => (m[5] = cos(r), m[6] = sin(r), m[9] = -sin(r), m[10] = cos(r), m);
+
 // Rotate along the y-axis by the radian angle.
 m4.rot_y_mat    = (r)           => [   cos(r),          0,    -sin(r),          0,
                                             0,          1,          0,          0,
                                        sin(r),          0,     cos(r),          0,
                                             0,          0,          0,          1,  ];
 
+m4.rot_y_set    = (m, r)        => (m[0] = cos(r), m[2] = -sin(r), m[8] = sin(r), m[10] = cos(r), m);
+
 // Rotate along the z-axis by the radian angle.
 m4.rot_z_mat    = (r)           =>  [  cos(r),     sin(r),          0,          0,
                                       -sin(r),     cos(r),          0,          0,
                                             0,          0,          1,          0,
                                             0,          0,          0,          1,  ];
+
+m4.rot_z_set    = (m, r)        => (m[0] = cos(r), m[1] = sin(r), m[4] = -sin(r), m[5] = cos(r), m);
 
 m4.v4_multiply_m4 = (v, m) => {
     let b = [0.0, 0.0, 0.0, 0.0];

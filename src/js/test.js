@@ -274,6 +274,12 @@ let images = U.loadImages(["/img/d1.png"], function(images){
 //  let world = m4.trans_mat(64, 128, 0);
     let world = m4.trans_mat(0.0, 0.0, 0);
 
+    let worldMat = m4.identity_mat();
+    let flagPos     = [ [-0.9, -0.9, 0], [0.9, 0.9, 0] ];
+    let flagXRot    = [ 0, 0 ];
+    let flagYRot    = [ 0, 0 ];
+    let flagZRot    = [ 0, 0 ];
+
     let worldToModelRatio = 4;
     //let modelScale = worldDim.width / (worldToModelRatio * 2);
     let modelScale = 1
@@ -304,6 +310,7 @@ let images = U.loadImages(["/img/d1.png"], function(images){
 var cameraAngleDegree = 0;                                          // angle to turn the camera along the y-axis
 var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
 var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
+// camera position, x moves to -200, y moves to 200, z moves to 200.
 cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
 
 var cameraPosition = [          // Save the camera's position after the computation.
@@ -330,6 +337,16 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world);
+
+        flagPos.forEach( (pos, i) => {
+            let w = m4.trans_set(worldMat, pos);
+            w = m4.rot_x_set(w, flagXRot[i]);
+            w = m4.rot_y_set(w, flagYRot[i]);
+            //w = m4.rot_z_set(w, flagZRot[i]);
+            //L.info(w);
+            flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, w);
+        });
+        
     }
 
     function tick() {
@@ -349,11 +366,19 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
             //world = m4.translate(world, 0, 0.01, 0);
             //world = m4.translate(world, 0, 0, 0.01);
             //world = m4.scale(world, 0.95, 0.95, 1);
+
+            flagXRot[0] += 0.05;
+            flagXRot[1] -= 0.05;
+            flagYRot[0] += 0.02;
+            flagYRot[1] -= 0.02;
+            flagZRot[0] += 0.05;
+            flagZRot[1] -= 0.05;
             
-            //cameraAngleDegree += 6;
+            //cameraAngleDegree += 1;
             cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
             cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);
-            cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);
+            cameraPosMatrix = m4.translate(cameraPosMatrix, 0, 0, 200);
+            //cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);
             cameraPosition = [
                 cameraPosMatrix[12],
                 cameraPosMatrix[13],

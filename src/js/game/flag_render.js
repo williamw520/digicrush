@@ -117,7 +117,7 @@ let flag_render = (function() {
             let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
             vertices.push(vx, vy1, 0,   vx, vy2, 0);    // vy has a fixed height of (-modelScale, +modelScale) on y-axis
             texcoord.push(tx, 0,        tx, 1);         // ty has fixed height of (0, 1) on y-axis.
-//            normals.push( 1, 1, 1,      1, 1, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
+//          normals.push( 1, 1, 1,      1, 1, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
             normals.push( 0, 0, 1,      0, 0, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
         }
         return [ new Float32Array(vertices), new Float32Array(texcoord), new Float32Array(normals) ];
