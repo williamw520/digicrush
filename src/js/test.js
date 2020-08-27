@@ -260,21 +260,25 @@ texgen.setup("tex");
 ["1", "2", "3", "4", "5", "6", "@", "$"].forEach((tx, i) => texgen.drawAt(tx, (i+1)));
 
 
-let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], function(images){
+//let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], function(images){
+let images = U.loadImages(["/img/d1.png"], function(images){
 
     L.info("projection", projection);
     
+    let lightDirection = v3.unit([3, 3.0, -3.0]);
+    L.info("lightDirection", lightDirection);
+        
     let worldDim = { width: gl.canvas.clientWidth,  height: gl.canvas.clientHeight };
     L.info("worldDim", worldDim);
 
 //  let world = m4.trans_mat(64, 128, 0);
-    let world = m4.trans_mat(0.0, -0., 0);
+    let world = m4.trans_mat(0.0, 0.0, 0);
 
     let worldToModelRatio = 4;
     //let modelScale = worldDim.width / (worldToModelRatio * 2);
     let modelScale = 1
     flag_render.setup(gl, images[0].width/16, modelScale);
-
+    flag_render.setupUniforms(gl, modelScale, lightDirection);
     flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), 8);
 
     // images.forEach( (image, i) => {
@@ -297,7 +301,7 @@ let images = U.loadImages(["/img/d1.png", "/img/d2.png", "/img/d3.png"], functio
 
 
 // Use matrix math to compute a position on a circle where the camera is.
-var cameraAngleDegree = 0;                                         // angle to turn the camera along the y-axis
+var cameraAngleDegree = 0;                                          // angle to turn the camera along the y-axis
 var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
 var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
 cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
@@ -318,7 +322,11 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
 
     // Set the color for the clear() operation to transparent.
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
-    
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world);

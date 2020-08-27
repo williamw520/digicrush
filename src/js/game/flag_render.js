@@ -17,38 +17,42 @@ let flag_render = (function() {
     let flagShader;
     let vertexBuffer;
     let texcoordBuffer;
+    let normalBuffer;
     let vertexCount = 0;
     let flag_attrs = {};
     let flag_uniforms = {};
     let componentsPerVertexAttr = 3;                    // the attribute vector dimension, with (x, y, z).
     let componentsPerTexcoordAttr = 2;                  // the attribute vector dimension, with (u, v).
-    let elementSize = Float32Array.BYTES_PER_ELEMENT;
+    let componentsPerNormalAttr = 3;                    // the attribute vector dimension, with (x, y, z).
 
     // stripeCount - number of vertical stripes for the flag.
     // modelScale  - scale the flag mesh (1 - full, 0.01 - really small, >1 - bigger than full size)
     flag_render.setup = (gl, stripeCount, modelScale) => {
-        // L.info("stripeCount", stripeCount);
-        // L.info("modelScale", modelScale);
-        let [vertices, texcoord]  = generateVertices(stripeCount, modelScale);
-        // L.info("vertices", vertices);
-        // L.info("texcoord", texcoord);
-
+        let [vertices,
+             texcoord,
+             normals]   = generateModel(stripeCount, modelScale);
+        L.info("vertices", vertices);
+        L.info("texcoord", texcoord);
+        L.info("normals", normals);
         vertexBuffer    = wgl.uploadToBuffer(gl, vertices);
         texcoordBuffer  = wgl.uploadToBuffer(gl, texcoord);
-        vertexCount     = (stripeCount + 1) * 2;
+        normalBuffer    = wgl.uploadToBuffer(gl, normals);
         flagShader      = wgl.createProgram(gl, flag_vert_src, flag_frag_src);
         flag_attrs      = wgl.getAttrMap(gl, flagShader);
         flag_uniforms   = wgl.getUniformMap(gl, flagShader);
-
+        vertexCount     = (stripeCount + 1) * 2;
         gl.useProgram(flagShader);
-        wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr,     gl.FLOAT, false, elementSize * 3, 0);
-        wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerTexcoordAttr,   gl.FLOAT, false, elementSize * 2, 0);
+        wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr,     gl.FLOAT, false, 0, 0);
+        wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerTexcoordAttr,   gl.FLOAT, false, 0, 0);
+        wgl.assignBufferToAttr(gl, normalBuffer,    flag_attrs.a_normal,   componentsPerNormalAttr,     gl.FLOAT, false, 0, 0);
+    }
 
-        // L.info("flag_attrs", flag_attrs);
-        // L.info("flag_uniforms", flag_uniforms);
-
+    flag_render.setupUniforms = (gl, modelScale, lightDirection) => {
         // Set global uniforms during the setup step.
+        //L.info("flag_uniforms", flag_uniforms);
+        L.info("lightDirection", lightDirection);
         gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
+        gl.uniform3fv(flag_uniforms.u_light_direction, lightDirection);
     }
 
     // E.g. for textureUnitId = gl.TEXTURE0, Call gl.uniform1i(u_sampler, 0) before drawing.
@@ -98,9 +102,10 @@ let flag_render = (function() {
     // Create vertical stripes going from left to right.
     // The modelScale determines the dimension of the model space coordinates, [-modelScale, +modelScale].
     // A modelScale of 1 sets the model space coordinates to be the same as the shader clip space [-1 to 1].
-    function generateVertices(stripeCount, modelScale) {
+    function generateModel(stripeCount, modelScale) {
         let vertices    = [];
         let texcoord    = [];
+        let normals     = [];
         let modelWidth  = modelScale + modelScale;      // the width of [-modelScale, +modelScale].
         L.info("modelWidth", modelWidth);
         let vstep       = modelWidth / stripeCount;     // one fraction step of N-stripes over the model width.
@@ -110,10 +115,12 @@ let flag_render = (function() {
             let vy1 = -modelScale;
             let vy2 =  modelScale;
             let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
-            vertices.push(vx, vy1, 0,  vx, vy2, 0);     // vy has a fixed height of (-modelScale, +modelScale) on y-axis
-            texcoord.push(tx, 0,       tx, 1);          // ty has fixed height of (0, 1) on y-axis.
+            vertices.push(vx, vy1, 0,   vx, vy2, 0);    // vy has a fixed height of (-modelScale, +modelScale) on y-axis
+            texcoord.push(tx, 0,        tx, 1);         // ty has fixed height of (0, 1) on y-axis.
+//            normals.push( 1, 1, 1,      1, 1, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
+            normals.push( 0, 0, 1,      0, 0, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
         }
-        return [ new Float32Array(vertices), new Float32Array(texcoord) ];
+        return [ new Float32Array(vertices), new Float32Array(texcoord), new Float32Array(normals) ];
     }
 
     return flag_render;
