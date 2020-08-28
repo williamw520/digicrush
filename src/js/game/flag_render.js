@@ -34,13 +34,13 @@ let flag_render = (function() {
         L.info("vertices", vertices);
         L.info("texcoord", texcoord);
         L.info("normals", normals);
+        vertexCount     = vertices.length / 3;          // number of vertices is number of vec3 position / 3.
         vertexBuffer    = wgl.uploadToBuffer(gl, vertices);
         texcoordBuffer  = wgl.uploadToBuffer(gl, texcoord);
         normalBuffer    = wgl.uploadToBuffer(gl, normals);
         flagShader      = wgl.createProgram(gl, flag_vert_src, flag_frag_src);
         flag_attrs      = wgl.getAttrMap(gl, flagShader);
         flag_uniforms   = wgl.getUniformMap(gl, flagShader);
-        vertexCount     = (stripeCount + 1) * 2;
         gl.useProgram(flagShader);
         wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr,     gl.FLOAT, false, 0, 0);
         wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerTexcoordAttr,   gl.FLOAT, false, 0, 0);
@@ -100,26 +100,33 @@ let flag_render = (function() {
     }
 
     // Create vertical stripes going from left to right.
-    // The modelScale determines the dimension of the model space coordinates, [-modelScale, +modelScale].
-    // A modelScale of 1 sets the model space coordinates to be the same as the shader clip space [-1 to 1].
-    function generateModel(stripeCount, modelScale) {
+    // The range determines the dimension of the model space coordinates, [-range, +range].
+    // A range of 1 sets the model space coordinates to be the same as the shader clip space [-1 to 1].
+    function generateModel(stripeCount, range) {
         let vertices    = [];
         let texcoord    = [];
         let normals     = [];
-        let modelWidth  = modelScale + modelScale;      // the width of [-modelScale, +modelScale].
-        L.info("modelWidth", modelWidth);
+        let modelWidth  = range + range;                // the width of [-range, +range].
         let vstep       = modelWidth / stripeCount;     // one fraction step of N-stripes over the model width.
         let tstep       = 1.0 / stripeCount;            // one fraction step of N-stripes over the texture width of 1.
+        let vy          = range;                        // vy has a fixed height of (-range, +range) on y-axis
+        // Counter-clockwise vertices for front face.
         for (let i = 0; i <= stripeCount; i++) {
-            let vx  = -modelScale + vstep * i;          // vx stepping from -modelScale to +modelScale on x-axis.
-            let vy1 = -modelScale;
-            let vy2 =  modelScale;
+            let vx  = -range + vstep * i;               // vx stepping from -range to +range on x-axis.
             let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
-            vertices.push(vx, vy1, 0,   vx, vy2, 0);    // vy has a fixed height of (-modelScale, +modelScale) on y-axis
-            texcoord.push(tx, 0,        tx, 1);         // ty has fixed height of (0, 1) on y-axis.
-//          normals.push( 1, 1, 1,      1, 1, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
-            normals.push( 0, 0, 1,      0, 0, 1);       // flag is just a flat surface; its normals are a simple 1 on z-axis.
+            vertices.push(vx, vy, 0,  vx, -vy, 0);      // vertices go counter-clockwise for front face.
+            texcoord.push(tx, 1,      tx, 0);           // ty has fixed height of (0, 1) on y-axis.
+            normals.push( 0,  0, -1,  0,  0,  -1);      // normals are a simple 1 on z-axis on flat surface.
         }
+        // Clockwise vertices for back face.
+        for (let i = stripeCount; i >= 0; i--) {
+            let vx  = -range + vstep * i;               // vx stepping from -range to +range on x-axis.
+            let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
+            vertices.push(vx, vy, 0,  vx, -vy, 0);      // vertices go clockwise for back face
+            texcoord.push(tx, 1,      tx, 0);           // ty has fixed height of (0, 1) on y-axis.
+            normals.push( 0,  0,  1,  0,  0,   1);      // normals are a simple 1 on z-axis on flat surface.
+        }
+
         return [ new Float32Array(vertices), new Float32Array(texcoord), new Float32Array(normals) ];
     }
 

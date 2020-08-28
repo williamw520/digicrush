@@ -303,7 +303,7 @@ let images = U.loadImages(["/img/d1.png"], function(images){
     var interval = 1000 / fps
 
     var waveSpeed = 0;
-    var textureUnit = 0;
+    var textureUnit = 4;
     var background4f = [0.5, 1.0, 0.0, 1.0];
 
 
@@ -332,7 +332,7 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //gl.enable(gl.CULL_FACE);
+    gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
 
     function draw() {
@@ -342,8 +342,8 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
         flagPos.forEach( (pos, i) => {
             let w = m4.trans_set(worldMat, pos);
             w = m4.scale_set1(w, flagScale[i]);
-            w = m4.rot_x_set(w, flagXRot[i]);
-            // w = m4.rot_y_set(w, flagYRot[i]);
+            //w = m4.rot_x_set(w, flagXRot[i]);
+            w = m4.rot_y_set(w, flagYRot[i]);
             //w = m4.rot_z_set(w, flagZRot[i]);
             //L.info(w);
             flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, w);
@@ -361,7 +361,7 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
             draw()
             if (timeNow - startTime > 2000) {
                 startTime = timeNow;
-                textureUnit = (textureUnit + 1) % 8;
+                //textureUnit = (textureUnit + 1) % 8;
             }
 
             //world = m4.translate(world, 0.01, 0, 0);
@@ -369,10 +369,10 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
             //world = m4.translate(world, 0, 0, 0.01);
             //world = m4.scale(world, 0.95, 0.95, 1);
 
-            flagXRot[0] += 0.05;
-            flagXRot[1] -= 0.05;
-            flagYRot[0] += 0.02;
-            flagYRot[1] -= 0.02;
+            flagXRot[0] += 0.01;
+            flagXRot[1] -= 0.01;
+            flagYRot[0] += 0.01;
+            flagYRot[1] -= 0.01;
             flagZRot[0] += 0.05;
             flagZRot[1] -= 0.05;
             
