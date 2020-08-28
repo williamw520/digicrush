@@ -71,6 +71,9 @@ m4.scale_mat    = (x, y, z)     => [    x,  0,  0,  0,
                                         0,  0,  z,  0,
                                         0,  0,  0,  1,  ];
 
+m4.scale_set    = (m, xyz)      => (m[0] = xyz[0],  m[5] = xyz[1],  m[10] = xyz[2], m);
+m4.scale_set1   = (m, s)        => (m[0] = s,       m[5] = s,       m[10] = s,      m);
+
 // Create a 4x4 translation matrix, for moving to the point (x,y,z)
 m4.trans_mat    = (x, y, z)     => [    1,  0,  0,  0,
                                         0,  1,  0,  0,

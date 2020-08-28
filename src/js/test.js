@@ -275,10 +275,11 @@ let images = U.loadImages(["/img/d1.png"], function(images){
     let world = m4.trans_mat(0.0, 0.0, 0);
 
     let worldMat = m4.identity_mat();
-    let flagPos     = [ [-0.9, -0.9, 0], [0.9, 0.9, 0] ];
+    let flagPos     = [ [-1.5, -0.2, 0], [1.5, 0.5, 0] ];
     let flagXRot    = [ 0, 0 ];
     let flagYRot    = [ 0, 0 ];
     let flagZRot    = [ 0, 0 ];
+    let flagScale   = [ 0.5, 0.5 ];
 
     let worldToModelRatio = 4;
     //let modelScale = worldDim.width / (worldToModelRatio * 2);
@@ -340,8 +341,9 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
 
         flagPos.forEach( (pos, i) => {
             let w = m4.trans_set(worldMat, pos);
+            w = m4.scale_set1(w, flagScale[i]);
             w = m4.rot_x_set(w, flagXRot[i]);
-            w = m4.rot_y_set(w, flagYRot[i]);
+            // w = m4.rot_y_set(w, flagYRot[i]);
             //w = m4.rot_z_set(w, flagZRot[i]);
             //L.info(w);
             flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, w);
