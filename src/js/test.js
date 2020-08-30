@@ -15,6 +15,7 @@ import {World} from "/js/game/world.js";
 import {UI} from "/js/game/ui.js";
 import {m4} from "/js/engine/matrix.js";
 import {m4u} from "/js/engine/matrix-util.js";
+import {pg} from "/js/engine/pregen.js";
 
 import test2d_vert from "/js/gen/glsl/test2d.vert.js";
 import test2d_frag from "/js/gen/glsl/test2d.frag.js";
@@ -157,6 +158,8 @@ gl.enable(gl.DEPTH_TEST);
 // wgl.assignBufferToAttr(gl, mesh3dBuffer,  rcube_attrs.a_position,  3, gl.FLOAT, false, 0, 0);
 // wgl.assignBufferToAttr(gl, color3dBuffer, rcube_attrs.a_color,     3, gl.FLOAT, false, 0, 0);
 
+pg.gen_rot_mats();
+pg.gen_facing_view_mats(0, 0, 200);
 
 var fieldOfViewRadians = v2.deg_to_rad(90);    // how wide the cone of view is.
 
@@ -274,18 +277,15 @@ let images = U.loadImages(["/img/d1.png"], function(images){
 //  let world = m4.trans_mat(64, 128, 0);
     let world = m4.trans_mat(0.0, 0.0, 0);
 
-    let worldMat = m4.identity_mat();
-    let flagPos     = [ [-1.5, -0.2, 0], [1.5, 0.5, 0] ];
-    let flagXRot    = [ 0, 0 ];
-    let flagYRot    = [ 0, 0 ];
-    let flagZRot    = [ 0, 0 ];
-    let flagScale   = [ 0.5, 0.5 ];
+    let flagPos     = [ [-1.50, -0.75, 0], [-1.5, -0.25, 0], [-1.5, 0.25, 0], [-1.5, 0.75, 0], [1.5, -0.75, 0], [1.5, -0.25, 0], [1.5, 0.25, 0], [1.5, 0.75, 0] ];
+    let flagYRot    = [ 0, 10, 20, 30,  0, 60, 120, 180 ];
+    let flagScale   = [ 0.20, 0.20, 0.20, 0.20,  0.20, 0.20, 0.20, 0.20 ];
 
     let worldToModelRatio = 4;
-    //let modelScale = worldDim.width / (worldToModelRatio * 2);
-    let modelScale = 1
-    flag_render.setup(gl, images[0].width/16, modelScale);
-    flag_render.setupUniforms(gl, modelScale, lightDirection);
+    let unitWidth = 1
+    let waveStrength = 1;
+    flag_render.setup(gl, images[0].width/16, unitWidth);
+    flag_render.setupUniforms(gl, waveStrength, lightDirection, projection);
     flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), 8);
 
     // images.forEach( (image, i) => {
@@ -337,16 +337,17 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
 
     function draw() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, world);
+
+        flag_render.useProgram(gl);
+
+        facingView = pg.facing_view(cameraAngleDegree);
+
+        let modelRotation = pg.yrot(0);
+        flag_render.draw(gl, textureUnit, [0, 0, 0], 1, modelRotation, background4f, facingView, waveSpeed);
 
         flagPos.forEach( (pos, i) => {
-            let w = m4.trans_set(worldMat, pos);
-            w = m4.scale_set1(w, flagScale[i]);
-            //w = m4.rot_x_set(w, flagXRot[i]);
-            w = m4.rot_y_set(w, flagYRot[i]);
-            //w = m4.rot_z_set(w, flagZRot[i]);
-            //L.info(w);
-            flag_render.draw(gl, waveSpeed, textureUnit, background4f, projection, facingView, w);
+            let modelRotation = pg.yrot(flagYRot[i]);
+            flag_render.draw(gl, textureUnit, pos, flagScale[i], modelRotation, background4f, facingView, waveSpeed);
         });
         
     }
@@ -361,34 +362,12 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
             draw()
             if (timeNow - startTime > 2000) {
                 startTime = timeNow;
-                //textureUnit = (textureUnit + 1) % 8;
+                textureUnit = (textureUnit + 1) % 8;
             }
 
-            //world = m4.translate(world, 0.01, 0, 0);
-            //world = m4.translate(world, 0, 0.01, 0);
-            //world = m4.translate(world, 0, 0, 0.01);
-            //world = m4.scale(world, 0.95, 0.95, 1);
-
-            flagXRot[0] += 0.01;
-            flagXRot[1] -= 0.01;
-            flagYRot[0] += 0.01;
-            flagYRot[1] -= 0.01;
-            flagZRot[0] += 0.05;
-            flagZRot[1] -= 0.05;
+            flagYRot.forEach( (_, i) => flagYRot[i] += 12);
             
-            //cameraAngleDegree += 1;
-            cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
-            cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);
-            cameraPosMatrix = m4.translate(cameraPosMatrix, 0, 0, 200);
-            //cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);
-            cameraPosition = [
-                cameraPosMatrix[12],
-                cameraPosMatrix[13],
-                cameraPosMatrix[14],
-            ];
-            cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
-            facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
-
+            cameraAngleDegree += 1;
         }
         requestAnimationFrame(tick)
     }

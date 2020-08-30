@@ -26,11 +26,11 @@ let flag_render = (function() {
     let componentsPerNormalAttr = 3;                    // the attribute vector dimension, with (x, y, z).
 
     // stripeCount - number of vertical stripes for the flag.
-    // modelScale  - scale the flag mesh (1 - full, 0.01 - really small, >1 - bigger than full size)
-    flag_render.setup = (gl, stripeCount, modelScale) => {
+    // unitWidth   - scale the model mesh (1 - full, 0.01 - really small, >1 - bigger than full size)
+    flag_render.setup = (gl, stripeCount, unitWidth) => {
         let [vertices,
              texcoord,
-             normals]   = generateModel(stripeCount, modelScale);
+             normals]   = generateModel(stripeCount, unitWidth);
         L.info("vertices", vertices);
         L.info("texcoord", texcoord);
         L.info("normals", normals);
@@ -47,12 +47,14 @@ let flag_render = (function() {
         wgl.assignBufferToAttr(gl, normalBuffer,    flag_attrs.a_normal,   componentsPerNormalAttr,     gl.FLOAT, false, 0, 0);
     }
 
-    flag_render.setupUniforms = (gl, modelScale, lightDirection) => {
+    // Set up global uniforms.
+    flag_render.setupUniforms = (gl, waveStrength, lightDirection, projectionMatrix) => {
         // Set global uniforms during the setup step.
         //L.info("flag_uniforms", flag_uniforms);
         L.info("lightDirection", lightDirection);
-        gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
+        gl.uniform1f(flag_uniforms.u_wave_strength, waveStrength);
         gl.uniform3fv(flag_uniforms.u_light_direction, lightDirection);
+        gl.uniformMatrix4fv(flag_uniforms.u_projection, false, projectionMatrix);
     }
 
     // E.g. for textureUnitId = gl.TEXTURE0, Call gl.uniform1i(u_sampler, 0) before drawing.
@@ -78,21 +80,25 @@ let flag_render = (function() {
         gl.uniform1f(flag_uniforms.u_item_count, textureItemsCount);
     }
 
-    flag_render.draw = (gl, waveSpeed, textureUnit, background4f, projectionMatrix, facingViewMatrix, worldMatrix) => {
-        // assume gl.clear() has been called.
-        // gl.clear(gl.COLOR_BUFFER_BIT)
+    flag_render.useProgram = (gl) => {
         gl.useProgram(flagShader);
-        gl.uniform1f(flag_uniforms.u_wave_speed, waveSpeed);
-        gl.uniform1f(flag_uniforms.u_item_index, textureUnit);
+    }
+
+    flag_render.draw = (gl, textureUnit, modelPos, modelScale, modelRotation, background4f, facingViewMatrix, waveSpeed) => {
         gl.uniform1i(flag_uniforms.u_sampler, 0);
+        gl.uniform1f(flag_uniforms.u_item_index, textureUnit);
+
+        gl.uniform3fv(flag_uniforms.u_model_pos, modelPos);
+        gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
+        gl.uniformMatrix4fv(flag_uniforms.u_model_rot, false, modelRotation);
+
         gl.uniform4fv(flag_uniforms.u_background, background4f || [0, 0, 0, 0]);
+        gl.uniform1f(flag_uniforms.u_wave_speed, waveSpeed);
 
         // L.info("projectionMatrix", projectionMatrix);
         // L.info("facingViewMatrix", facingViewMatrix);
         // L.info("worldMatrix", worldMatrix);
-        gl.uniformMatrix4fv(flag_uniforms.u_projection, false, projectionMatrix);
         gl.uniformMatrix4fv(flag_uniforms.u_facingView, false, facingViewMatrix);
-        gl.uniformMatrix4fv(flag_uniforms.u_world,      false, worldMatrix);
         // gl.uniform4fv(rcube_uniforms.u_diffuse, diffuse);
         // gl.uniform3fv(rcube_uniforms.u_lightDirection, lightDirection);
         
@@ -100,19 +106,19 @@ let flag_render = (function() {
     }
 
     // Create vertical stripes going from left to right.
-    // The range determines the dimension of the model space coordinates, [-range, +range].
-    // A range of 1 sets the model space coordinates to be the same as the shader clip space [-1 to 1].
-    function generateModel(stripeCount, range) {
+    // The unitWidth determines the dimension of the model space coordinates, [-unitWidth, +unitWidth].
+    // A unitWidth of 1 sets the model space coordinates to be the same as the shader clip space [-1 to 1].
+    function generateModel(stripeCount, unitWidth) {
         let vertices    = [];
         let texcoord    = [];
         let normals     = [];
-        let modelWidth  = range + range;                // the width of [-range, +range].
+        let modelWidth  = unitWidth + unitWidth;        // the width of [-unitWidth, +unitWidth].
         let vstep       = modelWidth / stripeCount;     // one fraction step of N-stripes over the model width.
         let tstep       = 1.0 / stripeCount;            // one fraction step of N-stripes over the texture width of 1.
-        let vy          = range;                        // vy has a fixed height of (-range, +range) on y-axis
+        let vy          = unitWidth;                    // vy has a fixed height of (-unitWidth, +unitWidth) on y-axis
         // Counter-clockwise vertices for front face.
         for (let i = 0; i <= stripeCount; i++) {
-            let vx  = -range + vstep * i;               // vx stepping from -range to +range on x-axis.
+            let vx  = -unitWidth + vstep * i;           // vx stepping from -unitWidth to +unitWidth on x-axis.
             let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
             vertices.push(vx, vy, 0,  vx, -vy, 0);      // vertices go counter-clockwise for front face.
             texcoord.push(tx, 1,      tx, 0);           // ty has fixed height of (0, 1) on y-axis.
@@ -120,7 +126,7 @@ let flag_render = (function() {
         }
         // Clockwise vertices for back face.
         for (let i = stripeCount; i >= 0; i--) {
-            let vx  = -range + vstep * i;               // vx stepping from -range to +range on x-axis.
+            let vx  = -unitWidth + vstep * i;           // vx stepping from -unitWidth to +unitWidth on x-axis.
             let tx  = 0 + tstep * i;                    // tx stepping from 0 to 1 on x-axis
             vertices.push(vx, vy, 0,  vx, -vy, 0);      // vertices go clockwise for back face
             texcoord.push(tx, 1,      tx, 0);           // ty has fixed height of (0, 1) on y-axis.

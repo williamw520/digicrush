@@ -20,8 +20,9 @@ v2.sub      = (a, b)    => [ a[0] - b[0],  a[1] - b[1] ];                   // s
 v2.scale    = (a, s)    => [ a[0] * s,     a[1] * s    ];                   // scale the vector by a scaling factor.
 v2.dot      = (a, b)    => a[0]*b[0] + a[1]*b[1];                           // dot product of two vectors; magnitude of two vectors.
 
-v2.rad_to_deg = (r)     => r * 180 / M.PI;
-v2.deg_to_rad = (d)     => d * M.PI / 180;
+v2.rad_to_deg   = (r)   => r * 180 / M.PI;
+v2.deg_to_rad   = (d)   => d * M.PI / 180;
+v2.unit_deg     = (d)   => d % 360;                                         // normalize degree to within -360 to 360
 
 const v3 = {};
 v3.len      = (a)       => M.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]); // the magnitude of the vector.
