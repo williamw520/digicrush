@@ -4,14 +4,14 @@ attribute vec3 a_normal;
 attribute vec4 a_color;
 
 uniform mat4 u_projection;
-uniform mat4 u_facingView;
+uniform mat4 u_facing_view;
 uniform mat4 u_world;
 
 varying vec3 v_normal;
 varying vec4 v_color;
 
 void main() {
-    gl_Position = u_projection * u_facingView * u_world * a_position;
+    gl_Position = u_projection * u_facing_view * u_world * a_position;
     v_normal = mat3(u_world) * a_normal;
     v_color = a_color;
 }

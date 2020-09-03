@@ -33,27 +33,40 @@ pg.yrot = (degree) => yrot_mats[ (v2.unit_deg(degree) + 360) % 360 ];
 
 
 // Pre-generate facing view matrices based on a camera revolving around the y-axis.
-pg.gen_facing_view_mats = (cameraPosX, cameraPosY, cameraPosZ) => {
+pg.gen_facing_view_mats = (cameraPos) => {
+    facing_mats = gen_view_projection(cameraPos);
+}
+let facing_mats = [];
+
+// Pre-generate facing view+projection matrices based on a camera revolving around the y-axis.
+pg.gen_view_projection_mats = (cameraPos, projection) => {
+    view_projection_mats = gen_view_projection(cameraPos, projection);
+}
+let view_projection_mats = [];
+
+function gen_view_projection(cameraPos, projectionMatrix) {
+    let resultMatrices = [];
     let modelPosition = [0, 0, 0];  // assume camera is looking at the origin.
     let up = [0, 1, 0];             // constant vector designates "up" so the camera can orient.
 
     for (let cameraAngleDegree = 0; cameraAngleDegree <= 360; cameraAngleDegree++) {
-        let cameraPosMatrix = m4.rot_y_mat( v2.deg_to_rad(cameraAngleDegree) );
-        cameraPosMatrix = m4.translate(cameraPosMatrix, cameraPosX, cameraPosY, cameraPosZ);
-        let cameraPosition = [
-            cameraPosMatrix[12],
-            cameraPosMatrix[13],
-            cameraPosMatrix[14],
+        let cameraMatrix = m4.rot_y_mat( v2.deg_to_rad(cameraAngleDegree) );
+        cameraMatrix = m4.translate(cameraMatrix, cameraPos[0], cameraPos[1], cameraPos[2]);
+        let cameraFinalPosition = [
+            cameraMatrix[12],       // x
+            cameraMatrix[13],       // y
+            cameraMatrix[14],       // z
         ];
-        let cameraFacingMatrix = m4.lookat_mat(cameraPosition, modelPosition, up);
-        let facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
-        facing_mats[cameraAngleDegree] = facingView;
+        let cameraFacingMatrix = m4.lookat_mat(cameraFinalPosition, modelPosition, up);
+        let modelFacingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+        let viewProjection = projectionMatrix ? m4u.multiply(projectionMatrix, modelFacingView) : modelFacingView;
+        resultMatrices[cameraAngleDegree] = viewProjection;
     }
+    return resultMatrices;
 }
-const facing_mats = [];
 
-pg.facing_view = (degree) => facing_mats[ (v2.unit_deg(degree) + 360) % 360 ];
-
+pg.facing_view      = (degree) => facing_mats[ (v2.unit_deg(degree) + 360) % 360 ];
+pg.view_projection  = (degree) => view_projection_mats[ (v2.unit_deg(degree) + 360) % 360 ];
 
 export { pg };
 

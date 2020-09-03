@@ -107,7 +107,9 @@ let flag_render = (function() {
         // L.info("projectionMatrix", projectionMatrix);
         // L.info("facingViewMatrix", facingViewMatrix);
         // L.info("worldMatrix", worldMatrix);
-        gl.uniformMatrix4fv(flag_uniforms.u_facingView, false, facingViewMatrix);
+
+        gl.uniformMatrix4fv(flag_uniforms.u_facing_view, false, facingViewMatrix);
+        
         // gl.uniform4fv(rcube_uniforms.u_diffuse, diffuse);
         // gl.uniform3fv(rcube_uniforms.u_lightDirection, lightDirection);
         
