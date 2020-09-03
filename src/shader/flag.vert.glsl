@@ -7,7 +7,7 @@ uniform mat4    u_projection;
 uniform float   u_wave_strength;
 
 uniform mat4    u_facingView;
-uniform float   u_wave_speed;
+uniform float   u_wave_period;
 uniform vec3    u_model_pos;
 uniform float   u_model_scale;
 uniform mat4    u_model_rot;
@@ -25,26 +25,27 @@ float strength = fixed_portion + (1.0 - u_wave_strength) * param_portion;
 
 
 void main() {
-
-    // transform the model's position, scale, and rotation.
-    mat4 model = mat4(u_model_scale);                      // set scale value at the diagonal.
-    model[3].xyzw = vec4(u_model_pos, 1.0);                // set translate value at 4th column's xyz, with w=1.0
-    model = model * u_model_rot;
-
-    vec4 position = u_projection * u_facingView * model * vec4(a_position, 1);
-
+    // transform position based on wave calculation in the model space.
     float amplitude     = 1.0 - strength; 
     float waveLength    = 2.0 * strength;
-    float               x = position.x;
-    float               y = position.y;
+    float               x = a_position.x;
+    float               y = a_position.y;
     float               x2 = x - 0.001;
-    float               y2 = position.y + amplitude * ( (x2 + strength) / waveLength) * sin(PI_2 * (x2 - u_wave_speed));
+    float               y2 = a_position.y + amplitude * ( (x2 + strength) / waveLength) * sin(PI_2 * (x2 - u_wave_period));
+    y += amplitude * ( (x + strength) / waveLength ) * sin(PI_2 * (x - u_wave_period));
+    vec4 position       = vec4(x, y, a_position.z, 1);      // new position
 
-    y += amplitude * ( (x + strength) / waveLength ) * sin(PI_2 * (x - u_wave_speed));
+    // transform the model's position, scale, and rotation from model space to clip space.
+    mat4 model = mat4(u_model_scale);                       // set scale value at the diagonal.
+    model[3].xyzw = vec4(u_model_pos, 1.0);                 // set translation value at 4th column's xyz, with w=1.0
+    model = model * u_model_rot;
+    position = u_projection * u_facingView * model * position;
 
+    // gl_Position = vec4(position.x, position.y, position.z, 1.0);
+    gl_Position = vec4(position.x, position.y, position.z, 1.0);
     v_slope     = y - y2;
     v_texcoord  = a_texcoord;
+    v_normal    = a_normal;
     v_normal    = mat3(model) * a_normal;
-    gl_Position = vec4(x, y, 0.0, 1.0);
 }
 

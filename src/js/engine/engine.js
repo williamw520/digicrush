@@ -10,14 +10,11 @@ L.info("module starts");
 
 // Game engine
 export class Engine {
-    constructor(canvas, world, ui) {
+    constructor(world, ui) {
         this.frameId = null;                    // current frame id.
         this.prevTime = 0;                      // previous frame's time
-        this.cv = canvas;
         this.world = world;                     // world node
         this.ui = ui;                           // UI node
-        this.ctx = this.cv.getContext("2d");
-        //this.ctx = this.cv.getContext("webgl");   // The gl context
     }
 
     start() {

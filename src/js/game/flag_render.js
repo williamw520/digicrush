@@ -25,33 +25,40 @@ let flag_render = (function() {
     let componentsPerTexcoordAttr = 2;                  // the attribute vector dimension, with (u, v).
     let componentsPerNormalAttr = 3;                    // the attribute vector dimension, with (x, y, z).
 
+    flag_render.setupShader = (gl) => {
+        flagShader      = wgl.createProgram(gl, flag_vert_src, flag_frag_src);
+        flag_attrs      = wgl.getAttrMap(gl, flagShader);
+        flag_uniforms   = wgl.getUniformMap(gl, flagShader);
+    }
+
+    flag_render.useShader = (gl) => {
+        gl.useProgram(flagShader);
+    }
+    
     // stripeCount - number of vertical stripes for the flag.
-    // unitWidth   - scale the model mesh (1 - full, 0.01 - really small, >1 - bigger than full size)
-    flag_render.setup = (gl, stripeCount, unitWidth) => {
+    // unitWidth   - the unit width of the model mesh (1 - full, 0.01 - really small, >1 - bigger than full size), for scaling.
+    flag_render.setupModel = (gl, stripeCount, unitWidth) => {
         let [vertices,
              texcoord,
              normals]   = generateModel(stripeCount, unitWidth);
-        L.info("vertices", vertices);
-        L.info("texcoord", texcoord);
-        L.info("normals", normals);
+        // L.info("vertices", vertices);
+        // L.info("texcoord", texcoord);
+        // L.info("normals", normals);
         vertexCount     = vertices.length / 3;          // number of vertices is number of vec3 position / 3.
         vertexBuffer    = wgl.uploadToBuffer(gl, vertices);
         texcoordBuffer  = wgl.uploadToBuffer(gl, texcoord);
         normalBuffer    = wgl.uploadToBuffer(gl, normals);
-        flagShader      = wgl.createProgram(gl, flag_vert_src, flag_frag_src);
-        flag_attrs      = wgl.getAttrMap(gl, flagShader);
-        flag_uniforms   = wgl.getUniformMap(gl, flagShader);
-        gl.useProgram(flagShader);
         wgl.assignBufferToAttr(gl, vertexBuffer,    flag_attrs.a_position, componentsPerVertexAttr,     gl.FLOAT, false, 0, 0);
         wgl.assignBufferToAttr(gl, texcoordBuffer,  flag_attrs.a_texcoord, componentsPerTexcoordAttr,   gl.FLOAT, false, 0, 0);
         wgl.assignBufferToAttr(gl, normalBuffer,    flag_attrs.a_normal,   componentsPerNormalAttr,     gl.FLOAT, false, 0, 0);
     }
 
     // Set up global uniforms.
+    // waveStrength - calmest = .99, roughest = 0.01
     flag_render.setupUniforms = (gl, waveStrength, lightDirection, projectionMatrix) => {
         // Set global uniforms during the setup step.
-        //L.info("flag_uniforms", flag_uniforms);
-        L.info("lightDirection", lightDirection);
+        // L.info("flag_uniforms", flag_uniforms);
+        // L.info("lightDirection", lightDirection);
         gl.uniform1f(flag_uniforms.u_wave_strength, waveStrength);
         gl.uniform3fv(flag_uniforms.u_light_direction, lightDirection);
         gl.uniformMatrix4fv(flag_uniforms.u_projection, false, projectionMatrix);
@@ -80,20 +87,22 @@ let flag_render = (function() {
         gl.uniform1f(flag_uniforms.u_item_count, textureItemsCount);
     }
 
-    flag_render.useProgram = (gl) => {
-        gl.useProgram(flagShader);
-    }
-
-    flag_render.draw = (gl, textureUnit, modelPos, modelScale, modelRotation, background4f, facingViewMatrix, waveSpeed) => {
+    // imageIndex       - (0, image count)
+    // modelPos         - [x, y, z],  [-1 to 1, -1 to 1, -1 to 1]
+    // modelScale       - (1, 0.001)
+    // modelRotation    - matrix4
+    // background4f     - vec4, [R, G, B, A]
+    // wavePeriod       - wave progression (0, int), to be to multiply by 2PI in sin(); caller should keep incrementing it with time to produce wave movement.
+    flag_render.draw = (gl, imageIndex, modelPos, modelScale, modelRotation, background4f, facingViewMatrix, wavePeriod) => {
         gl.uniform1i(flag_uniforms.u_sampler, 0);
-        gl.uniform1f(flag_uniforms.u_item_index, textureUnit);
+        gl.uniform1f(flag_uniforms.u_item_index, imageIndex);
 
         gl.uniform3fv(flag_uniforms.u_model_pos, modelPos);
         gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
         gl.uniformMatrix4fv(flag_uniforms.u_model_rot, false, modelRotation);
 
         gl.uniform4fv(flag_uniforms.u_background, background4f || [0, 0, 0, 0]);
-        gl.uniform1f(flag_uniforms.u_wave_speed, waveSpeed);
+        gl.uniform1f(flag_uniforms.u_wave_period, wavePeriod);
 
         // L.info("projectionMatrix", projectionMatrix);
         // L.info("facingViewMatrix", facingViewMatrix);

@@ -57,8 +57,10 @@ let texgen = (function() {
         ctx.fillText(text, centerX, centerY);
     }
 
-    texgen.textureCanvas = () => canvas;
-    
+    texgen.textureCanvas    = () => canvas;
+    texgen.lineWidth        = () => lineWidth;
+    texgen.lineHeight       = () => lineHeight;
+
     return texgen;
 }());
 

@@ -18,7 +18,7 @@ const pg = {};
 
 
 // Pre-generate the x,y-rotation matrices for every degree.
-const yrot_mats = [];
+const xrot_mats = [];
 const yrot_mats = [];
 
 pg.gen_rot_mats = () => {

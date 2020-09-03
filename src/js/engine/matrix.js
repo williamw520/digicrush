@@ -117,5 +117,5 @@ m4.v4_multiply_m4 = (v, m) => {
 }
 
 
-export { m4 };
+export { m4, m4u };
 

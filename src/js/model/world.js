@@ -6,6 +6,7 @@
 */
 
 import {BaseNode} from "/js/engine/basenode.js";
+import {Flag} from "/js/model/flag.js";
 
 L.info("module starts");
 
@@ -16,7 +17,12 @@ export class World extends BaseNode {
         super();
         this.w = 800;
         this.h = 640;
-        //this.collisions = new Collisions();
+
+//        ["1", "2", "3", "4", "5", "6", "@", "$"].forEach( (ch, i) => {
+        ["1"].forEach( (ch, i) => {
+            let f = super.addChild(new Flag(i));
+            f.pos[0] = i * 0.25;
+        });
     }
 
     setDim(w, h) {
@@ -24,27 +30,17 @@ export class World extends BaseNode {
         this.h = h;
     }
 
-    addCollision(n) {
-        this.collisions.addChild(n);
-    }
-
     onUpdate(delta) {
         super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
-        //L.info("onUpdate");
-
-        // this.collisions.onUpdate(delta);
     }
 
     onDraw(engine) {
-        //L.info("onDraw");
-
         // Clear bg
-        engine.ctx.fillStyle = "#303030";
-        engine.ctx.fillRect(0, 0, this.w, this.h);
+        // engine.ctx.fillStyle = "#303030";
+        // engine.ctx.fillRect(0, 0, this.w, this.h);
 
         // this.farLayer.onDraw(engine);
         // this.backLayer.onDraw(engine);
-
         super.onDraw(engine);       // run onDraw() on child nodes.
     }
 

@@ -11,8 +11,8 @@ import wgl from "/js/engine/webgl.js";
 import {v2, v3} from "/js/engine/vector.js";
 import {BaseNode} from "/js/engine/basenode.js";
 import {Engine} from "/js/engine/engine.js";
-import {World} from "/js/game/world.js";
-import {UI} from "/js/game/ui.js";
+import {World} from "/js/model/world.js";
+import {UI} from "/js/model/ui.js";
 import {m4} from "/js/engine/matrix.js";
 import {m4u} from "/js/engine/matrix-util.js";
 import {pg} from "/js/engine/pregen.js";
@@ -159,13 +159,13 @@ gl.enable(gl.DEPTH_TEST);
 // wgl.assignBufferToAttr(gl, color3dBuffer, rcube_attrs.a_color,     3, gl.FLOAT, false, 0, 0);
 
 pg.gen_rot_mats();
-pg.gen_facing_view_mats(0, 0, 200);
+pg.gen_facing_view_mats(0, 0, 2);   // position the camera at x=0, y=0, z=2-off from the surface.
 
 var fieldOfViewRadians = v2.deg_to_rad(90);    // how wide the cone of view is.
 
 var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;    // correct the apsect of the model by projecting with the aspect of the client view dimension
 var zNear = 1;                                                  // the near-side boundary of the z-axis
-var zFar = 2000;                                                // the far-size boundary of the z-axis
+var zFar = 4000;                                                // the far-size boundary of the z-axis
 var projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);   // perspective projection to make far things appear far and near things appear near.
 
 let radius = 200;
@@ -277,14 +277,17 @@ let images = U.loadImages(["/img/d1.png"], function(images){
 //  let world = m4.trans_mat(64, 128, 0);
     let world = m4.trans_mat(0.0, 0.0, 0);
 
-    let flagPos     = [ [-1.50, -0.75, 0], [-1.5, -0.25, 0], [-1.5, 0.25, 0], [-1.5, 0.75, 0], [1.5, -0.75, 0], [1.5, -0.25, 0], [1.5, 0.25, 0], [1.5, 0.75, 0] ];
+    let flagPos     = [ [-1.50, -0.75, 0.5], [-1.5, -0.25, 0], [-1.5, 0.25, 0], [-1.5, 0.75, 0], [1.5, -0.75, 0], [1.5, -0.25, 0], [1.5, 0.25, 0], [1.5, 0.75, 0] ];
+    let flagXRot    = [ 0, 10, 20, 30,  0, 60, 120, 180 ];
     let flagYRot    = [ 0, 10, 20, 30,  0, 60, 120, 180 ];
     let flagScale   = [ 0.20, 0.20, 0.20, 0.20,  0.20, 0.20, 0.20, 0.20 ];
 
     let worldToModelRatio = 4;
     let unitWidth = 1
-    let waveStrength = 1;
-    flag_render.setup(gl, images[0].width/16, unitWidth);
+    let waveStrength = 0.75;
+    flag_render.setupShader(gl);
+    flag_render.useShader(gl);
+    flag_render.setupModel(gl, images[0].width / 4, unitWidth);
     flag_render.setupUniforms(gl, waveStrength, lightDirection, projection);
     flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), 8);
 
@@ -302,30 +305,32 @@ let images = U.loadImages(["/img/d1.png"], function(images){
     var fps = 70
     var interval = 1000 / fps
 
-    var waveSpeed = 0;
-    var textureUnit = 4;
+    var wavePeriod = 0;
+    var imageIndex = 4;
     var background4f = [0.5, 1.0, 0.0, 1.0];
 
 
 // Use matrix math to compute a position on a circle where the camera is.
-var cameraAngleDegree = 0;                                          // angle to turn the camera along the y-axis
-var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
-var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
-// camera position, x moves to -200, y moves to 200, z moves to 200.
-cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
+var cameraAngleDegree = 40;                                          // angle to turn the camera along the y-axis
+var facingView;
+    
+// var cameraAngleRadian = v2.deg_to_rad(cameraAngleDegree);
+// var cameraPosMatrix = m4.rot_y_mat(cameraAngleRadian);              // turn the camera to the angle along the y-axis
+// // camera position, x moves to -200, y moves to 200, z moves to 200.
+// cameraPosMatrix = m4.translate(cameraPosMatrix, -200, 200, 200);    // move the camera to the position (left-right, up-down, far-near)
 
-var cameraPosition = [          // Save the camera's position after the computation.
-    cameraPosMatrix[12],        // the new positions are in the last 3 elements of the computated matrix.
-    cameraPosMatrix[13],
-    cameraPosMatrix[14],
-];
+// var cameraPosition = [          // Save the camera's position after the computation.
+//     cameraPosMatrix[12],        // the new positions are in the last 3 elements of the computated matrix.
+//     cameraPosMatrix[13],
+//     cameraPosMatrix[14],
+// ];
 
-// Compute the camera's matrix using look at.
-var up = [0, 1, 0];             // constant vector designates "up" so the camera can orient.
-var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
+// // Compute the camera's matrix using look at.
+// var up = [0, 1, 0];             // constant vector designates "up" so the camera can orient.
+// var cameraFacingMatrix = m4.lookat_mat(cameraPosition, fPosition, up);
 
-// Make a view matrix from the camera matrix
-var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
+// // Make a view matrix from the camera matrix
+// facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is facing the camera (the inverse of it).
     
 
     // Set the color for the clear() operation to transparent.
@@ -336,18 +341,18 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
     gl.enable(gl.DEPTH_TEST);
 
     function draw() {
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        flag_render.useProgram(gl);
+        flag_render.useShader(gl);
 
         facingView = pg.facing_view(cameraAngleDegree);
 
         let modelRotation = pg.yrot(0);
-        flag_render.draw(gl, textureUnit, [0, 0, 0], 1, modelRotation, background4f, facingView, waveSpeed);
+        flag_render.draw(gl, imageIndex, [0, 0, 0], 1, modelRotation, background4f, facingView, wavePeriod);
 
         flagPos.forEach( (pos, i) => {
-            let modelRotation = pg.yrot(flagYRot[i]);
-            flag_render.draw(gl, textureUnit, pos, flagScale[i], modelRotation, background4f, facingView, waveSpeed);
+            //let modelRotation = pg.yrot(flagYRot[i]);
+            let modelRotation = pg.xrot(flagXRot[i]);
+            flag_render.draw(gl, imageIndex, pos, flagScale[i], modelRotation, background4f, facingView, wavePeriod);
         });
         
     }
@@ -358,16 +363,17 @@ var facingView = m4u.inverse4x4(cameraFacingMatrix);    // the view matrix is fa
         delta = timeNow - timeLast
         if (delta > interval) {
             timeLast = timeNow
-            waveSpeed += delta * 0.001 * speed;
+            wavePeriod += delta * 0.001 * speed;
             draw()
             if (timeNow - startTime > 2000) {
                 startTime = timeNow;
-                textureUnit = (textureUnit + 1) % 8;
+                imageIndex = (imageIndex + 1) % 8;
             }
 
-            flagYRot.forEach( (_, i) => flagYRot[i] += 12);
-            
-            cameraAngleDegree += 1;
+            // flagXRot.forEach( (_, i) => flagXRot[i] += 6);
+            // flagYRot.forEach( (_, i) => flagYRot[i] += 6);
+
+            // cameraAngleDegree += 1;
         }
         requestAnimationFrame(tick)
     }
