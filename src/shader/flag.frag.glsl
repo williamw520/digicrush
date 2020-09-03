@@ -12,12 +12,14 @@ varying float       v_slope;
 
 
 void main() {
-    float item_height   = 1.0 / u_item_count;                       // overall texture height is 1.0.
-    float item_y_offset = (u_item_count - u_item_index - 1.0) * item_height;
-    float item_y        = item_y_offset + v_texcoord.y * item_height;
-    vec2 item_texcoord  = vec2(v_texcoord.x, item_y);
-    vec4 color          = texture2D(u_sampler, item_texcoord);
-    vec3 normal         = normalize(v_normal);                      // make varying vector into a unit vector.
+    // compute a clipped texcoord from one of the image items on the image texture.
+    float item_height   = 1.0 / u_item_count;                                   // overall texture height is 1.0.
+    float item_y_offset = (u_item_count - u_item_index - 1.0) * item_height;    // get the y-offset of the item on the texture.
+    float texcoord_y    = item_y_offset + v_texcoord.y * item_height;           // compute texcoord's y based on item offset and height.
+    vec2 item_texcoord  = vec2(v_texcoord.x, texcoord_y);                       // construct a clipped textcoord.
+    
+    vec4 color          = texture2D(u_sampler, item_texcoord);                  // get the sampled color from the texture.
+    vec3 normal         = normalize(v_normal);                                  // make varying vector into a unit vector.
     float light         = dot(normal, u_light_direction);
 
     if (color.a == 0.0) {
@@ -35,11 +37,6 @@ void main() {
     }
 
     gl_FragColor = color;
-
-    // The lighting doesn't look good.
-//    gl_FragColor.rgb = vec3(light, light, light);
-//    gl_FragColor.rgb = u_light_direction;
-//    gl_FragColor.rgb = normal;
-    gl_FragColor.rgb *= light;
+    gl_FragColor.rgb *= light;      // adding directional lighting.
 }
 

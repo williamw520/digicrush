@@ -41,16 +41,18 @@ void main() {
     model[3].xyzw   = vec4(u_model_pos, 1.0);                   // set translation value at the 4th column's xyz, with w=1.0
     model           = model * u_model_rot;
 
+    // combine the project, facing view, and model matrices to together.
+    mat4 matrix     = u_projection * u_facing_view * model;
+
     // Apply the project, facing view, and model matrices to the position.
     // It's important to take in all values of the vec4 on gl_Position including the w-axis.
     // The matrices apply on the w-axis as well.  Projection won't look right without w-axis.
-    gl_Position     = u_projection * u_facing_view * model * position;
+    gl_Position     = matrix * position;
 
     // pass the variants along to the fragment shader.
-    v_slope         = y - y2;
+    v_normal        = mat3(matrix) * a_normal;                  // apply the same combined matrix to the normal vec3.
     v_texcoord      = a_texcoord;
-    v_normal        = a_normal;
-    v_normal        = mat3(model) * a_normal;
+    v_slope         = y - y2;
     
 }
 

@@ -269,7 +269,7 @@ let images = U.loadImages(["/img/d1.png"], function(images){
 
     //L.info("projection", projection);
     
-    let lightDirection = v3.unit([3, 3.0, -3.0]);
+    let lightDirection = v3.unit([0, 0.5, 3.0]);
     L.info("lightDirection", lightDirection);
         
 //  let world = m4.trans_mat(64, 128, 0);
@@ -349,10 +349,10 @@ var cameraAngleDegree = 0;                                          // angle to 
                 imageIndex = (imageIndex + 1) % 8;
             }
 
-            flagXRot.forEach( (_, i) => flagXRot[i] += 6);
-            flagYRot.forEach( (_, i) => flagYRot[i] += 6);
+            flagXRot.forEach( (_, i) => flagXRot[i] += 2);
+            flagYRot.forEach( (_, i) => flagYRot[i] += 2);
 
-            cameraAngleDegree += 2;
+//            cameraAngleDegree += 1;
         }
         requestAnimationFrame(tick)
     }
