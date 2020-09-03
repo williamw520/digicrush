@@ -22,29 +22,30 @@ let gl3d = (function() {
 
     gl3d.setup = () => {
         let unitWidth = 1
-        let waveStrength = 0.99;
-        
+        let waveStrength = 0.75;
+
         flag_render.setupShader(gl);
         flag_render.useShader(gl);
-        flag_render.setupModel(gl, texgen.lineWidth() / 16, unitWidth); // generate the model data.
+        flag_render.setupModel(gl, texgen.lineWidth() / 4, unitWidth); // generate the model data.
 
         // generate the texture images; set up the texture in webgl.
         texgen.setup("tex");
         chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
         flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), chars.length);
 
-        // pre-generate matices.
-        pg.gen_rot_mats();
-        pg.gen_facing_view_mats(0, 0, 200);
-
         // compuate the projection matix.
-        const fieldOfViewRadians = v2.deg_to_rad(90);                   // how wide the cone of view is.
+        const fieldOfViewRadians = v2.deg_to_rad(60);                   // how wide the cone of view is.
         const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;  // correct the apsect of the model by projecting with the aspect of the client view dimension
         const zNear = 1;                                                // the near-side boundary of the z-axis
-        const zFar = 2000;                                              // the far-size boundary of the z-axis
+        const zFar = 20;                                                // the far-size boundary of the z-axis
         let projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
-        let lightDirection = v3.unit([3, 3.0, -3.0]);
+        let lightDirection = v3.unit([0, 0.5, 3.0]);
         flag_render.setupUniforms(gl, waveStrength, lightDirection, projection);
+
+        var cameraPos = [0, 0, 4];                          // position the camera at x=0, y=0, z=3-off from the surface outside the [-1, 1] visible bound.
+        pg.gen_rot_mats();
+        pg.gen_facing_view_mats(cameraPos);                 // position the camera at x=0, y=0, z=2-off from the surface.
+        pg.gen_view_projection_mats(cameraPos, projection);
     }
 
     gl3d.cameraAngle = 0;                                               // angle to turn the camera along the y-axis

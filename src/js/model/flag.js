@@ -19,19 +19,20 @@ export class Flag extends BaseNode {
         this.pos = pos || [0, 0, 0];
         this.xrot = 0;
         this.yrot = 0;
-        this.scale = 0.50;                  // model scale 
-        this.wavePeriod = 5;
+        this.scale = 0.25;                  // model scale 
+        this.wavePeriod = Math.random() * 50;
         this.bg = [0.5, 1.0, 0.0, 1.0];
     }
 
     onUpdate(delta) {
-        this.xrot += 0;
+        //this.xrot += 1;
+        this.pos[0] -= 0.01;
         this.wavePeriod += delta * 0.001;
         super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
     }
 
     onDraw(engine) {
-        L.log(this.wavePeriod);
+        //L.log(this.wavePeriod);
         let modelRotation = pg.xrot(this.xrot);
         flag_render.draw(gl3d.gl, this.ch, this.pos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
         super.onDraw(engine);       // run onDraw() on child nodes.

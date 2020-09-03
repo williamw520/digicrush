@@ -7,6 +7,7 @@
 
 import {BaseNode} from "/js/engine/basenode.js";
 import {Flag} from "/js/model/flag.js";
+import gl3d from "/js/game/gl3d.js";
 
 L.info("module starts");
 
@@ -18,10 +19,10 @@ export class World extends BaseNode {
         this.w = 800;
         this.h = 640;
 
-//        ["1", "2", "3", "4", "5", "6", "@", "$"].forEach( (ch, i) => {
-        ["1"].forEach( (ch, i) => {
+        let x0 = 2.0;
+        ["1", "2", "3", "4", "5", "6", "@", "$"].forEach( (ch, i) => {
             let f = super.addChild(new Flag(i));
-            f.pos[0] = i * 0.25;
+            f.pos[0] = x0 + i * 0.6;
         });
     }
 
@@ -31,14 +32,11 @@ export class World extends BaseNode {
     }
 
     onUpdate(delta) {
+//        gl3d.cameraAngle += 1;
         super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
     }
 
     onDraw(engine) {
-        // Clear bg
-        // engine.ctx.fillStyle = "#303030";
-        // engine.ctx.fillRect(0, 0, this.w, this.h);
-
         // this.farLayer.onDraw(engine);
         // this.backLayer.onDraw(engine);
         super.onDraw(engine);       // run onDraw() on child nodes.
