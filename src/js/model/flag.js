@@ -8,6 +8,7 @@
 import U from "/js/util/util.js";
 import {BaseNode} from "/js/engine/basenode.js";
 import {pg} from "/js/engine/pregen.js";
+import {v3} from "/js/engine/vector.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import flag_render from "/js/game/flag_render.js";
@@ -31,12 +32,19 @@ export class Flag extends BaseNode {
 
     activate(prevFlag) {
         this.ch = U.rand(0, gl3d.digitCount);
-        this.pos = [ (prevFlag ? prevFlag.pos[0] + 0.6 : state.BEGIN_X), 0, 0 ];
+        this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
+        L.info("pos", this.pos);
+        this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
         this.xrot = 0;
         this.yrot = 0;
         this.wavePeriod = Math.random() * 50;
-        this.status = S_ACTIVE;
+        this.rflag = null;
         this.hitTime = 0;
+        this.status = S_ACTIVE;
+    }
+
+    setRNeighbor(flagToRight) {
+        this.rflag = flagToRight;
     }
 
     isFree()    { return this.status == S_FREE      }
@@ -59,24 +67,42 @@ export class Flag extends BaseNode {
         this.status = S_DEAD;
     }
 
-    onUpdate(delta) {
+    onUpdate(delta, parent) {
         if (this.status == S_HIT) {
             this.xrot += 12;
-            if (performance.now() - this.hitTime > 2000) {
+            if (performance.now() - this.hitTime > 300) {
                 this.toDead();
             }
         }
 
-        this.pos[0] -= 0.01;
+        this._adjustVelocity();
+        v3.addTo(this.pos, this.velocity);
         this.wavePeriod += delta * 0.001;
-        super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
+
+        super.onUpdate(delta, parent);
     }
 
-    onDraw(engine) {
-        //L.log(this.wavePeriod);
+    onDraw() {
         let modelRotation = pg.xrot(this.xrot);
         flag_render.draw(gl3d.gl, this.ch, this.pos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
-        super.onDraw(engine);       // run onDraw() on child nodes.
+        super.onDraw();         // run onDraw() on child nodes.
+    }
+
+    _adjustVelocity() {
+        if (this.rflag) {
+            let xdelta = this.rflag.pos[0] - this.pos[0];
+            if (xdelta < (state.SPACE_BETWEEN - 0.01)) {
+                this.velocity[0] = -0.01;
+                //this.pos[0] = this.rflag.pos[0] - state.SPACE_BETWEEN + 0.01;
+            } else if (xdelta > (state.SPACE_BETWEEN + 0.01)) {
+                this.velocity[0] =  0.05;
+            }
+            else {
+                this.velocity[0] = -0.01;
+            }
+        } else {
+            this.velocity[0] = -0.01;
+        }
     }
 
 }

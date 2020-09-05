@@ -13,14 +13,13 @@ export class UI extends BaseNode {
         super();
     }
 
-    onUpdate(delta) {
-        super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
+    onUpdate(delta, parent) {
+        super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
         //L.info("onUpdate");
     }
 
-    onDraw(engine) {
-        super.onDraw(engine);       // run onDraw() on child nodes.
-        //L.info("onDraw");
+    onDraw() {
+        super.onDraw();                 // run onDraw() on child nodes.
     }
 
 }

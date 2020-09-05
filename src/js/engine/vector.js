@@ -29,6 +29,7 @@ v3.len      = (a)       => M.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]); // t
 v3.unit     = (a)       => { let l=v3.len(a); return l > 0.000001 ? [  a[0]/l, a[1]/l, a[2]/l ] : [0, 0, 0] }   // the unit vector; avoid divide by 0.
 v3.normal   = (a)       => { let l=v3.len(a); return l > 0.000001 ? [ -a[1]/l, a[0]/l, a[2]/l ] : [0, 0, 0] }   // the normal vector; perpendicular unit vector.
 v3.add      = (a, b)    => [ a[0] + b[0],  a[1] + b[1],  a[2] + b[2] ];     // add two vectors
+v3.addTo    = (a, b)    => (a[0] += b[0],  a[1] += b[1], a[2] += b[2], a);  // add vector b to a, in place.
 v3.sub      = (a, b)    => [ a[0] - b[0],  a[1] - b[1],  a[2] - b[2] ];     // subtract two vectors
 v3.scale    = (a, s)    => [ a[0] * s,     a[1] * s,     a[2] * s    ];     // scale the vector by a scaling factor.
 v3.dot      = (a, b)    => a[0]*b[0] + a[1]*b[1] + a[2]*b[2] ;              // dot product of two vectors, their vector magnitude.

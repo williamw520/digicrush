@@ -39,10 +39,10 @@ export class Engine {
         let dt = currTime - this.prevTime;
         this.prevTime = currTime;
         if (dt > 0) {
-            this.world.onUpdate(dt);            // update game world state
-            this.ui.onUpdate(dt);
-            this.world.onDraw(this);            // render the game world
-            this.ui.onDraw(this);               // render the surrounding UI
+            this.world.onUpdate(dt, null);      // update game world state
+            this.ui.onUpdate(dt, null);
+            this.world.onDraw();                // render the game world
+            this.ui.onDraw();                   // render the surrounding UI
         }
     }
 

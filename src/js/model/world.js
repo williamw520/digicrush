@@ -22,30 +22,33 @@ export class World extends BaseNode {
         this.flags = [];
     }
 
-    onUpdate(delta) {
+    onUpdate(delta, parent) {
         this._handleInput();
         this._updateStatus();
         this._gcFlags();
-        this.flags.forEach( f => f.onUpdate(delta) );
-        super.onUpdate(delta);      // run onUpdate() on child nodes in the world node.
+        this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );        // last one gets null
+        if (state.status == state.S_PLAYING)
+            this.flags.forEach( f => f.onUpdate(delta, this) );
+        super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
     }
 
-    onDraw(engine) {
-        // this.farLayer.onDraw(engine);
-        // this.backLayer.onDraw(engine);
-        super.onDraw(engine);       // run onDraw() on child nodes.
-        this.flags.forEach( f => f.onDraw(engine) );
+    onDraw() {
+        // this.farLayer.onDraw();
+        // this.backLayer.onDraw();
+        super.onDraw();       // run onDraw() on child nodes.
+        this.flags.forEach( f => f.onDraw() );
     }
 
-    startLevel() {
+    _startLevel() {
+        L.info("_startLevel");
         this._spawnFlag();
         state.status = state.S_PLAYING;
     }
 
     _handleInput() {
         if (input.isOn(input.K_RUN)) {
-            L.info("K_RUN");
-            this.startLevel();
+            if (state.status == state.S_WAITING)
+                this._startLevel();
         }
 
         if (input.isOn(input.K_PAUSE)) {
