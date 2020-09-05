@@ -10,9 +10,10 @@
 let state = (function() {
     const state = {};
 
-    state.BEGIN_X = 5.0;
-    state.LOSING_X = -4.0;
-    state.MAX_FREE_FLAGS = 20;
+    state.BEGIN_X = 8.0;
+    state.LOSING_X = -3.0;
+    state.PLAYING_ANGLE = -20;
+    state.MAX_FREE_FLAGS = 50;
     state.SPACE_BETWEEN = 0.6;          // distance between neighboring flags
 
     state.S_WAITING = 0;
@@ -20,9 +21,9 @@ let state = (function() {
     state.S_PAUSED = 2;
     state.S_WON = 3;
     state.S_DEAD = 4;
+    state.status = state.S_WAITING;
 
     state.level = 1;
-    state.status = state.S_WAITING;
 
     return state;
 }());

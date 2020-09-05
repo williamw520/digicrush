@@ -25,10 +25,12 @@ export class World extends BaseNode {
     onUpdate(delta, parent) {
         this._handleInput();
         this._updateStatus();
-        this._gcFlags();
-        this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );        // last one gets null
-        if (state.status == state.S_PLAYING)
+        if (this._gcFlags())
+            this._pullback();
+        this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );    // last one gets null
+        if (state.status == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(delta, this) );
+        }
         super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
     }
 
@@ -43,6 +45,7 @@ export class World extends BaseNode {
         L.info("_startLevel");
         this._spawnFlag();
         state.status = state.S_PLAYING;
+        gl3d.cameraAngle = state.PLAYING_ANGLE;
     }
 
     _handleInput() {
@@ -124,7 +127,15 @@ export class World extends BaseNode {
             });
             this.flags = this.flags.filter( f => !f.isFree() );
         }
+        return hasDead;
     }
+
+    _pullback() {
+        let last = U.last(this.flags);
+        if (last) {
+            last.pos[0] += state.SPACE_BETWEEN / 2;     // pushing back the last one pulls the whole string of flags back.
+        }
+    }    
 
 }
 

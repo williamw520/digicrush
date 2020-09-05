@@ -33,8 +33,8 @@ export class Flag extends BaseNode {
     activate(prevFlag) {
         this.ch = U.rand(0, gl3d.digitCount);
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
-        L.info("pos", this.pos);
         this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
+        this.accel = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrot = 0;
         this.yrot = 0;
         this.wavePeriod = Math.random() * 50;
@@ -93,9 +93,9 @@ export class Flag extends BaseNode {
             let xdelta = this.rflag.pos[0] - this.pos[0];
             if (xdelta < (state.SPACE_BETWEEN - 0.01)) {
                 this.velocity[0] = -0.01;
-                //this.pos[0] = this.rflag.pos[0] - state.SPACE_BETWEEN + 0.01;
+                this.pos[0] = this.rflag.pos[0] - state.SPACE_BETWEEN + 0.01;
             } else if (xdelta > (state.SPACE_BETWEEN + 0.01)) {
-                this.velocity[0] =  0.05;
+                this.velocity[0] =  0.10;
             }
             else {
                 this.velocity[0] = -0.01;
