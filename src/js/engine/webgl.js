@@ -5,7 +5,6 @@
   williamw520@gmail.com
 */
 
-L.info("module starts");
 
 // webgl util module
 let wgl = (function() {

@@ -5,7 +5,7 @@
   williamw520@gmail.com
 */
 
-L.info("module starts");
+import input from "/js/engine/input.js";
 
 
 // Game engine
@@ -19,12 +19,14 @@ export class Engine {
 
     start() {
         L.info("start");
+        input.startup(window);
         this.prevTime = performance.now();
         this._animate(this.prevTime);           // start the first animation frame.
     }
 
     stop() {
         L.info("stop");
+        input.shutdown(window);
         if (this.frameId)
             cancelAnimationFrame(this.frameId);
         this.frameId = null;

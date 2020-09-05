@@ -28,7 +28,7 @@ import {UI} from "/js/model/ui.js";
 
     e.start();
     gl3d.start();
-    setTimeout(() => e.stop(), 10000);
+    setTimeout(() => e.stop(), 60000);
 
     L.info("module loaded");
 }());

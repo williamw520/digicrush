@@ -7,8 +7,6 @@
 
 import {BaseNode} from "/js/engine/basenode.js";
 
-L.info("module starts");
-
 // UI node
 export class UI extends BaseNode {
     constructor() {

@@ -7,8 +7,6 @@
 
 // Serves as sample template for module file.
 
-L.info("module starts");
-
 // util module
 let U = (function() {
     const U = {};
@@ -29,6 +27,11 @@ let U = (function() {
 	    power2Value *= 2;
 	return power2Value;
     }
+
+    U.first = (array) => array.length > 0 ? array[0] : null;
+    U.last  = (array) => array.length > 0 ? array[array.length - 1] : null;
+
+    U.rand  = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
     // Bit operations on 32-bit array at bit position (0th to 31st)
     U.bitSet    = (bits, position)      => bits |  (1 << position);

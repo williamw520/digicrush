@@ -20,6 +20,8 @@ let gl3d = (function() {
     let gl = document.getElementById("wgl").getContext("webgl");
     let chars = ["1", "2", "3", "4", "5", "6", "@", "$"];
 
+    gl3d.digitCount = 6;
+
     gl3d.setup = () => {
         let unitWidth = 1
         let waveStrength = 0.75;

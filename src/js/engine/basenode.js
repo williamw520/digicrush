@@ -5,8 +5,6 @@
   williamw520@gmail.com
 */
 
-L.info("module starts");
-
 // basenode module.
 
 // Base Game Node
