@@ -67,11 +67,13 @@ export class World extends BaseNode {
     }
 
     _checkFlagHit(digitIndex) {
-        this.flags.forEach( f => {
-            if (f.ch == digitIndex) {
-                f.toHit();
-            }
-        });
+        let count = this.flags.reduce( (sum, f) => (f.ch == digitIndex) ? sum + 1 : sum, 0 );
+        if (count > 1) {
+            this.flags.forEach( f => {
+                if (f.ch == digitIndex)
+                    f.toHit();
+            });
+        }
     }
     
     _updateStatus() {
