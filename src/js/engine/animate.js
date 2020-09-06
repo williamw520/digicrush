@@ -10,8 +10,8 @@
 let A = (function() {
     const A = {};
 
-    // movement based on time, mapping time to a position in the range of [0, 1].
-    A.Movement = class {
+    // Timeline based on time, mapping time to a position in the range of [0, 1].
+    A.Timeline = class {
         constructor(timeRangeMS) {
             this._timeRange =  timeRangeMS; // the max limit of time to stop, e.g. 5000ms
             this._start = 0;                // start time
@@ -24,6 +24,7 @@ let A = (function() {
 
         step(timeMS) {
             this._time = timeMS;
+            return this.done;               // return done status
         }
 
         get pos()       { return (this._time - this._start) / this._timeRange }     // current position in the range [0, 1]

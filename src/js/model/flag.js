@@ -9,6 +9,7 @@ import U from "/js/util/util.js";
 import {BaseNode} from "/js/engine/basenode.js";
 import {pg} from "/js/engine/pregen.js";
 import {v3} from "/js/engine/vector.js";
+import A from "/js/engine/animate.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import flag_render from "/js/game/flag_render.js";
@@ -26,62 +27,84 @@ const S_DEAD = 4;
 export class Flag extends BaseNode {
     constructor(imageIndex) {
         super();
-        this.ch = imageIndex || 0;          // char image index, 0-based.
-        this.scale = 0.25;                  // model scale 
+        this.ch = imageIndex || 0;              // char image index, 0-based.
         this.bg = [0.5, 1.0, 0.0, 1.0];
-        this.status = S_FREE;
+        this.fstate = S_FREE;
+        this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
+        this.flyTime = new A.Timeline(1000);    // fly state animation timeout
     }
 
     activate(prevFlag) {
         this.ch = U.rand(0, gl3d.digitCount);
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
-        this.xrot = 0;
+        this.scale = 0.25;                      // model scale 
+        this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
-        this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
-        this.force = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
+        this.velocity = [0, 0, 0];              // velocity vector, distance per tick on [x,y,z]
+        this.force = [0, 0, 0];                 // acceleration vector, velocity per tick on [vx,vy,vz]
+        this.xrotSpeed = 0;                     // rotation speed in degree.
         this.wavePeriod = Math.random() * 50;
         this.rflag = null;
-        this.hitTime = 0;
-        this.status = S_ACTIVE;
+        this.fstate = S_ACTIVE;
     }
 
     setRNeighbor(flagToRight) {
         this.rflag = flagToRight;
     }
 
-    isFree()    { return this.status == S_FREE      }
-    isActive()  { return this.status == S_ACTIVE    }
-    isHit()     { return this.status == S_HIT       }
-    isFly()     { return this.status == S_FLY       }
-    isDead()    { return this.status == S_DEAD      }
-    isAlive()   { return this.status == S_ACTIVE || this.status == S_HIT }
+    isFree()    { return this.fstate == S_FREE      }
+    isActive()  { return this.fstate == S_ACTIVE    }
+    isHit()     { return this.fstate == S_HIT       }
+    isFly()     { return this.fstate == S_FLY       }
+    isDead()    { return this.fstate == S_DEAD      }
+    isAlive()   { return this.fstate == S_ACTIVE || this.fstate == S_HIT }
 
     toFree() {
-        this.status = S_FREE;
+        this.fstate = S_FREE;
         return this;
     }
 
     toHit() {
-        this.hitTime = performance.now();
-        this.status = S_HIT;
+        this.hitTime.start(performance.now());
+        this.xrotSpeed = 8;
+        this.fstate = S_HIT;
+    }
+
+    toFly() {
+        this.flyTime.start(performance.now());
+        this.velocity[1] = 0.05;
+        this.velocity[2] = -0.05;
+        this.xrotSpeed = 24;
+        this.fstate = S_FLY;
     }
 
     toDead() {
-        this.status = S_DEAD;
+        this.fstate = S_DEAD;
     }
 
     onUpdate(time, delta, parent) {
-        if (this.status == S_HIT) {
-            this.xrot += 12;
-            if (performance.now() - this.hitTime > 300) {
+        switch (this.fstate) {
+        case S_HIT:
+            if (!this.hitTime.step(time)) {
+                this.xrotSpeed = 8 + M.floor(6 * A.easeInQuad(this.hitTime.pos));
+            } else {
+                this.toFly();
+            }
+            break;
+        case S_FLY:
+            if (!this.flyTime.step(time)) {
+                this.scale = 0.25 - 0.15 * A.easeInCubic(this.flyTime.pos);
+            } else {
                 this.toDead();
             }
+            break;
         }
 
         this._adjustVelocity();
         v3.addTo(this.pos, this.velocity);
         v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
+        this.xrot += this.xrotSpeed;
 
         super.onUpdate(time, delta, parent);
     }
