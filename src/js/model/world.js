@@ -62,12 +62,35 @@ export class World extends BaseNode {
         }
 
         if (state.gstate == state.S_PLAYING) {
-            input.digitHit( digitIndex => this._checkFlagHit(digitIndex) );
+            input.digitHit( digitIndex => this._checkMatchingFlags(digitIndex) );
         }
     }
 
-    _checkFlagHit(digitIndex) {
-        let count = this.flags.reduce( (sum, f) => (f.ch == digitIndex) ? sum + 1 : sum, 0 );
+    _checkMatchingFlags(digitIndex) {
+        let count = 0;
+        let lastMatch = -9;
+        let seq = 0;
+        let seq3 = false;
+        let seq4 = false;
+        let seq5 = false;
+        this.flags.forEach( (f, i) => {
+            if (f.ch == digitIndex) {
+                if (lastMatch == (i-1)) {
+                    seq++;
+                    if (seq >= 3) seq3 = true;
+                    if (seq >= 4) seq4 = true;
+                    if (seq >= 5) seq5 = true;
+                } else {
+                    seq = 1;
+                }
+                lastMatch = i;
+                count++;
+            } else {
+                lastMatch = -9;
+                seq = 0;
+            }
+        })
+
         if (count > 1) {
             this.flags.forEach( f => {
                 if (f.ch == digitIndex)
