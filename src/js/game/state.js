@@ -17,12 +17,13 @@ let state = (function() {
     state.MAX_FREE_FLAGS = 100;
     state.SPACE_BETWEEN = 0.6;          // distance between neighboring flags
 
+    // Game states
     state.S_WAITING = 0;
     state.S_PLAYING = 1;
     state.S_PAUSED = 2;
     state.S_WON = 3;
     state.S_DEAD = 4;
-    state.status = state.S_WAITING;
+    state.gstate = state.S_WAITING;    // current game state
 
     state.level = 1;
 

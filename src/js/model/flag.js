@@ -14,6 +14,7 @@ import state from "/js/game/state.js";
 import flag_render from "/js/game/flag_render.js";
 
 
+// Flag states
 const S_FREE = 0;
 const S_ACTIVE = 1;
 const S_HIT = 2;
@@ -35,7 +36,7 @@ export class Flag extends BaseNode {
         this.ch = U.rand(0, gl3d.digitCount);
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
         this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
-        this.accel = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
+        this.force = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrot = 0;
         this.yrot = 0;
         this.wavePeriod = Math.random() * 50;
@@ -79,6 +80,7 @@ export class Flag extends BaseNode {
 
         this._adjustVelocity();
         v3.addTo(this.pos, this.velocity);
+        v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
 
         super.onUpdate(delta, parent);

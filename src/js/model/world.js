@@ -11,6 +11,7 @@ import res from "/js/model/res.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import input from "/js/engine/input.js";
+import A from "/js/engine/animate.js";
 import U from "/js/util/util.js";
 
 
@@ -18,18 +19,16 @@ import U from "/js/util/util.js";
 export class World extends BaseNode {
     constructor() {
         super();
-
-        this.freeFlags = [...Array(state.MAX_FREE_FLAGS).keys()].map( () => new Flag() );
         this.flags = [];
     }
 
     onUpdate(delta, parent) {
         this._handleInput();
-        this._updateStatus();
+        this._updateGameState();
         if (this._gcFlags())
             this._pullback();
         this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );    // last one gets null
-        if (state.status == state.S_PLAYING) {
+        if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(delta, this) );
         }
         super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
@@ -45,24 +44,24 @@ export class World extends BaseNode {
     _startLevel() {
         L.info("_startLevel");
         this._spawnFlag();
-        state.status = state.S_PLAYING;
+        state.gstate = state.S_PLAYING;
         gl3d.cameraAngle = state.PLAYING_ANGLE;
     }
 
     _handleInput() {
         if (input.isOn(input.K_RUN)) {
-            if (state.status == state.S_WAITING)
+            if (state.gstate == state.S_WAITING)
                 this._startLevel();
         }
 
         if (input.isOn(input.K_PAUSE)) {
-            if (state.status == state.S_PLAYING)
-                state.status = state.S_PAUSED;
-            else if (state.status == state.S_PAUSED)
-                state.status = state.S_PLAYING;
+            if (state.gstate == state.S_PLAYING)
+                state.gstate = state.S_PAUSED;
+            else if (state.gstate == state.S_PAUSED)
+                state.gstate = state.S_PLAYING;
         }
 
-        if (state.status == state.S_PLAYING) {
+        if (state.gstate == state.S_PLAYING) {
             input.digitHit( digitIndex => this._checkFlagHit(digitIndex) );
         }
     }
@@ -77,8 +76,8 @@ export class World extends BaseNode {
         }
     }
     
-    _updateStatus() {
-        switch (state.status) {
+    _updateGameState() {
+        switch (state.gstate) {
         case state.S_WAITING:
             break;
         case state.S_PLAYING:
@@ -99,7 +98,7 @@ export class World extends BaseNode {
         let first = U.first(this.flags);
         if (first) {
             if (first.pos[0] < state.LOSING_X) {
-                state.status = state.S_DEAD;
+                state.gstate = state.S_DEAD;
             }
         }
     }
