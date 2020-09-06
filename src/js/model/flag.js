@@ -17,7 +17,8 @@ import flag_render from "/js/game/flag_render.js";
 const S_FREE = 0;
 const S_ACTIVE = 1;
 const S_HIT = 2;
-const S_DEAD = 3;
+const S_FLY = 3;
+const S_DEAD = 4;
 
 
 // flag item
@@ -50,6 +51,7 @@ export class Flag extends BaseNode {
     isFree()    { return this.status == S_FREE      }
     isActive()  { return this.status == S_ACTIVE    }
     isHit()     { return this.status == S_HIT       }
+    isFly()     { return this.status == S_FLY       }
     isDead()    { return this.status == S_DEAD      }
     isAlive()   { return this.status == S_ACTIVE || this.status == S_HIT }
 
