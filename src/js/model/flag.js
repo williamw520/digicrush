@@ -35,10 +35,10 @@ export class Flag extends BaseNode {
     activate(prevFlag) {
         this.ch = U.rand(0, gl3d.digitCount);
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
-        this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
-        this.force = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrot = 0;
         this.yrot = 0;
+        this.velocity = [0, 0, 0];          // velocity vector, distance per tick on [x,y,z]
+        this.force = [0, 0, 0];             // acceleration vector, velocity per tick on [vx,vy,vz]
         this.wavePeriod = Math.random() * 50;
         this.rflag = null;
         this.hitTime = 0;
@@ -70,7 +70,7 @@ export class Flag extends BaseNode {
         this.status = S_DEAD;
     }
 
-    onUpdate(delta, parent) {
+    onUpdate(time, delta, parent) {
         if (this.status == S_HIT) {
             this.xrot += 12;
             if (performance.now() - this.hitTime > 300) {
@@ -83,7 +83,7 @@ export class Flag extends BaseNode {
         v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
 
-        super.onUpdate(delta, parent);
+        super.onUpdate(time, delta, parent);
     }
 
     onDraw() {

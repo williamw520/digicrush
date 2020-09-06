@@ -20,9 +20,9 @@ export class BaseNode {
     }
 
     // Derived class should call this super.onUpdate() to iterate through the child nodes.
-    onUpdate(delta, parent) {
+    onUpdate(time, delta, parent) {
         if (this.nodes.length > 0) {
-            this.nodes.forEach( n => n.onUpdate(delta, this) );
+            this.nodes.forEach( n => n.onUpdate(time, delta, this) );
             let dead = this.nodes.reduce( (dead, n) => dead || !n.alive, false );
             if (dead)
                 this.nodes = this.nodes.filter( node => node.alive );

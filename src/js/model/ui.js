@@ -13,8 +13,8 @@ export class UI extends BaseNode {
         super();
     }
 
-    onUpdate(delta, parent) {
-        super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
+    onUpdate(time, delta, parent) {
+        super.onUpdate(time, delta, parent);  // run onUpdate() on child nodes in the world node.
         //L.info("onUpdate");
     }
 

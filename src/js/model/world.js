@@ -22,16 +22,16 @@ export class World extends BaseNode {
         this.flags = [];
     }
 
-    onUpdate(delta, parent) {
+    onUpdate(time, delta, parent) {
         this._handleInput();
         this._updateGameState();
         if (this._gcFlags())
             this._pullback();
         this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );    // last one gets null
         if (state.gstate == state.S_PLAYING) {
-            this.flags.forEach( f => f.onUpdate(delta, this) );
+            this.flags.forEach( f => f.onUpdate(time, delta, this) );
         }
-        super.onUpdate(delta, parent);  // run onUpdate() on child nodes in the world node.
+        super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
 
     onDraw() {
