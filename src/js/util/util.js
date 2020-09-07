@@ -33,14 +33,6 @@ let U = (function() {
 
     U.rand  = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    // Bit operations on 32-bit array at bit position (0th to 31st)
-    U.bitSet    = (bits, position)      => bits |  (1 << position);
-    U.bitClear  = (bits, position)      => bits & ~(1 << position);
-    U.bitFlip   = (bits, position)      => bits ^  (1 << position);
-    U.bitPut    = (bits, position,bool) => bool ? U.bitSet(bits, position) : U.bitClear(bits, position);
-    U.bitOn     = (bits, position)      => !(!(bits & (1 << position)));
-    U.bitOff    = (bits, position)      =>   !(bits & (1 << position));
-
     return U;
 }());
 

@@ -68,13 +68,16 @@ export class World extends BaseNode {
 
     _checkMatchingFlags(digitIndex) {
         let count = 0;
-        let lastMatch = -9;
+        let firstMatch = -1;
+        let lastMatch = -1;
         let seq = 0;
         let seq3 = false;
         let seq4 = false;
         let seq5 = false;
         this.flags.forEach( (f, i) => {
             if (f.ch == digitIndex) {
+                if (firstMatch == -1)
+                    firstMatch = i;
                 if (lastMatch == (i-1)) {
                     seq++;
                     if (seq >= 3) seq3 = true;
@@ -86,10 +89,25 @@ export class World extends BaseNode {
                 lastMatch = i;
                 count++;
             } else {
-                lastMatch = -9;
+                lastMatch = -1;
                 seq = 0;
             }
         })
+
+        let powerType = 0;
+        if (seq4) {
+            powerType = Flag.T_BOMB4;
+        } else if (seq3) {
+            if (digitIndex >= 0 && digitIndex < 3) {
+                powerType = Flag.T_WILDCARD;
+            } else {
+                powerType = Flag.T_BOMB3;
+            }
+        }
+
+        if (powerType) {
+            this.flags[firstMatch].morph(powerType);
+        }
 
         if (count > 1) {
             this.flags.forEach( f => {
@@ -137,7 +155,7 @@ export class World extends BaseNode {
 
     _spawnFlag() {
         let f = res.allocFlag();
-        f.activate(U.last(this.flags));
+        f.activate(U.last(this.flags), null);
         this.flags.push(f);
     }
 

@@ -22,6 +22,12 @@ const S_HIT = 2;
 const S_FLY = 3;
 const S_DEAD = 4;
 
+// Flag type
+const T_FLAG = 0;
+const T_WILDCARD = 1;
+const T_BOMB3 = 2;
+const T_BOMB4 = 3;
+
 
 // flag item
 export class Flag extends BaseNode {
@@ -34,8 +40,9 @@ export class Flag extends BaseNode {
         this.flyTime = new A.Timeline(1000);    // fly state animation timeout
     }
 
-    activate(prevFlag) {
-        this.ch = U.rand(0, gl3d.digitCount);
+    activate(prevFlag, flagToRight) {
+        this.ch = U.rand(0, gl3d.digitCount - 1);
+        this.type = T_FLAG;
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
         this.scale = 0.25;                      // model scale 
         this.xrot = 0;                          // model x-axis rotation
@@ -44,8 +51,16 @@ export class Flag extends BaseNode {
         this.force = [0, 0, 0];                 // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrotSpeed = 0;                     // rotation speed in degree.
         this.wavePeriod = Math.random() * 50;
-        this.rflag = null;
+        this.rflag = flagToRight;
         this.fstate = S_ACTIVE;
+    }
+
+    morph(powerType) {
+        this.type = powerType;
+        if (powerType == T_WILDCARD)
+            this.ch = 7;
+        else
+            this.ch = U.rand(0, gl3d.digitCount - 1);
     }
 
     setRNeighbor(flagToRight) {
@@ -133,4 +148,9 @@ export class Flag extends BaseNode {
     }
 
 }
+
+Flag.T_FLAG = T_FLAG;
+Flag.T_WILDCARD = T_WILDCARD;
+Flag.T_BOMB3 = T_BOMB3;
+Flag.T_BOMB4 = T_BOMB4;
 
