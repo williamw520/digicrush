@@ -69,6 +69,22 @@ export class World extends BaseNode {
         }
     }
 
+    _firstFlag() {
+        for (let i = 0; i < this.flags.length; i++) {
+            if (this.flags[i].isInLine())
+                return this.flags[i];
+        }
+        return null;
+    }
+    
+    _lastFlag() {
+        for (let i = this.flags.length - 1; i >= 0; i--) {
+            if (this.flags[i].isInLine())
+                return this.flags[i];
+        }
+        return null;
+    }
+    
     _checkMatchingFlags(digitIndex) {
         L.info("_checkMatchingFlags");
         let count = 0;
@@ -132,7 +148,7 @@ export class World extends BaseNode {
     }
 
     _checkLosing() {
-        let first = U.first(this.flags);
+        let first = this._firstFlag();
         if (first) {
             if (first.pos[0] < state.LOSING_X) {
                 state.gstate = state.S_DEAD;
@@ -141,7 +157,7 @@ export class World extends BaseNode {
     }
 
     _checkSpawn() {
-        let last = U.last(this.flags);
+        let last = this._lastFlag();
         if (last) {
             if (last.pos[0] < state.BEGIN_X) {
                 this._spawnFlag();
@@ -150,7 +166,8 @@ export class World extends BaseNode {
     }
 
     _spawnFlag() {
-        let f = new Flag(U.last(this.flags));
+        let last = this._lastFlag();
+        let f = new Flag(last);
         this.flags.push(f);
     }
 
@@ -170,9 +187,9 @@ export class World extends BaseNode {
     }
 
     _pullback() {
-        let last = U.last(this.flags);
+        let last = this._lastFlag();
         if (last) {
-            last.pos[0] += state.SPACE_BETWEEN / 2;     // pushing back the last one pulls the whole string of flags back.
+            last.pos[0] += state.SPACE_BETWEEN;     // pushing back the last one pulls the whole string of flags back.
         }
     }    
 
@@ -192,5 +209,6 @@ export class World extends BaseNode {
         }
     }
 
+    
 }
 
