@@ -6,7 +6,6 @@
 */
 
 import U from "/js/util/util.js";
-import {BaseNode} from "/js/engine/basenode.js";
 import {pg} from "/js/engine/pregen.js";
 import {v3} from "/js/engine/vector.js";
 import A from "/js/engine/animate.js";
@@ -30,12 +29,11 @@ const T_BOMB4 = 3;
 
 
 // flag item
-export class Flag extends BaseNode {
+export class Flag {
     constructor(prevFlag) {
-        super();
         this.bg = [0.5, 1.0, 0.0, 1.0];
         this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
-        this.flyTime = new A.Timeline(1000);    // fly state animation timeout
+        this.flyTime = new A.Timeline(500);    // fly state animation timeout
         this.ch = U.rand(0, gl3d.digitCount);   // [1,2,3,4,5,6,@]
         this.type = T_FLAG;
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
@@ -97,12 +95,16 @@ export class Flag extends BaseNode {
 
     onUpdate(time, delta, parent) {
         switch (this.fstate) {
+        case S_ACTIVE:
+            this._updatePhysics(delta);
+            break;
         case S_HIT:
             if (!this.hitTime.step(time)) {
                 this.xrotSpeed = 8 + M.floor(6 * A.easeInQuad(this.hitTime.pos));
             } else {
                 this.toFly();
             }
+            this._updatePhysics(delta);
             break;
         case S_FLY:
             if (!this.flyTime.step(time)) {
@@ -110,24 +112,31 @@ export class Flag extends BaseNode {
             } else {
                 this.toDead();
             }
+            this._updatePhysics(delta);
+            break;
+        case S_FUSE:
+            this._updatePhysics(delta);
+            break;
+        case S_DEAD:
             break;
         }
+    }
 
+    onDraw() {
+        if (!this.isDead()) {
+            let modelRotation = pg.xrot(this.xrot);
+            flag_render.draw(gl3d.gl, this.ch, this.pos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
+        }
+    }
+
+    _updatePhysics(delta) {
         this._adjustVelocity();
         v3.addTo(this.pos, this.velocity);
         v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
         this.xrot += this.xrotSpeed;
-
-        super.onUpdate(time, delta, parent);
     }
-
-    onDraw() {
-        let modelRotation = pg.xrot(this.xrot);
-        flag_render.draw(gl3d.gl, this.ch, this.pos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
-        super.onDraw();         // run onDraw() on child nodes.
-    }
-
+    
     _adjustVelocity() {
         if (this.rflag) {
             let xdelta = this.rflag.pos[0] - this.pos[0];
