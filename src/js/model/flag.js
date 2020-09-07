@@ -65,17 +65,17 @@ export class Flag extends BaseNode {
             this.ch = U.rand(0, gl3d.digitCount - 1);
     }
 
-    setRNeighbor(flagToRight) {
+    setNext(flagToRight) {
         this.rflag = flagToRight;
     }
 
-    isFree()    { return this.fstate == S_FREE      }
-    isActive()  { return this.fstate == S_ACTIVE    }
-    isHit()     { return this.fstate == S_HIT       }
-    isFly()     { return this.fstate == S_FLY       }
-    isFuse()    { return this.fstate == S_FUSE      }
-    isDead()    { return this.fstate == S_DEAD      }
-    isAlive()   { return this.fstate == S_ACTIVE || this.fstate == S_HIT }
+    isFree()        { return this.fstate == S_FREE      }
+    isActive()      { return this.fstate == S_ACTIVE    }
+    isHit()         { return this.fstate == S_HIT       }
+    isFly()         { return this.fstate == S_FLY       }
+    isFuse()        { return this.fstate == S_FUSE      }
+    isDead()        { return this.fstate == S_DEAD      }
+    isAlive()       { return this.fstate == S_ACTIVE || this.fstate == S_HIT    }
 
     toFree() {
         this.fstate = S_FREE;

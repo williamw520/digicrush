@@ -29,7 +29,7 @@ export class World extends BaseNode {
         this._checkFlyingFlags();
         if (this._checkDeadFlags())
             this._pullback();
-        this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );    // last one gets null
+        this.flags.forEach( (f, i) => f.setNext(this.flags[i+1]) );    // last one gets null
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
             this.flying.forEach( f => f.onUpdate(time, delta, this) );
@@ -71,29 +71,21 @@ export class World extends BaseNode {
     }
 
     _checkMatchingFlags(digitIndex) {
+        L.info("_checkMatchingFlags");
         let count = 0;
-        let firstMatch = -1;
-        let lastMatch = -1;
+        let firstMatch;
         let seq = 0;
         let seq3 = false;
         let seq4 = false;
-        let seq5 = false;
         this.flags.forEach( (f, i) => {
-            if (f.ch == digitIndex) {
-                if (firstMatch == -1)
-                    firstMatch = i;
-                if (lastMatch == (i-1)) {
-                    seq++;
-                    if (seq >= 3) seq3 = true;
-                    if (seq >= 4) seq4 = true;
-                    if (seq >= 5) seq5 = true;
-                } else {
-                    seq = 1;
-                }
-                lastMatch = i;
+            if (f.ch == digitIndex && f.isActive()) {
                 count++;
+                seq++;
+                if (seq == 1 && !(seq3 || seq4))
+                    firstMatch = f;
+                if (seq >= 3) seq3 = true;
+                if (seq >= 4) seq4 = true;
             } else {
-                lastMatch = -1;
                 seq = 0;
             }
         })
@@ -110,12 +102,13 @@ export class World extends BaseNode {
         }
 
         if (powerType) {
-            this.flags[firstMatch].morph(powerType);
+            L.info("powerType", powerType, firstMatch);
+            firstMatch.morph(powerType);
         }
 
         if (count > 1) {
             this.flags.forEach( f => {
-                if (f.ch == digitIndex)
+                if (f.ch == digitIndex && f.isActive())
                     f.toHit();
             });
         }
