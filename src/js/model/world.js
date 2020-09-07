@@ -20,16 +20,19 @@ export class World extends BaseNode {
     constructor() {
         super();
         this.flags = [];
+        this.flying = [];
     }
 
     onUpdate(time, delta, parent) {
         this._handleInput();
         this._updateGameState();
-        if (this._gcFlags())
+        this._checkFlyingFlags();
+        if (this._checkDeadFlags())
             this._pullback();
         this.flags.forEach( (f, i) => f.setRNeighbor(this.flags[i+1]) );    // last one gets null
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
+            this.flying.forEach( f => f.onUpdate(time, delta, this) );
         }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
@@ -38,7 +41,8 @@ export class World extends BaseNode {
         // this.farLayer.onDraw();
         // this.backLayer.onDraw();
         super.onDraw();       // run onDraw() on child nodes.
-        this.flags.forEach( f => f.onDraw() );
+        this.flags.forEach(  f => f.onDraw() );
+        this.flying.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -122,7 +126,7 @@ export class World extends BaseNode {
         case state.S_WAITING:
             break;
         case state.S_PLAYING:
-            this._checkDead();
+            this._checkLosing();
             this._checkSpawn();
             break;
         case state.S_PAUSED:
@@ -135,7 +139,7 @@ export class World extends BaseNode {
         }        
     }
 
-    _checkDead() {
+    _checkLosing() {
         let first = U.first(this.flags);
         if (first) {
             if (first.pos[0] < state.LOSING_X) {
@@ -159,8 +163,17 @@ export class World extends BaseNode {
         this.flags.push(f);
     }
 
-    _gcFlags() {
-        let hasDead = this.flags.reduce( (dead, f) => dead || f.isDead(), false );
+    _checkFlyingFlags() {
+        let hasFlying = this.flags.reduce( (acc, f) => acc || f.isFly(), false );
+        if (hasFlying) {
+            this.flags.forEach( f => f.isFly() ? this.flying.push(f) : 0 );
+            this.flags = this.flags.filter( f => !f.isFly() );
+        }
+        return hasFlying;
+    }
+
+    _checkDeadFlags() {
+        let hasDead = this.flags.reduce( (acc, f) => acc || f.isDead(), false );
         if (hasDead) {
             this.flags.forEach( f => f.isDead() ? res.freeFlag(f.toFree()) : 0 );
             this.flags = this.flags.filter( f => !f.isFree() );

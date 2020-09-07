@@ -20,7 +20,8 @@ const S_FREE = 0;
 const S_ACTIVE = 1;
 const S_HIT = 2;
 const S_FLY = 3;
-const S_DEAD = 4;
+const S_FUSE = 4;
+const S_DEAD = 5;
 
 // Flag type
 const T_FLAG = 0;
@@ -52,6 +53,7 @@ export class Flag extends BaseNode {
         this.xrotSpeed = 0;                     // rotation speed in degree.
         this.wavePeriod = Math.random() * 50;
         this.rflag = flagToRight;
+        this.fuseTarget = null;
         this.fstate = S_ACTIVE;
     }
 
@@ -71,6 +73,7 @@ export class Flag extends BaseNode {
     isActive()  { return this.fstate == S_ACTIVE    }
     isHit()     { return this.fstate == S_HIT       }
     isFly()     { return this.fstate == S_FLY       }
+    isFuse()    { return this.fstate == S_FUSE      }
     isDead()    { return this.fstate == S_DEAD      }
     isAlive()   { return this.fstate == S_ACTIVE || this.fstate == S_HIT }
 
@@ -91,6 +94,13 @@ export class Flag extends BaseNode {
         this.velocity[2] = -0.05;
         this.xrotSpeed = 24;
         this.fstate = S_FLY;
+    }
+
+    toFuse(fuseTarget) {
+        this.force[0] = -0.05;
+        this.fuseTarget = fuseTarget;
+        this.fstate = S_FUSE;
+        //...
     }
 
     toDead() {
