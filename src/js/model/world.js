@@ -94,7 +94,7 @@ export class World extends BaseNode {
         let seq3 = false;
         let seq4 = false;
         this.flags.forEach( (f, i) => {
-            if (f.ch == digitIndex && f.isActive()) {
+            if (f.match(digitIndex)) {
                 count++;
                 seq++;
                 if (seq == 1 && !(seq3 || seq4))
@@ -108,12 +108,12 @@ export class World extends BaseNode {
 
         let powerType = 0;
         if (seq4) {
-            powerType = Flag.T_BOMB4;
+            powerType = def.T_BOMB4;
         } else if (seq3) {
             if (digitIndex >= 0 && digitIndex < 3) {
-                powerType = Flag.T_WILDCARD;
+                powerType = def.T_WILDCARD;
             } else {
-                powerType = Flag.T_BOMB3;
+                powerType = def.T_BOMB3;
             }
         }
 
@@ -121,13 +121,13 @@ export class World extends BaseNode {
             L.info("powerType", powerType, firstMatch);
             firstMatch.morph(powerType);
             this.flags.forEach( f => {
-                if (f != firstMatch && f.ch == digitIndex && f.isActive())
+                if (f != firstMatch && f.match(digitIndex))
                     f.toFuse(firstMatch);
             });
         } else {
             if (count > 1) {
                 this.flags.forEach( f => {
-                    if (f.ch == digitIndex && f.isActive())
+                    if (f.match(digitIndex))
                         f.toHit();
                 });
             }

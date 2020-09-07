@@ -15,6 +15,15 @@ let def = (function() {
     def.F_ROCK = 6;
     def.F_WILDCARD = 7;
 
+    def.T_FLAG = 0;
+    def.T_WILDCARD = 1;
+    def.T_BOMB3 = 2;
+    def.T_BOMB4 = 3;
+
+    def.charType = [def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG,
+                    def.T_FLAG,
+                    def.T_WILDCARD];
+
     def.BEGIN_X = 8.0;
     def.LOSING_X = -3.0;
     def.PLAYING_ANGLE = -20;

@@ -22,12 +22,6 @@ const S_FLY = 3;
 const S_FUSE = 4;
 const S_DEAD = 5;
 
-// Flag type
-const T_FLAG = 0;
-const T_WILDCARD = 1;
-const T_BOMB3 = 2;
-const T_BOMB4 = 3;
-
 
 // flag item
 export class Flag {
@@ -37,7 +31,7 @@ export class Flag {
         this.flyTime = new A.Timeline(500);     // fly state animation timeout
         this.fuseTime = new A.Timeline(800);    // fuse state animation timeout
         this.ch = U.rand(0, def.digitCount);    // [1,2,3,4,5,6,@]
-        this.type = T_FLAG;
+        this.type = def.charType[this.ch];
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.scale = 0.25;                      // model scale 
         this.xrot = 0;                          // model x-axis rotation
@@ -49,6 +43,7 @@ export class Flag {
         this.rflag = null;
         this.fuseTarget = null;
         this.fstate = S_ACTIVE;
+        this._enforceEleventation();
     }
 
     setNext(flagToRight) {
@@ -80,7 +75,7 @@ export class Flag {
         this.fuseTime.start(performance.now());
         this.fuseTarget = fuseTarget;
         this.fstate = S_FUSE;
-        this.pos[1] = def.POWER_ELEVATION;
+        this._enforceEleventation();
     }
 
     toDead() {
@@ -89,11 +84,20 @@ export class Flag {
 
     morph(powerType) {
         this.type = powerType;
-        if (powerType == T_WILDCARD)
+        if (powerType == def.T_WILDCARD)
             this.ch = 7;
         else
             this.ch = U.rand(0, def.digitCount - 1);
-        this.pos[1] = def.POWER_ELEVATION;
+        this._enforceEleventation();
+    }
+
+    match(digitIndex) {
+        return this.isActive() && (this.ch == digitIndex || this.type == def.T_WILDCARD);
+    }
+
+    _enforceEleventation() {
+        if (this.type != def.T_FLAG)
+            this.pos[1] = def.POWER_ELEVATION;
     }
 
     onUpdate(time, delta, parent) {
@@ -166,8 +170,4 @@ export class Flag {
 
 }
 
-Flag.T_FLAG = T_FLAG;
-Flag.T_WILDCARD = T_WILDCARD;
-Flag.T_BOMB3 = T_BOMB3;
-Flag.T_BOMB4 = T_BOMB4;
 
