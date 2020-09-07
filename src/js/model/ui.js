@@ -7,20 +7,36 @@
 
 import {BaseNode} from "/js/engine/basenode.js";
 
-// UI node
-export class UI extends BaseNode {
-    constructor() {
-        super();
+
+// util module
+let ui = (function() {
+    const ui = {};
+
+    // UI node
+    ui.UINode = class extends BaseNode {
+        constructor(world) {
+            super();
+            this._world = world;
+            this._flag_count = ui.Q("#flagcount");
+
+        }
+
+        onUpdate(time, delta, parent) {
+            //this._flag_count.textContent = this._world.flags.length;
+            super.onUpdate(time, delta, parent);  // run onUpdate() on child nodes in the world node.
+        }
+
+        onDraw() {
+            super.onDraw();                 // run onDraw() on child nodes.
+        }
+
     }
 
-    onUpdate(time, delta, parent) {
-        super.onUpdate(time, delta, parent);  // run onUpdate() on child nodes in the world node.
-        //L.info("onUpdate");
-    }
+    ui.Q    = (selector) => document.querySelector(selector);
+    ui.QA   = (selector) => document.querySelectorAll(selector);
 
-    onDraw() {
-        super.onDraw();                 // run onDraw() on child nodes.
-    }
+    return ui;
+}());
 
-}
+export default ui;
 

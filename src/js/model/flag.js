@@ -66,7 +66,7 @@ export class Flag {
     isFly()         { return this.fstate == S_FLY       }
     isFuse()        { return this.fstate == S_FUSE      }
     isDead()        { return this.fstate == S_DEAD      }
-    isAlive()       { return this.fstate == S_ACTIVE || this.fstate == S_HIT    }
+    isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT }
 
     toHit() {
         this.hitTime.start(performance.now());

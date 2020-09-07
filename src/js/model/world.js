@@ -19,19 +19,19 @@ export class World extends BaseNode {
     constructor() {
         super();
         this.flags = [];
-        this.flying = [];
+//        this.flying = [];
     }
 
     onUpdate(time, delta, parent) {
         this._handleInput();
         this._updateGameState();
-        this._checkFlyingFlags();
-        if (this._checkDeadFlags())
+        if (this._checkHitFlags())
             this._pullback();
-        this.flags.forEach( (f, i) => f.setNext(this.flags[i+1]) );    // last one gets null
+        this._checkDeadFlags();
+        this._fixNextPtr();
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
-            this.flying.forEach( f => f.onUpdate(time, delta, this) );
+//            this.flying.forEach( f => f.onUpdate(time, delta, this) );
         }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
@@ -41,7 +41,7 @@ export class World extends BaseNode {
         // this.backLayer.onDraw();
         super.onDraw();       // run onDraw() on child nodes.
         this.flags.forEach(  f => f.onDraw() );
-        this.flying.forEach( f => f.onDraw() );
+//        this.flying.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -154,13 +154,11 @@ export class World extends BaseNode {
         this.flags.push(f);
     }
 
-    _checkFlyingFlags() {
-        let hasFlying = this.flags.reduce( (acc, f) => acc || f.isFly(), false );
-        if (hasFlying) {
-            this.flags.forEach( f => f.isFly() ? this.flying.push(f) : 0 );
-            this.flags = this.flags.filter( f => !f.isFly() );
-        }
-        return hasFlying;
+    _checkHitFlags() {
+        let hasHit = this.flags.reduce( (acc, f) => acc || f.isHit(), false );
+        let hitStatusChanged = (this.hadHit && !hasHit);
+        this.hadHit = hasHit;
+        return hitStatusChanged;
     }
 
     _checkDeadFlags() {
@@ -177,6 +175,22 @@ export class World extends BaseNode {
             last.pos[0] += state.SPACE_BETWEEN / 2;     // pushing back the last one pulls the whole string of flags back.
         }
     }    
+
+    _fixNextPtr() {
+        for (let i = 0; i < this.flags.length; i++) {
+            let f = this.flags[i];
+            f.setNext(null);
+            if (f.isInLine()) {
+                for (i = i + 1; i < this.flags.length; i++) {
+                    if (this.flags[i].isInLine()) {
+                        f.setNext(this.flags[i]);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 }
 

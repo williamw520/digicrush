@@ -14,14 +14,14 @@ import texgen from "/js/game/texgen.js";
 import gl3d from "/js/game/gl3d.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/model/world.js";
-import {UI} from "/js/model/ui.js";
+import ui from "/js/model/ui.js";
 
 
 // app module
 (function() {
 
     let w = new World();
-    let u = new UI();
+    let u = new ui.UINode(w);
     let e = new Engine(w, u);
 
     gl3d.setup();
