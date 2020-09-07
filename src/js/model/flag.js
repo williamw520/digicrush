@@ -16,7 +16,6 @@ import flag_render from "/js/game/flag_render.js";
 
 
 // Flag states
-const S_FREE = 0;
 const S_ACTIVE = 1;
 const S_HIT = 2;
 const S_FLY = 3;
@@ -32,17 +31,12 @@ const T_BOMB4 = 3;
 
 // flag item
 export class Flag extends BaseNode {
-    constructor(imageIndex) {
+    constructor(prevFlag) {
         super();
-        this.ch = imageIndex || 0;              // char image index, 0-based.
         this.bg = [0.5, 1.0, 0.0, 1.0];
-        this.fstate = S_FREE;
         this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
         this.flyTime = new A.Timeline(1000);    // fly state animation timeout
-    }
-
-    activate(prevFlag, flagToRight) {
-        this.ch = U.rand(0, gl3d.digitCount - 1);
+        this.ch = U.rand(0, gl3d.digitCount);   // [1,2,3,4,5,6,@]
         this.type = T_FLAG;
         this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
         this.scale = 0.25;                      // model scale 
@@ -52,7 +46,7 @@ export class Flag extends BaseNode {
         this.force = [0, 0, 0];                 // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrotSpeed = 0;                     // rotation speed in degree.
         this.wavePeriod = Math.random() * 50;
-        this.rflag = flagToRight;
+        this.rflag = null;
         this.fuseTarget = null;
         this.fstate = S_ACTIVE;
     }
@@ -69,18 +63,12 @@ export class Flag extends BaseNode {
         this.rflag = flagToRight;
     }
 
-    isFree()        { return this.fstate == S_FREE      }
     isActive()      { return this.fstate == S_ACTIVE    }
     isHit()         { return this.fstate == S_HIT       }
     isFly()         { return this.fstate == S_FLY       }
     isFuse()        { return this.fstate == S_FUSE      }
     isDead()        { return this.fstate == S_DEAD      }
     isAlive()       { return this.fstate == S_ACTIVE || this.fstate == S_HIT    }
-
-    toFree() {
-        this.fstate = S_FREE;
-        return this;
-    }
 
     toHit() {
         this.hitTime.start(performance.now());

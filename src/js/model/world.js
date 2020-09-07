@@ -7,7 +7,6 @@
 
 import {BaseNode} from "/js/engine/basenode.js";
 import {Flag} from "/js/model/flag.js";
-import res from "/js/model/res.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import input from "/js/engine/input.js";
@@ -151,8 +150,7 @@ export class World extends BaseNode {
     }
 
     _spawnFlag() {
-        let f = res.allocFlag();
-        f.activate(U.last(this.flags), null);
+        let f = new Flag(U.last(this.flags));
         this.flags.push(f);
     }
 
@@ -168,8 +166,7 @@ export class World extends BaseNode {
     _checkDeadFlags() {
         let hasDead = this.flags.reduce( (acc, f) => acc || f.isDead(), false );
         if (hasDead) {
-            this.flags.forEach( f => f.isDead() ? res.freeFlag(f.toFree()) : 0 );
-            this.flags = this.flags.filter( f => !f.isFree() );
+            this.flags = this.flags.filter( f => !f.isDead() );
         }
         return hasDead;
     }
