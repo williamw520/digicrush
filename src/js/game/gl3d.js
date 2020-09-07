@@ -10,6 +10,7 @@ import {v2, v3} from "/js/engine/vector.js";
 import {m4, m4u} from "/js/engine/matrix.js";
 import {pg} from "/js/engine/pregen.js";
 import texgen from "/js/game/texgen.js";
+import def from "/js/game/def.js";
 import flag_render from "/js/game/flag_render.js";
 
 
@@ -18,9 +19,6 @@ let gl3d = (function() {
     const gl3d = {};
 
     let gl = document.getElementById("wgl").getContext("webgl");
-    let chars = ["1", "2", "3", "4", "5", "6", "@", "$"];
-
-    gl3d.digitCount = 6;
 
     gl3d.setup = () => {
         let unitWidth = 1
@@ -32,8 +30,8 @@ let gl3d = (function() {
 
         // generate the texture images; set up the texture in webgl.
         texgen.setup("tex");
-        chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
-        flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), chars.length);
+        def.chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
+        flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), def.chars.length);
 
         // compuate the projection matix.
         const fieldOfViewRadians = v2.deg_to_rad(60);                   // how wide the cone of view is.

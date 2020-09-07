@@ -11,6 +11,7 @@ import {v3} from "/js/engine/vector.js";
 import A from "/js/engine/animate.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
+import def from "/js/game/def.js";
 import flag_render from "/js/game/flag_render.js";
 
 
@@ -33,10 +34,11 @@ export class Flag {
     constructor(prevFlag) {
         this.bg = [0.5, 1.0, 0.0, 1.0];
         this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
-        this.flyTime = new A.Timeline(500);    // fly state animation timeout
-        this.ch = U.rand(0, gl3d.digitCount);   // [1,2,3,4,5,6,@]
+        this.flyTime = new A.Timeline(500);     // fly state animation timeout
+        this.fuseTime = new A.Timeline(800);    // fuse state animation timeout
+        this.ch = U.rand(0, def.digitCount);    // [1,2,3,4,5,6,@]
         this.type = T_FLAG;
-        this.pos = [ (prevFlag ? prevFlag.pos[0] + state.SPACE_BETWEEN : state.BEGIN_X), 0, 0 ];
+        this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.scale = 0.25;                      // model scale 
         this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
@@ -47,14 +49,6 @@ export class Flag {
         this.rflag = null;
         this.fuseTarget = null;
         this.fstate = S_ACTIVE;
-    }
-
-    morph(powerType) {
-        this.type = powerType;
-        if (powerType == T_WILDCARD)
-            this.ch = 7;
-        else
-            this.ch = U.rand(0, gl3d.digitCount - 1);
     }
 
     setNext(flagToRight) {
@@ -83,14 +77,23 @@ export class Flag {
     }
 
     toFuse(fuseTarget) {
-        this.force[0] = -0.05;
+        this.fuseTime.start(performance.now());
         this.fuseTarget = fuseTarget;
         this.fstate = S_FUSE;
-        //...
+        this.pos[1] = def.POWER_ELEVATION;
     }
 
     toDead() {
         this.fstate = S_DEAD;
+    }
+
+    morph(powerType) {
+        this.type = powerType;
+        if (powerType == T_WILDCARD)
+            this.ch = 7;
+        else
+            this.ch = U.rand(0, def.digitCount - 1);
+        this.pos[1] = def.POWER_ELEVATION;
     }
 
     onUpdate(time, delta, parent) {
@@ -115,6 +118,11 @@ export class Flag {
             this._updatePhysics(delta);
             break;
         case S_FUSE:
+            if (!this.fuseTime.step(time)) {
+                this.velocity =v3.scale(v3.unit(v3.sub(this.fuseTarget.pos, this.pos)), 0.1);
+            } else {
+                this.toDead();
+            }
             this._updatePhysics(delta);
             break;
         case S_DEAD:
@@ -130,27 +138,29 @@ export class Flag {
     }
 
     _updatePhysics(delta) {
-        this._adjustVelocity();
+        this._adjustToNeighbors();
         v3.addTo(this.pos, this.velocity);
         v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
         this.xrot += this.xrotSpeed;
     }
     
-    _adjustVelocity() {
-        if (this.rflag) {
-            let xdelta = this.rflag.pos[0] - this.pos[0];
-            if (xdelta < (state.SPACE_BETWEEN - 0.01)) {
+    _adjustToNeighbors() {
+        if (this.isInLine()) {
+            if (this.rflag) {
+                let xdelta = this.rflag.pos[0] - this.pos[0];
+                if (xdelta < (def.SPACE_BETWEEN - 0.01)) {
+                    this.velocity[0] = -0.01;
+                    this.pos[0] = this.rflag.pos[0] - def.SPACE_BETWEEN + 0.01;
+                } else if (xdelta > (def.SPACE_BETWEEN + 0.01)) {
+                    this.velocity[0] =  0.10;
+                }
+                else {
+                    this.velocity[0] = -0.01;
+                }
+            } else {
                 this.velocity[0] = -0.01;
-                this.pos[0] = this.rflag.pos[0] - state.SPACE_BETWEEN + 0.01;
-            } else if (xdelta > (state.SPACE_BETWEEN + 0.01)) {
-                this.velocity[0] =  0.10;
             }
-            else {
-                this.velocity[0] = -0.01;
-            }
-        } else {
-            this.velocity[0] = -0.01;
         }
     }
 

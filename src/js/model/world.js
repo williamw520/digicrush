@@ -9,6 +9,7 @@ import {BaseNode} from "/js/engine/basenode.js";
 import {Flag} from "/js/model/flag.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
+import def from "/js/game/def.js";
 import input from "/js/engine/input.js";
 import A from "/js/engine/animate.js";
 import U from "/js/util/util.js";
@@ -48,7 +49,7 @@ export class World extends BaseNode {
         L.info("_startLevel");
         this._spawnFlag();
         state.gstate = state.S_PLAYING;
-        gl3d.cameraAngle = state.PLAYING_ANGLE;
+        gl3d.cameraAngle = def.PLAYING_ANGLE;
     }
 
     _handleInput() {
@@ -119,13 +120,17 @@ export class World extends BaseNode {
         if (powerType) {
             L.info("powerType", powerType, firstMatch);
             firstMatch.morph(powerType);
-        }
-
-        if (count > 1) {
             this.flags.forEach( f => {
-                if (f.ch == digitIndex && f.isActive())
-                    f.toHit();
+                if (f != firstMatch && f.ch == digitIndex && f.isActive())
+                    f.toFuse(firstMatch);
             });
+        } else {
+            if (count > 1) {
+                this.flags.forEach( f => {
+                    if (f.ch == digitIndex && f.isActive())
+                        f.toHit();
+                });
+            }
         }
     }
     
@@ -150,7 +155,7 @@ export class World extends BaseNode {
     _checkLosing() {
         let first = this._firstFlag();
         if (first) {
-            if (first.pos[0] < state.LOSING_X) {
+            if (first.pos[0] < def.LOSING_X) {
                 state.gstate = state.S_DEAD;
             }
         }
@@ -159,7 +164,7 @@ export class World extends BaseNode {
     _checkSpawn() {
         let last = this._lastFlag();
         if (last) {
-            if (last.pos[0] < state.BEGIN_X) {
+            if (last.pos[0] < def.BEGIN_X) {
                 this._spawnFlag();
             }
         }
@@ -189,7 +194,7 @@ export class World extends BaseNode {
     _pullback() {
         let last = this._lastFlag();
         if (last) {
-            last.pos[0] += state.SPACE_BETWEEN;     // pushing back the last one pulls the whole string of flags back.
+            last.pos[0] += def.SPACE_BETWEEN;     // pushing back the last one pulls the whole string of flags back.
         }
     }    
 
