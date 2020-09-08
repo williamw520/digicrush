@@ -30,7 +30,7 @@ export class Flag {
         this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
         this.flyTime = new A.Timeline(500);     // fly state animation timeout
         this.fuseTime = new A.Timeline(800);    // fuse state animation timeout
-        this.ch = U.rand(0, def.digitCount);    // [1,2,3,4,5,6,@]
+        this.ch = U.rand(0, def.digitCount-2);    // [1,2,3,4,5,6,@]
         this.type = def.charType[this.ch];
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.scale = 0.25;                      // model scale 

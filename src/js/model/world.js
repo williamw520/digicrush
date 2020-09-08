@@ -20,7 +20,8 @@ export class World extends BaseNode {
     constructor() {
         super();
         this.flags = [];
-//        this.flying = [];
+        this.matchedFlg = [];
+        this.matchedSeq = [];
     }
 
     onUpdate(time, delta, parent) {
@@ -32,7 +33,6 @@ export class World extends BaseNode {
         this._fixNextPtr();
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
-//            this.flying.forEach( f => f.onUpdate(time, delta, this) );
         }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
@@ -42,7 +42,6 @@ export class World extends BaseNode {
         // this.backLayer.onDraw();
         super.onDraw();       // run onDraw() on child nodes.
         this.flags.forEach(  f => f.onDraw() );
-//        this.flying.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -85,53 +84,54 @@ export class World extends BaseNode {
         }
         return null;
     }
-    
-    _checkMatchingFlags(digitIndex) {
-        L.info("_checkMatchingFlags");
-        let count = 0;
-        let firstMatch;
+
+    _findMatchingFlags(digitIndex) {
         let seq = 0;
-        let seq3 = false;
-        let seq4 = false;
-        this.flags.forEach( (f, i) => {
+        this.matchedFlg.length = 0;             // reset working arrays.
+        this.matchedSeq.length = 0;
+        this.flags.forEach( f => {
             if (f.match(digitIndex)) {
-                count++;
-                seq++;
-                if (seq == 1 && !(seq3 || seq4))
-                    firstMatch = f;
-                if (seq >= 3) seq3 = true;
-                if (seq >= 4) seq4 = true;
+                seq++;                          // count consecutive matching flags.
+                this.matchedFlg.push(f);        // save matched flag
+                this.matchedSeq.push(seq);      // save the seq count for the index.
             } else {
-                seq = 0;
+                seq = 0;                        // reset seq counter once a non-matched flag is encountered.
             }
         })
+        return this.matchedFlg.length;
+    }
 
+    _determinePowerType(seq, digitIndex) {
         let powerType = 0;
-        if (seq4) {
-            powerType = def.T_BOMB4;
-        } else if (seq3) {
-            if (digitIndex >= 0 && digitIndex < 3) {
-                powerType = def.T_WILDCARD;
+        if (seq == 3) {
+            return (digitIndex >= 0 && digitIndex < 3) ? def.T_WILDCARD : def.T_BOMB3;
+        } else if (seq >= 4) {
+            return def.T_BOMB4;
+        }
+        return 0;
+    }
+
+    _checkMatchingFlags(digitIndex) {
+        L.info("_checkMatchingFlags");
+        if (this._findMatchingFlags(digitIndex) == 0)
+            return;
+
+        for (let i = this.matchedSeq.length - 1; i >= 0; i--) {
+            let seq = this.matchedSeq[i];
+            let powerType = this._determinePowerType(seq, digitIndex);
+            if (powerType) {                                    // has power flag generated.
+                let firstIndex  = i - seq + 1;                  // go back by seq count.
+                let firstFlag   = this.matchedFlg[firstIndex];
+                firstFlag.morph(powerType);                     // morph the first flag to the power type.
+                for (let j = firstIndex + 1; j <= i; j++) {
+                    this.matchedFlg[j].toFuse(firstFlag);       // change the rest to S_FUSE state.
+                }
+                i = firstIndex;                                 // skip back to firstIndex to continue the outer loop.
             } else {
-                powerType = def.T_BOMB3;
+                this.matchedFlg[i].toHit();                     // non-seq flags are changed to S_HIT state.
             }
         }
 
-        if (powerType) {
-            L.info("powerType", powerType, firstMatch);
-            firstMatch.morph(powerType);
-            this.flags.forEach( f => {
-                if (f != firstMatch && f.match(digitIndex))
-                    f.toFuse(firstMatch);
-            });
-        } else {
-            if (count > 1) {
-                this.flags.forEach( f => {
-                    if (f.match(digitIndex))
-                        f.toHit();
-                });
-            }
-        }
     }
     
     _updateGameState() {
