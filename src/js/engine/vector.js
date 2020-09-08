@@ -38,6 +38,7 @@ v3.cross    = (a, b)    => [ a[1]*b[2] - a[2]*b[1],                         // c
 v3.addTo    = (a, b)    => (a[0] += b[0],  a[1] += b[1], a[2] += b[2], a);  // add vector b to a, in place.
 v3.setTo    = (a, b)    => (a[0]  = b[0],  a[1]  = b[1], a[2]  = b[2], a);  // set vector b to a, in place.
 v3.subFrom  = (a, b)    => (a[0] -= b[0],  a[1] -= b[1], a[2] -= b[2], a);  // sub vector from to a, in place.
+v3.scaleTo  = (a, s)    => (a[0] *= s,     a[1] *= s,    a[2] *= s,    a);  // scale vector a by s, in place.
 
 export { v2, v3 };
 

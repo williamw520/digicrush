@@ -22,17 +22,19 @@ const S_FLY = 3;
 const S_FUSE = 4;
 const S_DEAD = 5;
 
+let workingPos = [0, 0, 0];                     // working vector
 
 // flag item
 export class Flag {
     constructor(prevFlag) {
         this.bg = [0.5, 1.0, 0.0, 1.0];
-        this.hitTime = new A.Timeline(300);     // hit state animation timeout lasts 300ms.
+        this.hitTime = new A.Timeline(250);     // hit state animation timeout lasts 300ms.
         this.flyTime = new A.Timeline(500);     // fly state animation timeout
-        this.fuseTime = new A.Timeline(800);    // fuse state animation timeout
-        this.ch = U.rand(0, def.digitCount-2);    // [1,2,3,4,5,6,@]
+        this.fuseTime = new A.Timeline(100);    // fuse state animation timeout
+        this.ch = U.rand(0, def.charLimit);     // [1,2,3,4,5,6,*,@]
         this.type = def.charType[this.ch];
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
+        this.offset = [0, 0, 0];
         this.scale = 0.25;                      // model scale 
         this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
@@ -42,8 +44,8 @@ export class Flag {
         this.wavePeriod = Math.random() * 50;
         this.rflag = null;
         this.fuseTarget = null;
+        this.fusePowerType = 0;
         this.fstate = S_ACTIVE;
-        this._enforceEleventation();
     }
 
     setNext(flagToRight) {
@@ -55,7 +57,7 @@ export class Flag {
     isFly()         { return this.fstate == S_FLY       }
     isFuse()        { return this.fstate == S_FUSE      }
     isDead()        { return this.fstate == S_DEAD      }
-    isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT }
+    isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSE }
 
     toHit() {
         this.hitTime.start(performance.now());
@@ -71,11 +73,12 @@ export class Flag {
         this.fstate = S_FLY;
     }
 
-    toFuse(fuseTarget) {
+    toFuse(fuseTarget, powerType) {
         this.fuseTime.start(performance.now());
         this.fuseTarget = fuseTarget;
+        this.fusePowerType = powerType;
         this.fstate = S_FUSE;
-        this._enforceEleventation();
+        this.pos[1] = def.POWER_ELEVATION;
     }
 
     toDead() {
@@ -83,21 +86,16 @@ export class Flag {
     }
 
     morph(powerType) {
+        this.fstate = S_ACTIVE
         this.type = powerType;
         if (powerType == def.T_WILDCARD)
-            this.ch = 7;
+            this.ch = def.F_WILDCARD;
         else
-            this.ch = U.rand(0, def.digitCount - 1);
-        this._enforceEleventation();
+            this.ch = U.rand(0, def.digitLimit);
     }
 
     match(digitIndex) {
         return this.isActive() && (this.ch == digitIndex || this.type == def.T_WILDCARD);
-    }
-
-    _enforceEleventation() {
-        if (this.type != def.T_FLAG)
-            this.pos[1] = def.POWER_ELEVATION;
     }
 
     onUpdate(time, delta, parent) {
@@ -123,9 +121,15 @@ export class Flag {
             break;
         case S_FUSE:
             if (!this.fuseTime.step(time)) {
-                this.velocity =v3.scale(v3.unit(v3.sub(this.fuseTarget.pos, this.pos)), 0.1);
+                v3.setTo(this.offset, this.fuseTarget.pos);
+                v3.subFrom(this.offset, this.pos);
+                v3.scaleTo(this.offset, this.fuseTime.pos);
             } else {
-                this.toDead();
+                if (this.fuseTarget == this) {
+                    this.morph(this.fusePowerType);
+                } else {
+                    this.toDead();
+                }
             }
             this._updatePhysics(delta);
             break;
@@ -137,7 +141,9 @@ export class Flag {
     onDraw() {
         if (!this.isDead()) {
             let modelRotation = pg.xrot(this.xrot);
-            flag_render.draw(gl3d.gl, this.ch, this.pos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
+            v3.setTo(workingPos, this.pos);
+            v3.addTo(workingPos, this.offset);
+            flag_render.draw(gl3d.gl, this.ch, workingPos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
         }
     }
 

@@ -122,9 +122,8 @@ export class World extends BaseNode {
             if (powerType) {                                    // has power flag generated.
                 let firstIndex  = i - seq + 1;                  // go back by seq count.
                 let firstFlag   = this.matchedFlg[firstIndex];
-                firstFlag.morph(powerType);                     // morph the first flag to the power type.
-                for (let j = firstIndex + 1; j <= i; j++) {
-                    this.matchedFlg[j].toFuse(firstFlag);       // change the rest to S_FUSE state.
+                for (let j = firstIndex; j <= i; j++) {
+                    this.matchedFlg[j].toFuse(firstFlag, powerType);    // firstFlag has the same fuseTarget as itself.
                 }
                 i = firstIndex;                                 // skip back to firstIndex to continue the outer loop.
             } else {
@@ -133,7 +132,7 @@ export class World extends BaseNode {
         }
 
     }
-    
+
     _updateGameState() {
         switch (state.gstate) {
         case state.S_WAITING:

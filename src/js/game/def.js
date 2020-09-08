@@ -11,7 +11,9 @@ let def = (function() {
     const def = {};
 
     def.chars = ["1", "2", "3", "4", "5", "6", "@", "*"];
-    def.digitCount = 7;
+    def.digitLimit = 5;
+    def.digitWildLimit = 6;
+    def.charLimit = 7;
     def.F_ROCK = 6;
     def.F_WILDCARD = 7;
 
@@ -25,11 +27,11 @@ let def = (function() {
                     def.T_WILDCARD];
 
     def.BEGIN_X = 8.0;
-    def.LOSING_X = -3.0;
+    def.LOSING_X = -5.0;
     def.PLAYING_ANGLE = -20;
     def.MAX_FREE_FLAGS = 100;
     def.SPACE_BETWEEN = 0.6;          // distance between neighboring flags
-    def.POWER_ELEVATION = 0.15;
+    def.POWER_ELEVATION = 0.10;
 
     return def;
 }());
