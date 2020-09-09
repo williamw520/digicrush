@@ -6,6 +6,7 @@
 */
 
 import U from "/js/util/util.js";
+import def from "/js/game/def.js";
 
 
 // texgen module
@@ -22,15 +23,12 @@ let texgen = (function() {
         canvas = document.getElementById(canvasId);
         canvas.width  = U.ensurePowerOf2(canvas.width);
         canvas.height = U.ensurePowerOf2(canvas.height);
+        L.info(canvas.height);
         lineWidth = lineW || 256;
         lineHeight = lineH || 256;
 
         ctx = canvas.getContext("2d");
 
-        // // Set background to the color.
-        // ctx.fillStyle = "blue";
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
         ctx.fillStyle = "#333333"; 	// text colour
         ctx.textAlign = "center";	// center alignment of text
         ctx.textBaseline = "middle";	// text baseline at middle

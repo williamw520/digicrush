@@ -98,13 +98,16 @@ export class Flag {
     }
 
     toFlyingRnd() {
-        this.flyTime.start(performance.now(), 900);
+        this.flyTime.start(performance.now(), 1000);
         this.velocity[0] = 0.2 * (U.rand(-50, 50)/100);
         this.velocity[1] = 0.2 * (U.rand(-50, 50)/100);
         this.velocity[2] = 0.2 * (U.rand(-50, 50)/100);
-        //this.force[];
         this.xrotSpeed = U.rand(0, 6);
         this.scale = 0.125;
+        this.bg[0] = U.rand(0, 255) / 255;
+        this.bg[1] = U.rand(0, 255) / 255;
+        this.bg[2] = U.rand(0, 255) / 255;
+        this.ch = def.F_BLANK;
         this.fstate = S_FLYING;
     }
 

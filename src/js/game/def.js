@@ -14,8 +14,11 @@ let def = (function() {
     def.digitLimit = 5;
     def.withRockLimit = 6;
     def.charLimit = 7;
+
+    // flag index to char, 0-5=digits, 6=rock, 7=wildcard, 8=blank
     def.F_ROCK = 6;
     def.F_WILDCARD = 7;
+    def.F_BLANK = 8;
 
     def.T_FLAG = 0;
     def.T_ROCK = 1;
