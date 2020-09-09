@@ -35,7 +35,6 @@ export class Flag {
         if (U.rand(0, 8) == 0) {
             this.type = def.T_BOMB3;
             this.ch = U.rand(0, def.digitLimit);
-            L.info("rand bomb ch=" + this.ch);
         }
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.offset = [0, 0, 0];
@@ -194,7 +193,7 @@ export class Flag {
             let modelRotation = pg.xrot(this.xrot);
             v3.setTo(workingPos, this.pos);
             v3.addTo(workingPos, this.offset);
-            flag_render.draw(gl3d.gl, this.ch, workingPos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
+            flag_render.draw(gl3d.gl, this.ch, this.type, workingPos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
         }
     }
 

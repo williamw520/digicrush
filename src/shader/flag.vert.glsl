@@ -9,6 +9,7 @@ uniform mat4    u_facing_view;      // camera facing view matrix
 uniform float   u_wave_strength;    // wave roughness, calmest = .99, roughest = 0.01
 uniform float   u_wave_period;      // wave progression to drive the wave rendering per frame.  (0, int), times 2PI.
 
+uniform int     u_model_type;       // item's type; see def.js
 uniform vec3    u_model_pos;        // item's model position
 uniform float   u_model_scale;      // item's model scale
 uniform mat4    u_model_rot;        // item's model rotation
@@ -26,15 +27,20 @@ float strength = fixed_portion + (1.0 - u_wave_strength) * param_portion;
 
 
 void main() {
-    // transform the position based on wave calculation in the model space.
-    float amplitude = 1.0 - strength; 
-    float waveLen   = 2.0 * strength;
     float x         = a_position.x;
     float y         = a_position.y;
+    float amplitude = 1.0 - strength; 
+    float waveLen   = 2.0 * strength;
     float x2        = x - 0.001;
     float y2        = a_position.y + amplitude * ( (x2 + strength) / waveLen) * sin(PI_2 * (x2 - u_wave_period));
-    y += amplitude * ( (x + strength) / waveLen ) * sin(PI_2 * (x - u_wave_period));
-    vec4 position   = vec4(a_position.x, y, a_position.z, 1);   // new position in clip space after wave transformation.
+
+    if (u_model_type == 0) {
+        y += amplitude * ( (x + strength) / waveLen ) * sin(PI_2 * (x - u_wave_period));
+    } else {
+        y2 = y;
+    }
+    
+    vec4 position   = vec4(a_position.x, y, a_position.z, 1);   // new position still in model unit space after wave transformation.
 
     // transform the model's position, scale, and rotation from model unit space to clip space.
     mat4 model      = mat4(u_model_scale);                      // set scale value at the diagonal.
