@@ -32,11 +32,12 @@ export class World extends BaseNode {
         if (state.gstate == state.S_PAUSED)
             return;
         
-        this._updateGameState();
-        if (this._checkHitFlags())
+        if (this._checkHitFlags() || this._checkBombedFlags())
             this._pullback();
         this._checkDeadFlags();
         this._fixNextPtr();
+        this._updateGameState();
+
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
         }
@@ -47,7 +48,7 @@ export class World extends BaseNode {
         // this.farLayer.onDraw();
         // this.backLayer.onDraw();
         super.onDraw();       // run onDraw() on child nodes.
-        this.flags.forEach(  f => f.onDraw() );
+        this.flags.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -224,9 +225,16 @@ export class World extends BaseNode {
 
     _checkHitFlags() {
         let hasHit = this.flags.reduce( (acc, f) => acc || f.isHit(), false );
-        let hitStatusChanged = (this.hadHit && !hasHit);
+        let statusChanged = (this.hadHit && !hasHit);
         this.hadHit = hasHit;
-        return hitStatusChanged;
+        return statusChanged;
+    }
+
+    _checkBombedFlags() {
+        let hasBombed = this.flags.reduce( (acc, f) => acc || f.isBombed(), false );
+        let statusChanged = (this.hadBombed && !hasBombed);
+        this.hadBombed = hasBombed;
+        return statusChanged;
     }
 
     _checkDeadFlags() {

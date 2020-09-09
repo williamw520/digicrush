@@ -29,11 +29,15 @@ let workingPos = [0, 0, 0];                     // working vector
 export class Flag {
     constructor(prevFlag) {
         this.setupTimelines();
-        this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
+        this.pos = [ def.BEGIN_X, 0, 0 ];       // always starts at BEGIN_X
+        if (prevFlag) {
+            if (this.pos[0] - prevFlag.pos[0] < def.SPACE_BETWEEN)
+                this.pos[0] = prevFlag.pos[0] + def.SPACE_BETWEEN;  // if previous one is too close, adjust starting pos to the right a bit.
+        }
         this.offset = [0, 0, 0];
         this.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
         this.type = def.charType[this.ch];
-        if (U.rand(0, 20) == 0) {
+        if (U.rand(0, 8) == 0) {
             this.morphBomb(def.T_BOMB4);
         }
         this.scale = def.SCALE;
@@ -169,6 +173,7 @@ export class Flag {
                 this.scale -= 0.015 * A.easeInCubic(this.flyTime.pos);
             } else {
                 this.toDead();
+                break;
             }
             this._updatePhysics(delta);
             break;
@@ -182,6 +187,7 @@ export class Flag {
                     this.morphBomb(this.fusePowerType);
                 } else {
                     this.toDead();
+                    break;
                 }
             }
             this._updatePhysics(delta);
@@ -189,6 +195,7 @@ export class Flag {
         case S_BOMBED:
             if (this.bombTime.step(time)) {
                 this.toDead();
+                break;
             }
             this._updatePhysics(delta);
             break;
