@@ -20,12 +20,18 @@ export class World extends BaseNode {
     constructor() {
         super();
         this.flags = [];
+        this.activeFlags = [];
         this.matchedFlg = [];
         this.matchedSeq = [];
+        this.matchedBomb = [];
+        this.matchedB4 = [];
     }
 
     onUpdate(time, delta, parent) {
         this._handleInput();
+        if (state.gstate == state.S_PAUSED)
+            return;
+        
         this._updateGameState();
         if (this._checkHitFlags())
             this._pullback();
@@ -65,7 +71,7 @@ export class World extends BaseNode {
         }
 
         if (state.gstate == state.S_PLAYING) {
-            input.digitHit( digitIndex => this._checkMatchingFlags(digitIndex) );
+            input.digitHit( digitIndex => this._processMatching(digitIndex) );
         }
     }
 
@@ -85,37 +91,68 @@ export class World extends BaseNode {
         return null;
     }
 
-    _findMatchingFlags(digitIndex) {
+    _filterActive() {
+        this.activeFlags.length = 0;
+        this.flags.forEach( f => {
+            if (f.isActive())
+                this.activeFlags.push(f)
+        });
+        return this.activeFlags;
+    }
+
+    _matchFlags(activeFlags, digitIndex) {
         let seq = 0;
         this.matchedFlg.length = 0;             // reset working arrays.
         this.matchedSeq.length = 0;
-        this.flags.forEach( f => {
+        this.matchedBomb.length = 0;
+        activeFlags.forEach( (f, i) => {
             if (f.match(digitIndex)) {
-                seq++;                          // count consecutive matching flags.
-                this.matchedFlg.push(f);        // save matched flag
-                this.matchedSeq.push(seq);      // save the seq count for the index.
+                if (f.type == def.T_BOMB3) {
+                    // record the range of flags to be blown up.
+                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-2)), Math.min(activeFlags.length, (i+2+1))));
+                } else if (f.type == def.T_BOMB4) {
+                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-6)), Math.min(activeFlags.length, (i+6+1))));
+                } else {
+                    // for regular active flags, track the consecutive matching sequences.
+                    seq++;                          // count consecutive matching flags.
+                    this.matchedFlg.push(f);        // save matched flag
+                    this.matchedSeq.push(seq);      // save the seq count for the index.
+                }
             } else {
                 seq = 0;                        // reset seq counter once a non-matched flag is encountered.
             }
         })
-        return this.matchedFlg.length;
     }
 
     _determinePowerType(seq, digitIndex) {
         let powerType = 0;
         if (seq == 3) {
-            return (digitIndex >= 0 && digitIndex < 3) ? def.T_WILDCARD : def.T_BOMB3;
+            return def.T_BOMB3;
+            // Disable wildcard.  Doesn't feel right when playing with wildcard.
+            //return (digitIndex >= 0 && digitIndex < 3) ? def.T_WILDCARD : def.T_BOMB3;
         } else if (seq >= 4) {
             return def.T_BOMB4;
         }
         return 0;
     }
 
-    _checkMatchingFlags(digitIndex) {
-        L.info("_checkMatchingFlags");
-        if (this._findMatchingFlags(digitIndex) == 0)
-            return;
+    _processMatching(digitIndex) {
+        this._matchFlags(this._filterActive(), digitIndex);
 
+        for (let i = 0; i < this.matchedBomb.length; i++) {
+            let bombedRange = this.matchedBomb[i];
+            bombedRange.forEach( f => {
+                f.toBombed();
+                let copies = U.rand(3, 5);
+                while (copies-- > 0) {
+                    let c = f.clone();
+                    c.toFlyingRnd();
+                    this.flags.push(c);
+                }
+            });
+        }
+
+        // Check for power fusion.
         for (let i = this.matchedSeq.length - 1; i >= 0; i--) {
             let seq = this.matchedSeq[i];
             let powerType = this._determinePowerType(seq, digitIndex);
@@ -126,9 +163,16 @@ export class World extends BaseNode {
                     this.matchedFlg[j].toFuse(firstFlag, powerType);    // firstFlag has the same fuseTarget as itself.
                 }
                 i = firstIndex;                                 // skip back to firstIndex to continue the outer loop.
-            } else {
-                this.matchedFlg[i].toHit();                     // non-seq flags are changed to S_HIT state.
             }
+        }
+
+        // Check for non-seq flag matching.
+        let matchCount = this.matchedFlg.reduce( (sum, f) => f.isActive() ? sum+1 : sum, 0 );
+        if (matchCount > 1) {
+            this.matchedFlg.forEach( f => {
+                if (f.isActive())
+                    f.toHit();
+            })
         }
 
     }
@@ -166,6 +210,9 @@ export class World extends BaseNode {
             if (last.pos[0] < def.BEGIN_X) {
                 this._spawnFlag();
             }
+        } else {
+            // Spawn a new flag if all flags have been eliminated.
+            this._spawnFlag();
         }
     }
 

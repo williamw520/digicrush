@@ -12,18 +12,19 @@ let def = (function() {
 
     def.chars = ["1", "2", "3", "4", "5", "6", "@", "*"];
     def.digitLimit = 5;
-    def.digitWildLimit = 6;
+    def.withRockLimit = 6;
     def.charLimit = 7;
     def.F_ROCK = 6;
     def.F_WILDCARD = 7;
 
     def.T_FLAG = 0;
-    def.T_WILDCARD = 1;
-    def.T_BOMB3 = 2;
-    def.T_BOMB4 = 3;
+    def.T_ROCK = 1;
+    def.T_WILDCARD = 2;
+    def.T_BOMB3 = 3;
+    def.T_BOMB4 = 4;
 
     def.charType = [def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG,
-                    def.T_FLAG,
+                    def.T_ROCK,
                     def.T_WILDCARD];
 
     def.BEGIN_X = 8.0;

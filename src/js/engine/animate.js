@@ -18,8 +18,9 @@ let A = (function() {
             this._time = 0;                 // current time
         }
 
-        start(timeMS) {
+        start(timeMS, rangeMS) {
             this._start = this._time = timeMS;
+            this._timeRange = rangeMS || this._timeRange;
         }
 
         step(timeMS) {

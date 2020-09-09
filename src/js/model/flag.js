@@ -18,21 +18,25 @@ import flag_render from "/js/game/flag_render.js";
 // Flag states
 const S_ACTIVE = 1;
 const S_HIT = 2;
-const S_FLY = 3;
-const S_FUSE = 4;
-const S_DEAD = 5;
+const S_FLYING = 3;
+const S_FUSING = 4;
+const S_BOMBED = 5;
+const S_DEAD = 7;
 
 let workingPos = [0, 0, 0];                     // working vector
 
 // flag item
 export class Flag {
     constructor(prevFlag) {
+        this.setupTimelines();
         this.bg = [0.5, 1.0, 0.0, 1.0];
-        this.hitTime = new A.Timeline(250);     // hit state animation timeout lasts 300ms.
-        this.flyTime = new A.Timeline(500);     // fly state animation timeout
-        this.fuseTime = new A.Timeline(100);    // fuse state animation timeout
-        this.ch = U.rand(0, def.charLimit);     // [1,2,3,4,5,6,*,@]
+        this.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
         this.type = def.charType[this.ch];
+        if (U.rand(0, 8) == 0) {
+            this.type = def.T_BOMB3;
+            this.ch = U.rand(0, def.digitLimit);
+            L.info("rand bomb ch=" + this.ch);
+        }
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.offset = [0, 0, 0];
         this.scale = 0.25;                      // model scale 
@@ -46,6 +50,25 @@ export class Flag {
         this.fuseTarget = null;
         this.fusePowerType = 0;
         this.fstate = S_ACTIVE;
+        this._enforceEleventation();
+    }
+
+    setupTimelines() {
+        this.hitTime = new A.Timeline(250);     // hit state animation timeout lasts 300ms.
+        this.flyTime = new A.Timeline(500);     // fly state animation timeout
+        this.bombTime = new A.Timeline(500);    // bomb state animation timeout
+        this.fuseTime = new A.Timeline(200);    // fuse state animation timeout
+    }
+
+    clone() {
+        let c = Object.assign(Object.create( Object.getPrototypeOf(this)), this);
+        c.setupTimelines();
+        c.bg = [...this.bg];
+        c.pos = [...this.pos];
+        c.offset = [...this.offset];
+        c.velocity = [...this.velocity];
+        c.force = [...this.force];
+        return c;
     }
 
     setNext(flagToRight) {
@@ -54,10 +77,11 @@ export class Flag {
 
     isActive()      { return this.fstate == S_ACTIVE    }
     isHit()         { return this.fstate == S_HIT       }
-    isFly()         { return this.fstate == S_FLY       }
-    isFuse()        { return this.fstate == S_FUSE      }
+    isFlying()      { return this.fstate == S_FLYING    }
+    isFusing()      { return this.fstate == S_FUSING    }
+    isBombed()      { return this.fstate == S_BOMBED    }
     isDead()        { return this.fstate == S_DEAD      }
-    isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSE }
+    isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSING || this.fstate == S_BOMBED }
 
     toHit() {
         this.hitTime.start(performance.now());
@@ -65,20 +89,36 @@ export class Flag {
         this.fstate = S_HIT;
     }
 
-    toFly() {
+    toFlying() {
         this.flyTime.start(performance.now());
         this.velocity[1] = 0.05;
         this.velocity[2] = -0.05;
         this.xrotSpeed = 24;
-        this.fstate = S_FLY;
+        this.fstate = S_FLYING;
+    }
+
+    toFlyingRnd() {
+        this.flyTime.start(performance.now(), 900);
+        this.velocity[0] = 0.2 * (U.rand(-50, 50)/100);
+        this.velocity[1] = 0.2 * (U.rand(-50, 50)/100);
+        this.velocity[2] = 0.2 * (U.rand(-50, 50)/100);
+        //this.force[];
+        this.xrotSpeed = U.rand(0, 6);
+        this.scale = 0.125;
+        this.fstate = S_FLYING;
+    }
+
+    toBombed() {
+        this.bombTime.start(performance.now());
+        this.fstate = S_BOMBED;
     }
 
     toFuse(fuseTarget, powerType) {
         this.fuseTime.start(performance.now());
         this.fuseTarget = fuseTarget;
         this.fusePowerType = powerType;
-        this.fstate = S_FUSE;
-        this.pos[1] = def.POWER_ELEVATION;
+        this.fstate = S_FUSING;
+        this._enforceEleventation();
     }
 
     toDead() {
@@ -88,10 +128,12 @@ export class Flag {
     morph(powerType) {
         this.fstate = S_ACTIVE
         this.type = powerType;
-        if (powerType == def.T_WILDCARD)
+        if (powerType == def.T_WILDCARD) {
+            L.error("morph to wildcard");
             this.ch = def.F_WILDCARD;
-        else
+        } else {
             this.ch = U.rand(0, def.digitLimit);
+        }
     }
 
     match(digitIndex) {
@@ -107,19 +149,19 @@ export class Flag {
             if (!this.hitTime.step(time)) {
                 this.xrotSpeed = 8 + M.floor(6 * A.easeInQuad(this.hitTime.pos));
             } else {
-                this.toFly();
+                this.toFlying();
             }
             this._updatePhysics(delta);
             break;
-        case S_FLY:
+        case S_FLYING:
             if (!this.flyTime.step(time)) {
-                this.scale = 0.25 - 0.15 * A.easeInCubic(this.flyTime.pos);
+                this.scale -= 0.015 * A.easeInCubic(this.flyTime.pos);
             } else {
                 this.toDead();
             }
             this._updatePhysics(delta);
             break;
-        case S_FUSE:
+        case S_FUSING:
             if (!this.fuseTime.step(time)) {
                 v3.setTo(this.offset, this.fuseTarget.pos);
                 v3.subFrom(this.offset, this.pos);
@@ -133,13 +175,19 @@ export class Flag {
             }
             this._updatePhysics(delta);
             break;
+        case S_BOMBED:
+            if (this.bombTime.step(time)) {
+                this.toDead();
+            }
+            this._updatePhysics(delta);
+            break;
         case S_DEAD:
             break;
         }
     }
 
     onDraw() {
-        if (!this.isDead()) {
+        if (!this.isDead() && !this.isBombed()) {
             let modelRotation = pg.xrot(this.xrot);
             v3.setTo(workingPos, this.pos);
             v3.addTo(workingPos, this.offset);
@@ -174,6 +222,12 @@ export class Flag {
         }
     }
 
+    _enforceEleventation() {
+        if (this.type == def.T_BOMB3 ||
+            this.type == def.T_BOMB4 || 
+            this.isFusing()) {
+            this.pos[1] = 0.10;
+        }
+    }
 }
-
 
