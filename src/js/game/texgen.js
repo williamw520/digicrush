@@ -47,7 +47,7 @@ let texgen = (function() {
     texgen.drawAt = (text, lineNumber) => {
         let originY = lineHeight * (lineNumber - 1);
         let centerY = originY + fontSize / 1.8;
-        let centerX = lineWidth / 2;
+        let centerX = (lineWidth / 2) * 0.98;
         // L.info("lineWidth", lineWidth);
         // L.info("ctx.measureText(text).width", ctx.measureText(text).width);
         // L.info("centerX", centerX);

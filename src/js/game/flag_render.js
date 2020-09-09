@@ -98,6 +98,7 @@ let flag_render = (function() {
         gl.uniform1f(flag_uniforms.u_item_index, imageIndex);
 
         gl.uniform1i(flag_uniforms.u_model_type, modelType);
+        gl.uniform1i(flag_uniforms.u_model_type_f, modelType);
         gl.uniform3fv(flag_uniforms.u_model_pos, modelPos);
         gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
         gl.uniformMatrix4fv(flag_uniforms.u_model_rot, false, modelRotation);

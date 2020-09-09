@@ -109,9 +109,9 @@ export class World extends BaseNode {
             if (f.match(digitIndex)) {
                 if (f.type == def.T_BOMB3) {
                     // record the range of flags to be blown up.
-                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-2)), Math.min(activeFlags.length, (i+2+1))));
+                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB3_RANGE)), Math.min(activeFlags.length, (i+def.BOMB3_RANGE+1))));
                 } else if (f.type == def.T_BOMB4) {
-                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-6)), Math.min(activeFlags.length, (i+6+1))));
+                    this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB4_RANGE)), Math.min(activeFlags.length, (i+def.BOMB4_RANGE+1))));
                 } else {
                     // for regular active flags, track the consecutive matching sequences.
                     seq++;                          // count consecutive matching flags.

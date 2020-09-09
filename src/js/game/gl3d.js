@@ -21,8 +21,7 @@ let gl3d = (function() {
     let gl = document.getElementById("wgl").getContext("webgl");
 
     gl3d.setup = () => {
-        let unitWidth = 1
-        let waveStrength = 0.75;
+        let unitWidth = 1;
 
         flag_render.setupShader(gl);
         flag_render.useShader(gl);
@@ -39,8 +38,7 @@ let gl3d = (function() {
         const zNear = 1;                                                // the near-side boundary of the z-axis
         const zFar = 20;                                                // the far-size boundary of the z-axis
         let projection = m4.perspective_mat(fieldOfViewRadians, aspect, zNear, zFar);
-        let lightDirection = v3.unit([0, 0.5, 3.0]);
-        flag_render.setupUniforms(gl, waveStrength, lightDirection, projection);
+        flag_render.setupUniforms(gl, def.WAVE_STRENGTH, def.LIGHT_DIRECTION, projection);
 
         var cameraPos = [0, 0, 4];                          // position the camera at x=0, y=0, z=3-off from the surface outside the [-1, 1] visible bound.
         pg.gen_rot_mats();

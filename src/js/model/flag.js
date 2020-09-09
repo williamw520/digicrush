@@ -29,16 +29,14 @@ let workingPos = [0, 0, 0];                     // working vector
 export class Flag {
     constructor(prevFlag) {
         this.setupTimelines();
-        this.bg = [0.5, 1.0, 0.0, 1.0];
-        this.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
-        this.type = def.charType[this.ch];
-        if (U.rand(0, 8) == 0) {
-            this.type = def.T_BOMB3;
-            this.ch = U.rand(0, def.digitLimit);
-        }
         this.pos = [ (prevFlag ? prevFlag.pos[0] + def.SPACE_BETWEEN : def.BEGIN_X), 0, 0 ];
         this.offset = [0, 0, 0];
-        this.scale = 0.25;                      // model scale 
+        this.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
+        this.type = def.charType[this.ch];
+        if (U.rand(0, 20) == 0) {
+            this.morphBomb(def.T_BOMB4);
+        }
+        this.scale = def.SCALE;
         this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
         this.velocity = [0, 0, 0];              // velocity vector, distance per tick on [x,y,z]
@@ -49,14 +47,16 @@ export class Flag {
         this.fuseTarget = null;
         this.fusePowerType = 0;
         this.fstate = S_ACTIVE;
+        this._enforceBg();
         this._enforceEleventation();
     }
 
     setupTimelines() {
-        this.hitTime = new A.Timeline(250);     // hit state animation timeout lasts 300ms.
-        this.flyTime = new A.Timeline(500);     // fly state animation timeout
-        this.bombTime = new A.Timeline(500);    // bomb state animation timeout
-        this.fuseTime = new A.Timeline(200);    // fuse state animation timeout
+        this.hitTime = new A.Timeline(250);         // hit state animation timeout lasts 300ms.
+        this.flyTime = new A.Timeline(500);         // fly state animation timeout
+        this.bombTime = new A.Timeline(500);        // bomb state animation timeout
+        this.fuseTime = new A.Timeline(200);        // fuse state animation timeout
+        this.bombColorTime = new A.Timeline(100);   // time period to cycle through colors on bomb
     }
 
     clone() {
@@ -102,7 +102,7 @@ export class Flag {
         this.velocity[1] = 0.2 * (U.rand(-50, 50)/100);
         this.velocity[2] = 0.2 * (U.rand(-50, 50)/100);
         this.xrotSpeed = U.rand(0, 6);
-        this.scale = 0.125;
+        this.scale = def.SCALE / 2;
         this.bg[0] = U.rand(0, 255) / 255;
         this.bg[1] = U.rand(0, 255) / 255;
         this.bg[2] = U.rand(0, 255) / 255;
@@ -127,15 +127,13 @@ export class Flag {
         this.fstate = S_DEAD;
     }
 
-    morph(powerType) {
+    morphBomb(bombType) {
         this.fstate = S_ACTIVE
-        this.type = powerType;
-        if (powerType == def.T_WILDCARD) {
-            L.error("morph to wildcard");
-            this.ch = def.F_WILDCARD;
-        } else {
+        this.type = bombType;
+        if (this.ch > def.digitLimit)
             this.ch = U.rand(0, def.digitLimit);
-        }
+        this._enforceEleventation();
+        this._enforceBg();
     }
 
     match(digitIndex) {
@@ -143,6 +141,17 @@ export class Flag {
     }
 
     onUpdate(time, delta, parent) {
+        switch (this.type) {
+        case def.T_BOMB3:
+            break;
+        case def.T_BOMB4:
+            // Cycle the color of the bomb4's ring.
+            this.bg[0] = (Math.cos(time / 100) + 1) / 2;
+            this.bg[1] = (Math.sin(time / 100) + 1) / 2;
+            this.bg[2] = (Math.sin(time / 100) + 1) / 2;
+            break;
+        }
+        
         switch (this.fstate) {
         case S_ACTIVE:
             this._updatePhysics(delta);
@@ -170,7 +179,7 @@ export class Flag {
                 v3.scaleTo(this.offset, this.fuseTime.pos);
             } else {
                 if (this.fuseTarget == this) {
-                    this.morph(this.fusePowerType);
+                    this.morphBomb(this.fusePowerType);
                 } else {
                     this.toDead();
                 }
@@ -225,11 +234,26 @@ export class Flag {
     }
 
     _enforceEleventation() {
-        if (this.type == def.T_BOMB3 ||
-            this.type == def.T_BOMB4 || 
-            this.isFusing()) {
+        if (this.isFusing()) {
+            // this.type == def.T_BOMB3 ||
+            // this.type == def.T_BOMB4 || 
+            // ) {
             this.pos[1] = 0.10;
+        } else {
+            this.pos[1] = 0;
         }
     }
+
+    _enforceBg() {
+        if (this.type == def.T_ROCK)
+            this.bg = [...def.ROCK_BG];
+        else if (this.type == def.T_BOMB3)
+            this.bg = [...def.BOMB3_BG];
+        else if (this.type == def.T_BOMB4)
+            this.bg = [...def.BOMB4_BG];
+        else
+            this.bg = [...def.FLAG_BG];
+    }
+
 }
 

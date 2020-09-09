@@ -6,6 +6,8 @@
 */
 
 
+import {v3} from "/js/engine/vector.js";
+
 // def module
 let def = (function() {
     const def = {};
@@ -30,12 +32,23 @@ let def = (function() {
                     def.T_ROCK,
                     def.T_WILDCARD];
 
-    def.BEGIN_X = 8.0;
+    def.SCALE = 0.25;                   // model scale 
+    
+    def.BEGIN_X = 7.0;
     def.LOSING_X = -5.0;
-    def.PLAYING_ANGLE = -20;
+    def.PLAYING_ANGLE = -15;
     def.MAX_FREE_FLAGS = 100;
-    def.SPACE_BETWEEN = 0.6;          // distance between neighboring flags
-    def.POWER_ELEVATION = 0.10;
+    def.SPACE_BETWEEN = 0.6;            // distance between neighboring flags
+    def.WAVE_STRENGTH = 0.4;
+    def.LIGHT_DIRECTION = v3.unit([0, 0.5, 3.0]);
+    def.POWER_ELEVATION = 0.50;
+    def.BOMB3_RANGE = 2;
+    def.BOMB4_RANGE = 4;
+
+    def.FLAG_BG     = [0.5, 1.0, 0.0, 1.0];
+    def.ROCK_BG     = [0.39608, 0.32549, 0.32549, 1.0];     // #655353
+    def.BOMB3_BG    = [0.8, 0.8, 0.8, 1.0];
+    def.BOMB4_BG    = [0.9, 0.9, 0.9, 1.0];
 
     return def;
 }());
