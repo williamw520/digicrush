@@ -22,6 +22,7 @@ const S_FLYING = 3;
 const S_FUSING = 4;
 const S_BOMBED = 5;
 const S_DEAD = 7;
+const S_NOMOVE = 8;
 
 let workingPos = [0, 0, 0];                     // working vector
 
@@ -35,6 +36,7 @@ export class Flag {
         this.scale = def.SCALE;
         this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
+        this.rotMatrix = null;
         this.velocity = [0, 0, 0];              // velocity vector, distance per tick on [x,y,z]
         this.force = [0, 0, 0];                 // acceleration vector, velocity per tick on [vx,vy,vz]
         this.xrotSpeed = 0;                     // rotation speed in degree.
@@ -43,9 +45,8 @@ export class Flag {
         this.fuseTarget = null;
         this.fusePowerType = 0;
         this.fstate = S_ACTIVE;
-        this.bg = FF.makeBg(this.type);
+        this.bg = def.makeBg(this.type);
         this._setupTimelines();
-        this._enforceEleventation();
     }
 
     _setupTimelines() {
@@ -77,6 +78,8 @@ export class Flag {
     isFusing()      { return this.fstate == S_FUSING    }
     isBombed()      { return this.fstate == S_BOMBED    }
     isDead()        { return this.fstate == S_DEAD      }
+    isNomove()      { return this.fstate == S_NOMOVE    }
+
     isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSING || this.fstate == S_BOMBED }
 
     toHit() {
@@ -117,7 +120,6 @@ export class Flag {
         this.fuseTarget = fuseTarget;
         this.fusePowerType = powerType;
         this.fstate = S_FUSING;
-        this._enforceEleventation();
     }
 
     toDead() {
@@ -129,8 +131,7 @@ export class Flag {
         this.type = bombType;
         if (this.ch > def.digitLimit)
             this.ch = U.rand(0, def.digitLimit);
-        this._enforceEleventation();
-        this.bg = FF.makeBg(this.type);
+        this.bg = def.makeBg(this.type);
     }
 
     match(digitIndex) {
@@ -194,12 +195,14 @@ export class Flag {
             break;
         case S_DEAD:
             break;
+        case S_NOMOVE:
+            break;
         }
     }
 
     onDraw() {
         if (!this.isDead() && !this.isBombed()) {
-            let modelRotation = pg.xrot(this.xrot);
+            let modelRotation = this.rotMatrix ? this.rotMatrix : pg.xrot(this.xrot);
             v3.setTo(workingPos, this.pos);
             v3.addTo(workingPos, this.offset);
             flag_render.draw(gl3d.gl, this.ch, this.type, workingPos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
@@ -230,17 +233,6 @@ export class Flag {
             } else {
                 this.velocity[0] = -0.01;
             }
-        }
-    }
-
-    _enforceEleventation() {
-        if (this.isFusing()) {
-            // this.type == def.T_BOMB3 ||
-            // this.type == def.T_BOMB4 || 
-            // ) {
-            this.pos[1] = 0.10;
-        } else {
-            this.pos[1] = 0;
         }
     }
 
@@ -278,23 +270,12 @@ export let FF = (function() {
         return f;
     }
 
-    FF.makeBg = (flagType) => {
-        switch(flagType) {
-        case def.T_FLAG:
-            return [...def.FLAG_BG];
-        case def.T_ROCK:
-            return [...def.ROCK_BG];
-        case def.T_WILDCARD:
-            return [...def.FLAG_BG];
-        case def.T_BOMB3:
-            return [...def.BOMB3_BG];
-        case def.T_BOMB4:
-            return [...def.BOMB4_BG];
-        case def.T_WALL:
-            return [...def.WALL_BG];
-        default:
-            return [...def.FLAG_BG];
-        }
+    FF.makeFort = (type, pos, scale, rotMatrix) => {
+        let f = new Flag(type, pos);
+        f.fstate = S_NOMOVE;
+        f.scale = scale;
+        f.rotMatrix = rotMatrix;
+        return f;
     }
 
     return FF;

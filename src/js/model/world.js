@@ -7,6 +7,7 @@
 
 import {BaseNode} from "/js/engine/basenode.js";
 import {Flag, FF} from "/js/model/flag.js";
+import {pg} from "/js/engine/pregen.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import def from "/js/game/def.js";
@@ -25,6 +26,9 @@ export class World extends BaseNode {
         this.matchedSeq = [];
         this.matchedBomb = [];
         this.matchedB4 = [];
+        this.fortO = [];
+        this.fortI = [];
+        this._makeFort();
     }
 
     onUpdate(time, delta, parent) {
@@ -40,6 +44,8 @@ export class World extends BaseNode {
 
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
         }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
@@ -49,6 +55,8 @@ export class World extends BaseNode {
         // this.backLayer.onDraw();
         super.onDraw();       // run onDraw() on child nodes.
         this.flags.forEach( f => f.onDraw() );
+        this.fortO.forEach( f => f.onDraw() );
+        this.fortI.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -191,7 +199,8 @@ export class World extends BaseNode {
         case state.S_WON:
             break;
         case state.S_DEAD:
-            gl3d.cameraAngle += 4;
+            //gl3d.cameraAngle += 4;
+            gl3d.cameraAngle += 1;
             break;
         }        
     }
@@ -266,6 +275,26 @@ export class World extends BaseNode {
         }
     }
 
+    _makeFort() {
+        let rotRightFace = pg.yrot(90);
+        let count = 16;
+        let radius = 2;
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortO.push(FF.makeFort(def.T_FORT_O, [def.FORT_O_X, y, z], def.FORT_O_SCALE, rotRightFace));
+        }
+        
+        count = 8;
+        radius = 1.1;
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortI.push(FF.makeFort(def.T_FORT_I, [def.FORT_I_X, y, z], def.FORT_I_SCALE, rotRightFace));
+        }
+    }
     
 }
 
