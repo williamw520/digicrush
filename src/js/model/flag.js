@@ -257,12 +257,21 @@ export let FF = (function() {
                 pos[0] = prevFlag.pos[0] + def.SPACE_BETWEEN;  // if previous one is too close, adjust starting pos to the right a bit.
         }
 
-        let f = new Flag(def.T_FLAG, pos);
-
-        f.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
-        f.scale = def.SCALE;
-        
-        if (U.rand(0, 8) == 0) {
+        let f;
+        let probability = U.rand(0, 100);
+        if (probability < 80) {
+            f = new Flag(def.T_FLAG, pos);
+            f.ch = U.rand(0, def.digitLimit);
+        } else if (probability >= 80 && probability < 93) {
+            f = new Flag(def.T_ROCK, pos);
+            f.ch = def.F_ROCK;
+        } else if (probability >= 93 && probability < 98) {
+            f = new Flag(def.T_BOMB3, pos);
+            f.ch = U.rand(0, def.digitLimit);
+            f.morphBomb(def.T_BOMB3);
+        } else {
+            f = new Flag(def.T_BOMB4, pos);
+            f.ch = U.rand(0, def.digitLimit);
             f.morphBomb(def.T_BOMB4);
         }
 
