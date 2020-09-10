@@ -20,16 +20,18 @@ import ui from "/js/model/ui.js";
 // app module
 (function() {
 
-    gl3d.setup();
+    window.addEventListener("load", function(event){
 
-    let w = new World();
-    let u = new ui.UINode(w);
-    let e = new Engine(w, u);
+        gl3d.setup();
 
-    e.start();
-    gl3d.start();
-    setTimeout(() => e.stop(), 120000);
+        let w = new World();
+        let u = new ui.UINode(w);
+        let e = new Engine(w, u);
 
-    L.info("module loaded");
+        e.start();
+        gl3d.start();
+        setTimeout(() => e.stop(), 120000);
+    })
+
 }());
 

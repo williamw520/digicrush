@@ -35,6 +35,20 @@ function liveserver(cb) {
     cb();
 }
 
+// Start a Live Server on the "build" directory.
+function buildserver(cb) {
+    let server = gls.static(BUILD, 8080);
+    server.start();
+    cb();
+}
+
+// Start a Live Server on the "dist" directory.
+function distserver(cb) {
+    let server = gls.static("dist/digicrush", 8080);
+    server.start();
+    cb();
+}
+
 
 function setupTmpDirs(cb) {
     function mkdir(dir) {
@@ -95,12 +109,13 @@ function rollupJsToBuild(cb) {
 
 // Copy the html and other files to BUILD so they can reference the staging app.js in $BUILD/js.
 function filesToBuild(cb) {
-    return src(["src/**/*.html", "src/**/*.png"]).pipe(dest(BUILD));
+//  return src(["src/**/*.html", "src/**/*.png"]).pipe(dest(BUILD));
+    return src(["src/**/index.html", "src/**/globals.js"]).pipe(dest(BUILD));
 }
 
 // Copy files to DIST so they can be referenced in $DIST/digicrush
 function filesToDist(cb) {
-    return src(["src/**/*.png"]).pipe(dest(DIST + "/digicrush"));
+    return src(["src/**/globals.js"]).pipe(dest(DIST + "/digicrush"));
 }
 
 function uglifyToHtml(cb) {
@@ -119,7 +134,7 @@ function uglifyToHtml(cb) {
 
 
 function zip(cb) {
-    return src(DIST + "/digicrush/*")
+    return src(DIST + "/digicrush/**/*")
         .pipe(guzip("digicrush.zip"))
         .pipe(dest(DIST));
 }
@@ -136,6 +151,8 @@ async function clean(cb) {
 
 
 exports.liveserver = liveserver;
+exports.buildserver = buildserver;
+exports.distserver = distserver;
 exports.objgen = objgen;
 exports.glslify = glslify;
 exports.gen = gen;

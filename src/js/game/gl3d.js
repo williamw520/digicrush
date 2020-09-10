@@ -18,9 +18,13 @@ import flag_render from "/js/game/flag_render.js";
 let gl3d = (function() {
     const gl3d = {};
 
-    let gl = document.getElementById("wgl").getContext("webgl");
+    let gl;
 
     gl3d.setup = () => {
+
+        // Run this inside setup() to be run after index.html page load event.
+        gl3d.gl = gl = document.getElementById("wgl").getContext("webgl");
+
         let unitWidth = 1;
 
         flag_render.setupShader(gl);
@@ -50,8 +54,6 @@ let gl3d = (function() {
 
     gl3d.facingView  = () => pg.facing_view(gl3d.cameraAngle);
 
-    gl3d.gl = gl;
-
     gl3d.start = () => {
         // Set the color for the clear() operation to transparent.
         gl.clearColor(0.0, 0.0, 0.0, 0.0);
@@ -63,6 +65,8 @@ let gl3d = (function() {
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
+
+    gl3d.gl = gl;
 
     return gl3d;
 }());
