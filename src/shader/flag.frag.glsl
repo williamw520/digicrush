@@ -13,7 +13,7 @@ varying vec3        v_normal;
 varying float       v_slope;
 
 float BLOCK_R = 1.1;    // slightly bigger than the max radius to create a round octagon shape.
-float FORT_O_R = 1.3;
+float FORT_O_R = 1.35;
 float FORT_I_R = 1.08;
 float BOMB_R1 = 1.0; 
 float BOMB_R2 = 0.85;
