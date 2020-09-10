@@ -17,12 +17,13 @@ import flag_render from "/js/game/flag_render.js";
 
 // Flag states
 const S_ACTIVE = 1;
-const S_HIT = 2;
-const S_FLYING = 3;
-const S_FUSING = 4;
-const S_BOMBED = 5;
-const S_DEAD = 7;
-const S_NOMOVE = 8;
+const S_ANIMATE = 2;
+const S_NOMOVE = 3;
+const S_HIT = 4;
+const S_FLYING = 5;
+const S_FUSING = 6;
+const S_BOMBED = 7;
+const S_DEAD = 8;
 
 let workingPos = [0, 0, 0];                     // working vector
 
@@ -51,8 +52,8 @@ export class Flag {
 
     _setupTimelines() {
         this.hitTime = new A.Timeline(250);         // hit state animation timeout lasts 300ms.
-        this.flyTime = new A.Timeline(500);         // fly state animation timeout
-        this.bombTime = new A.Timeline(500);        // bomb state animation timeout
+        this.flyTime = new A.Timeline(700);         // fly state animation timeout
+        this.bombTime = new A.Timeline(300);        // bomb state animation timeout
         this.fuseTime = new A.Timeline(200);        // fuse state animation timeout
         this.bombColorTime = new A.Timeline(100);   // time period to cycle through colors on bomb
     }
@@ -74,11 +75,8 @@ export class Flag {
 
     isActive()      { return this.fstate == S_ACTIVE    }
     isHit()         { return this.fstate == S_HIT       }
-    isFlying()      { return this.fstate == S_FLYING    }
-    isFusing()      { return this.fstate == S_FUSING    }
     isBombed()      { return this.fstate == S_BOMBED    }
     isDead()        { return this.fstate == S_DEAD      }
-    isNomove()      { return this.fstate == S_NOMOVE    }
 
     isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSING || this.fstate == S_BOMBED }
 
@@ -154,6 +152,12 @@ export class Flag {
         case S_ACTIVE:
             this._updatePhysics(delta);
             break;
+        case S_ANIMATE:
+            this._updatePhysics(delta);
+            break;
+        case S_NOMOVE:
+            // no _updatePhysics and no animation
+            break;
         case S_HIT:
             if (!this.hitTime.step(time)) {
                 this.xrotSpeed = 8 + M.floor(6 * A.easeInQuad(this.hitTime.pos));
@@ -194,8 +198,6 @@ export class Flag {
             this._updatePhysics(delta);
             break;
         case S_DEAD:
-            break;
-        case S_NOMOVE:
             break;
         }
     }
@@ -275,6 +277,15 @@ export let FF = (function() {
         f.fstate = S_NOMOVE;
         f.scale = scale;
         f.rotMatrix = rotMatrix;
+        return f;
+    }
+
+    FF.makeCash = (pos, scale, rotMatrix) => {
+        let f = new Flag(def.T_CASH, pos);
+        f.fstate = S_ANIMATE;
+        f.scale = scale;
+        f.rotMatrix = rotMatrix;
+        f.ch = def.F_CASH;
         return f;
     }
 

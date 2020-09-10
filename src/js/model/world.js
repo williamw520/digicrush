@@ -28,7 +28,9 @@ export class World extends BaseNode {
         this.matchedB4 = [];
         this.fortO = [];
         this.fortI = [];
-        this._makeFort();
+        this.cash  = [];
+        this._makeFortItems();
+        this._makeCash();
     }
 
     onUpdate(time, delta, parent) {
@@ -46,6 +48,7 @@ export class World extends BaseNode {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
             this.fortO.forEach( f => f.onUpdate(time, delta, this) );
             this.fortI.forEach( f => f.onUpdate(time, delta, this) );
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
         }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
@@ -57,6 +60,7 @@ export class World extends BaseNode {
         this.flags.forEach( f => f.onDraw() );
         this.fortO.forEach( f => f.onDraw() );
         this.fortI.forEach( f => f.onDraw() );
+        this.cash.forEach(  f => f.onDraw() );
     }
 
     _startLevel() {
@@ -275,7 +279,7 @@ export class World extends BaseNode {
         }
     }
 
-    _makeFort() {
+    _makeFortItems() {
         let rotRightFace = pg.yrot(90);
         let count = 16;
         let radius = 2;
@@ -294,6 +298,11 @@ export class World extends BaseNode {
             let z = radius * Math.sin(angle);
             this.fortI.push(FF.makeFort(def.T_FORT_I, [def.FORT_I_X, y, z], def.FORT_I_SCALE, rotRightFace));
         }
+    }
+
+    _makeCash() {
+        let rotRightFace = pg.yrot(90);
+        this.cash.push(FF.makeCash([def.CASH_X, 0, 0], def.CASH_SCALE, rotRightFace));
     }
     
 }

@@ -33,7 +33,7 @@ let def = (function() {
     def.SCALE = 0.25;                   // model scale 
     
     def.BEGIN_X = 6.5;
-    def.LOSING_X = -5.0;
+    def.LOSING_X = -3.5;
     def.PLAYING_ANGLE = -15;
     def.SPACE_BETWEEN = 0.6;            // distance between neighboring flags
     def.WAVE_STRENGTH = 0.4;
@@ -45,7 +45,8 @@ let def = (function() {
     def.FORT_I_X = -2.0;
     def.FORT_O_SCALE = 0.125;
     def.FORT_I_SCALE = 0.1;
-    def.CASH_X = -2.2;
+    def.CASH_X = -3.5;
+    def.CASH_SCALE = 0.5;
 
     def.FLAG_BG     = [0.5, 1.0, 0.0, 1.0];
     def.ROCK_BG     = [0.3961, 0.3255, 0.3255, 1.0];    // #655353
@@ -64,6 +65,7 @@ let def = (function() {
         case def.T_BOMB4:       return [...def.BOMB4_BG];
         case def.T_FORT_O:      return [...def.FORT_O_BG];
         case def.T_FORT_I:      return [...def.FORT_I_BG];
+        case def.T_CASH:        return [...def.CASH_BG];
         default:                return [...def.FLAG_BG];
         }
     }
