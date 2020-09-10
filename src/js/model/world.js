@@ -6,7 +6,7 @@
 */
 
 import {BaseNode} from "/js/engine/basenode.js";
-import {Flag} from "/js/model/flag.js";
+import {Flag, FF} from "/js/model/flag.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import def from "/js/game/def.js";
@@ -218,9 +218,7 @@ export class World extends BaseNode {
     }
 
     _spawnFlag() {
-        let last = this._lastFlag();
-        let f = new Flag(last);
-        this.flags.push(f);
+        this.flags.push(FF.makeFlag(this._lastFlag()));
     }
 
     _checkHitFlags() {

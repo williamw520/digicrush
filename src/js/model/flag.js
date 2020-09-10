@@ -27,19 +27,11 @@ let workingPos = [0, 0, 0];                     // working vector
 
 // flag item
 export class Flag {
-    constructor(prevFlag) {
-        this.setupTimelines();
-        this.pos = [ def.BEGIN_X, 0, 0 ];       // always starts at BEGIN_X
-        if (prevFlag) {
-            if (this.pos[0] - prevFlag.pos[0] < def.SPACE_BETWEEN)
-                this.pos[0] = prevFlag.pos[0] + def.SPACE_BETWEEN;  // if previous one is too close, adjust starting pos to the right a bit.
-        }
+    constructor(type, pos) {
+        this.type = type;
+        this.pos = pos;
         this.offset = [0, 0, 0];
-        this.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
-        this.type = def.charType[this.ch];
-        if (U.rand(0, 8) == 0) {
-            this.morphBomb(def.T_BOMB4);
-        }
+        this.ch = def.F_BLANK;
         this.scale = def.SCALE;
         this.xrot = 0;                          // model x-axis rotation
         this.yrot = 0;
@@ -51,11 +43,12 @@ export class Flag {
         this.fuseTarget = null;
         this.fusePowerType = 0;
         this.fstate = S_ACTIVE;
-        this._enforceBg();
+        this.bg = FF.makeBg(this.type);
+        this._setupTimelines();
         this._enforceEleventation();
     }
 
-    setupTimelines() {
+    _setupTimelines() {
         this.hitTime = new A.Timeline(250);         // hit state animation timeout lasts 300ms.
         this.flyTime = new A.Timeline(500);         // fly state animation timeout
         this.bombTime = new A.Timeline(500);        // bomb state animation timeout
@@ -65,7 +58,7 @@ export class Flag {
 
     clone() {
         let c = Object.assign(Object.create( Object.getPrototypeOf(this)), this);
-        c.setupTimelines();
+        c._setupTimelines();
         c.bg = [...this.bg];
         c.pos = [...this.pos];
         c.offset = [...this.offset];
@@ -137,7 +130,7 @@ export class Flag {
         if (this.ch > def.digitLimit)
             this.ch = U.rand(0, def.digitLimit);
         this._enforceEleventation();
-        this._enforceBg();
+        this.bg = FF.makeBg(this.type);
     }
 
     match(digitIndex) {
@@ -251,16 +244,49 @@ export class Flag {
         }
     }
 
-    _enforceBg() {
-        if (this.type == def.T_ROCK)
-            this.bg = [...def.ROCK_BG];
-        else if (this.type == def.T_BOMB3)
-            this.bg = [...def.BOMB3_BG];
-        else if (this.type == def.T_BOMB4)
-            this.bg = [...def.BOMB4_BG];
-        else
-            this.bg = [...def.FLAG_BG];
-    }
-
 }
 
+
+export let FF = (function() {
+    const FF = {};
+
+    FF.makeFlag = (prevFlag) => {
+        let pos = [ def.BEGIN_X, 0, 0 ];       // always starts at BEGIN_X
+        if (prevFlag) {
+            if (pos[0] - prevFlag.pos[0] < def.SPACE_BETWEEN)
+                pos[0] = prevFlag.pos[0] + def.SPACE_BETWEEN;  // if previous one is too close, adjust starting pos to the right a bit.
+        }
+
+        let f = new Flag(def.T_FLAG, pos);
+
+        f.ch = U.rand(0, def.withRockLimit); // [1,2,3,4,5,6,@]
+        f.scale = def.SCALE;
+        
+        if (U.rand(0, 8) == 0) {
+            f.morphBomb(def.T_BOMB4);
+        }
+
+        return f;
+    }
+
+    FF.makeBg = (flagType) => {
+        switch(flagType) {
+        case def.T_FLAG:
+            return [...def.FLAG_BG];
+        case def.T_ROCK:
+            return [...def.ROCK_BG];
+        case def.T_WILDCARD:
+            return [...def.FLAG_BG];
+        case def.T_BOMB3:
+            return [...def.BOMB3_BG];
+        case def.T_BOMB4:
+            return [...def.BOMB4_BG];
+        case def.T_WALL:
+            return [...def.WALL_BG];
+        default:
+            return [...def.FLAG_BG];
+        }
+    }
+
+    return FF;
+}());

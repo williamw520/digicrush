@@ -27,6 +27,7 @@ let def = (function() {
     def.T_WILDCARD = 2;
     def.T_BOMB3 = 3;
     def.T_BOMB4 = 4;
+    def.T_WALL = 5;
 
     def.charType = [def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG, def.T_FLAG,
                     def.T_ROCK,
@@ -34,7 +35,7 @@ let def = (function() {
 
     def.SCALE = 0.25;                   // model scale 
     
-    def.BEGIN_X = 7.0;
+    def.BEGIN_X = 6.5;
     def.LOSING_X = -5.0;
     def.PLAYING_ANGLE = -15;
     def.MAX_FREE_FLAGS = 100;
@@ -46,9 +47,10 @@ let def = (function() {
     def.BOMB4_RANGE = 4;
 
     def.FLAG_BG     = [0.5, 1.0, 0.0, 1.0];
-    def.ROCK_BG     = [0.39608, 0.32549, 0.32549, 1.0];     // #655353
+    def.ROCK_BG     = [0.3961, 0.3255, 0.3255, 1.0];     // #655353
     def.BOMB3_BG    = [0.8, 0.8, 0.8, 1.0];
     def.BOMB4_BG    = [0.9, 0.9, 0.9, 1.0];
+    def.WALL_BG     = [0.7098, 0.2510, 0.1843, 1.0];     // #B5402F
 
     return def;
 }());
