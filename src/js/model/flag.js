@@ -44,7 +44,7 @@ export class Flag {
         this.wavePeriod = Math.random() * 50;
         this.rflag = null;
         this.fuseTarget = null;
-        this.fusePowerType = 0;
+        this.toPowerType = 0;
         this.fstate = S_ACTIVE;
         this.bg = def.makeBg(this.type);
         this.timeline = new A.Timeline(500);
@@ -106,10 +106,12 @@ export class Flag {
         this.fstate = S_BOMBED;
     }
 
-    toFuse(fuseTarget, powerType) {
+    toFuse(fuseTarget, postFusePowerType, toCh) {
         this.timeline.start(performance.now(), 200);
         this.fuseTarget = fuseTarget;
-        this.fusePowerType = powerType;
+        this.toPowerType = postFusePowerType;
+        if (toCh != null)
+            this.ch = toCh;
         this.fstate = S_FUSING;
     }
 
@@ -122,7 +124,11 @@ export class Flag {
         this.type = bombType;
         if (this.ch > def.digitLimit)
             this.ch = U.rand(0, def.digitLimit);
+        this.offset[0] = 0;
+        this.offset[1] = 0;
+        this.offset[2] = 0;
         this.bg = def.makeBg(this.type);
+        L.info("morphBomb " + this.ch);
     }
 
     match(digitIndex) {
@@ -134,6 +140,7 @@ export class Flag {
         case def.T_BOMB3:
             break;
         case def.T_BOMB4:
+        case def.T_404:
             // Cycle the color of the bomb4's ring.
             this.bg[0] = (Math.cos(time / 100) + 1) / 2;
             this.bg[1] = (Math.sin(time / 100) + 1) / 2;
@@ -181,8 +188,8 @@ export class Flag {
                 v3.subFrom(this.offset, this.pos);
                 v3.scaleTo(this.offset, this.timeline.pos);
             } else {
-                if (this.fuseTarget == this) {
-                    this.morphBomb(this.fusePowerType);
+                if (this.toPowerType > 0) {
+                    this.morphBomb(this.toPowerType);
                 } else {
                     this.toDead();
                     break;
@@ -252,14 +259,27 @@ export let FF = (function() {
         }
 
         let f;
-        let probability = U.rand(0, 100);
-        if (probability < 80) {
+        if (state.inSeq > 0) {
+            let f = new Flag(def.T_FLAG, pos);
+            f.ch = state.inSeqCh;
+            state.inSeq--;
+            return f;
+        }
+
+        if (Math.random() < state.inSeqProbability) {
+            // For next spawn
+            state.inSeq = U.rand(2, 5);
+            state.inSeqCh = U.rand(0, def.digitLimit);
+        }
+
+        let dice = Math.random();
+        if (dice < 0.80) {
             f = new Flag(def.T_FLAG, pos);
             f.ch = U.rand(0, def.digitLimit);
-        } else if (probability >= 80 && probability < 93) {
+        } else if (dice >= .80 && dice < .93) {
             f = new Flag(def.T_ROCK, pos);
             f.ch = def.F_ROCK;
-        } else if (probability >= 93 && probability < 98) {
+        } else if (dice >= .93 && dice < .98) {
             f = new Flag(def.T_BOMB3, pos);
             f.ch = U.rand(0, def.digitLimit);
             f.morphBomb(def.T_BOMB3);

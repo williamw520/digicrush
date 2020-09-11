@@ -29,6 +29,7 @@ let def = (function() {
     def.T_FORT_O = 5;
     def.T_FORT_I = 6;
     def.T_CASH = 7;
+    def.T_404 = 8;
 
     def.SCALE = 0.25;                   // model scale 
     
@@ -41,7 +42,7 @@ let def = (function() {
     def.POWER_ELEVATION = 0.50;
     def.BOMB3_RANGE = 2;
     def.BOMB4_RANGE = 4;
-    def.FORT_O_X = -2.0;
+    def.FORT_O_X = -2.05;
     def.FORT_I_X = -2.0;
     def.FORT_O_SCALE = 0.125;
     def.FORT_I_SCALE = 0.1;
@@ -66,6 +67,7 @@ let def = (function() {
         case def.T_FORT_O:      return [...def.FORT_O_BG];
         case def.T_FORT_I:      return [...def.FORT_I_BG];
         case def.T_CASH:        return [...def.CASH_BG];
+        case def.T_404:         return [...def.BOMB4_BG];
         default:                return [...def.FLAG_BG];
         }
     }

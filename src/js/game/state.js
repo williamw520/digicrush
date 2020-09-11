@@ -17,9 +17,13 @@ let state = (function() {
     state.S_PAUSED = 2;
     state.S_WON = 3;
     state.S_DEAD = 4;
-    state.gstate = state.S_WAITING;    // current game state
+    state.gstate = state.S_WAITING;     // current game state
 
     state.level = 1;
+
+    state.inSeq = 0;                    // remaining counter for spawning flags in sequence
+    state.inSeqCh = 0;                  // the digit char to spawn in sequence
+    state.inSeqProbability = 0.3;       // probability to spawn in sequence
 
     return state;
 }());

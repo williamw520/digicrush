@@ -7,7 +7,7 @@ uniform float       u_item_count;
 uniform vec4        u_background;
 uniform vec3        u_light_direction;
 
-varying vec3        v_pos;
+varying vec3        v_pos;              // position in the model unit (before applying projection/view/model matrics).
 varying vec2        v_texcoord;
 varying vec3        v_normal;
 varying float       v_slope;
@@ -59,7 +59,8 @@ vec4 colorByShape() {
         if (distance > BOMB_R1 || distance < BOMB_R2) {
             color = vec4(0.0, 0.0, 0.0, 0.0);
         }
-    } else if (u_model_type_f == 4) {                   // T_BOMB4 = 4
+    } else if (u_model_type_f == 4 ||
+               u_model_type_f == 8) {                   // T_BOMB4 = 4, T_404 = 8
         if (distance > BOMB_R1 || distance < BOMB_R3) {
             color = vec4(0.0, 0.0, 0.0, 0.0);
         }
@@ -98,7 +99,8 @@ void main() {
             color = vec4(1.0, 1.0, 0.50, 1.0);
         } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
             color = vec4(1.0, 1.0, 1.0, 1.0);
-        } else if (u_model_type_f == 4) {                   // T_BOMB4 = 4
+        } else if (u_model_type_f == 4 ||
+                   u_model_type_f == 8) {                   // T_BOMB4 = 4, T_404 = 8
             color = vec4(1.0, 1.0, 0.50, 1.0);
         } else {
             if (v_slope > 0.0) {
