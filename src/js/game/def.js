@@ -69,28 +69,20 @@ let def = (function() {
     def.SCORE_Y = 2;
     def.SCORE_Z = 0;
 
-    def.FLAG_BG     = [0.5, 1.0, 0.0, 1.0];
-    def.ROCK_BG     = [0.3961, 0.3255, 0.3255, 1.0];    // #655353
-    def.BOMB3_BG    = [0.8, 0.8, 0.8, 1.0];
-    def.BOMB4_BG    = [0.9, 0.9, 0.9, 1.0];
-    def.FORT_O_BG   = [0.8157, 0.8196, 0.8235, 1.0];    // #D0D1D2
-    def.FORT_I_BG   = [0.1765, 0.9765, 0.9765, 1.0];
-    def.FORT_I2_BG  = [1.0, 1.0, 1.0, 1.0];
-    def.CASH_BG     = [0.9765, 0.6588, 0.2471, 1.0];    // #F9A83F
-
     def.makeBg = (flagType) => {
         switch(flagType) {
-        case def.T_FLAG:        return [...def.FLAG_BG];
-        case def.T_ROCK:        return [...def.ROCK_BG];
-        case def.T_WILDCARD:    return [...def.FLAG_BG];
-        case def.T_BOMB3:       return [...def.BOMB3_BG];
-        case def.T_BOMB4:       return [...def.BOMB4_BG];
-        case def.T_FORT_O:      return [...def.FORT_O_BG];
-        case def.T_FORT_I:      return [...def.FORT_I_BG];
-        case def.T_WCHAR:       return [...def.CASH_BG];
+        case def.T_FLAG:        return [0.5, 1.0, 0.0, 1.0];
+        case def.T_ROCK:        return [0.3961, 0.3255, 0.3255, 1.0];    // #655353
+        case def.T_WILDCARD:    return [0.5, 1.0, 0.0, 1.0];
+        case def.T_BOMB3:       return [0.8, 0.8, 0.8, 1.0];
+        case def.T_BOMB4:       return [0.9, 0.9, 0.9, 1.0];
+        case def.T_404:         return [0.9, 0.9, 0.9, 1.0];
+        case def.T_FORT_O:      return [0.8157, 0.8196, 0.8235, 1.0];    // #D0D1D2
+        case def.T_FORT_I:      return [0.1765, 0.9765, 0.9765, 1.0];
+        case def.T_FORT_I2:     return [1.0, 1.0, 1.0, 1.0];
+        case def.T_WCHAR:       return [0.9765, 0.6588, 0.2471, 1.0];    // #F9A83F
         case def.T_CHAR:        return [0, 0, 0, 1];
-        case def.T_404:         return [...def.BOMB4_BG];
-        default:                return [...def.FLAG_BG];
+        default:                return [0.5, 1.0, 0.0, 1.0];
         }
     }
 

@@ -63,7 +63,8 @@ vec4 colorByShape() {
     } else if (u_model_type_f == 5) {                   // T_FORT_O = 5
         if (distance > FORT_O_R)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-    } else if (u_model_type_f == 6) {                   // T_FORT_I = 6
+    } else if (u_model_type_f == 6 ||
+               u_model_type_f == 7) {                   // T_FORT_I = 6, T_FORT_I2 = 7
         if (distance > FORT_I_R)
             color = vec4(0.0, 0.0, 0.0, 0.0);
     }

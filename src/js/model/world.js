@@ -342,7 +342,7 @@ export class World extends BaseNode {
             this.fortAttackStart = false;
             this.fortI.forEach( f => {
                 f.type = def.T_FORT_I2;
-                f.bg = def.FORT_I2_BG;
+                f.bg = def.makeBg(def.T_FORT_I2);
             } );
         }
 
@@ -352,7 +352,7 @@ export class World extends BaseNode {
                 this.fortI.forEach( f => {
                     f.offset[0] = 0;
                     f.type = def.T_FORT_I;
-                    f.bg = def.FORT_I_BG;
+                    f.bg = def.makeBg(def.T_FORT_I);
                 } );
 
                 // Blow up the rest of the flags.
