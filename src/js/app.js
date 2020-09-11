@@ -15,6 +15,7 @@ import gl3d from "/js/game/gl3d.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/model/world.js";
 import ui from "/js/model/ui.js";
+import {SoundGenerator} from "/js/util/sound.js";
 
 
 // app module
@@ -27,6 +28,12 @@ import ui from "/js/model/ui.js";
         let w = new World();
         let u = new ui.UINode(w);
         let e = new Engine(w, u);
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audio = new AudioContext();
+        let sg = new SoundGenerator(audio);
+        sg.play("sine", 440.0, 0.8).stop(0.25);
+        sg.play("square", 440, 0.5).frequency(880, 0.1).stop(0.2);
 
         e.start();
         gl3d.start();

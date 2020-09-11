@@ -53,3 +53,10 @@
 *** The pending digit drops through a vertical tube on the right side.
 *** The digit drops to the horizontal pathway, and starts marching to the left.
 
+* TODO:
+** Scoring
+** Leveling
+** Winning sequence
+** Losing sequence
+** Sound effect
+
