@@ -100,6 +100,7 @@ export class Flag {
         this.bg[2] = U.rand(0, 255) / 255;
         this.ch = def.F_BLANK;
         this.fstate = S_FLYING;
+        return this;
     }
 
     toBombed() {

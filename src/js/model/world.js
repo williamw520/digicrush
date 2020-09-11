@@ -31,6 +31,10 @@ export class World extends BaseNode {
         this.cash  = [];
         this._makeFortItems();
         this._makeCash();
+        this.fortIX = 0;
+        this.fortAttackStart = false;
+        this.fortAttack = false;
+        this.fortAttackTime = new A.Timeline(2000);
         this.deadSpin   = new A.Timeline(2000);
         this.deadFlying = new A.Timeline(2000);
     }
@@ -45,13 +49,6 @@ export class World extends BaseNode {
         this._checkDeadFlags();
         this._fixNextPtr();
         this._updateByGameState(time, delta);
-
-        if (state.gstate == state.S_PLAYING) {
-            this.flags.forEach( f => f.onUpdate(time, delta, this) );
-            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
-            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
-            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
-        }
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
 
@@ -128,7 +125,8 @@ export class World extends BaseNode {
                 } else if (f.type == def.T_BOMB4) {
                     this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB4_RANGE)), Math.min(activeFlags.length, (i+def.BOMB4_RANGE+1))));
                 } else if (f.type == def.T_404) {
-                    this.matchedBomb.push(activeFlags);
+                    //this.matchedBomb.push(activeFlags);
+                    this.fortAttackStart = true;
                 } else {
                     // for regular active flags, track the consecutive matching sequences.
                     seq++;                          // count consecutive matching flags.
@@ -160,15 +158,7 @@ export class World extends BaseNode {
 
         for (let i = 0; i < this.matchedBomb.length; i++) {
             let bombedRange = this.matchedBomb[i];
-            bombedRange.forEach( f => {
-                f.toBombed();
-                let copies = U.rand(3, 5);
-                while (copies-- > 0) {
-                    let c = f.clone();
-                    c.toFlyingRnd();
-                    this.flags.push(c);
-                }
-            });
+            bombedRange.forEach( f => this._startBombed(f) );
         }
 
         // Check for power fusion.
@@ -214,6 +204,11 @@ export class World extends BaseNode {
             this._checkSpawn();
             this._rotateFortO(time);
             this._pulseFortI(time);
+            this._checkFortAttack(time);
+            this.flags.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PAUSED:
             break;
@@ -332,6 +327,45 @@ export class World extends BaseNode {
     _pulseFortI(time) {
         let period = time / 3600;
         this.fortI.forEach( f => f.offset[0] = Math.sin(2 * Math.PI * period) / 16 );
+    }
+
+    _checkFortAttack(time) {
+        if (this.fortAttackStart) {
+            this.fortAttackTime.start(performance.now(), 2000);
+            this.fortAttack = true;
+            this.fortAttackStart = false;
+        }
+
+        if (this.fortAttack) {
+            if (this.fortAttackTime.step(time)) {
+                this.fortAttack = false;
+                this.fortI.forEach( f => f.offset[0] = 0 );
+                // Blow up the rest of the flags.
+                this.flags.forEach( f => {
+                    if (f.isActive())
+                        this._startBombed(f);
+                })
+            } else {
+                let ax = this.fortAttackTime.pos * (def.BEGIN_X - def.FORT_I_X);    // apply timeline pos to the whole distance across the field.
+                this.fortI.forEach( f => f.offset[0] = ax );                        // move the offset of all fort items to ax.
+
+                for (let i = 0; i < this.flags.length; i++) {
+                    let f = this.flags[i];
+                    if (f.isActive()) {
+                        if (f.pos[0] + 1.5 > ax)
+                            break;
+                        this._startBombed(f);
+                    }
+                }
+            }
+        }
+    }
+
+    _startBombed(f) {
+        f.toBombed();
+        let copies = U.rand(3, 5);
+        while (copies-- > 0)
+            this.flags.push(f.clone().toFlyingRnd());
     }
 
     _makeCash() {

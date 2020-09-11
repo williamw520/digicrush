@@ -29,6 +29,7 @@ let A = (function() {
         }
 
         get pos()       { return (this._time - this._start) / this._timeRange }     // current position in the range [0, 1]
+        get rpos()      { return (this._timeRange - (this._time - this._start)) / this._timeRange } // current reverse position in the range [1, 0]
         get done()      { return this.pos >= 1 }                                    // is it done?
     }
 
