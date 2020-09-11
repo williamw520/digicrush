@@ -60,7 +60,7 @@ vec4 colorByShape() {
             color = vec4(0.0, 0.0, 0.0, 0.0);
         }
     } else if (u_model_type_f == 4 ||
-               u_model_type_f == 8) {                   // T_BOMB4 = 4, T_404 = 8
+               u_model_type_f == 9) {                   // T_BOMB4 = 4, T_404 = 9
         if (distance > BOMB_R1 || distance < BOMB_R3) {
             color = vec4(0.0, 0.0, 0.0, 0.0);
         }
@@ -100,7 +100,7 @@ void main() {
         } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
             color = vec4(1.0, 1.0, 1.0, 1.0);
         } else if (u_model_type_f == 4 ||
-                   u_model_type_f == 8) {                   // T_BOMB4 = 4, T_404 = 8
+                   u_model_type_f == 9) {                   // T_BOMB4 = 4, T_404 = 9
             color = vec4(1.0, 1.0, 0.50, 1.0);
         } else {
             if (v_slope > 0.0) {
@@ -113,6 +113,11 @@ void main() {
     }
 
     gl_FragColor = color;
-    gl_FragColor.rgb *= light;      // adding directional lighting.
+
+    if (u_model_type_f == 7) {          // T_FORT_I2 = 7
+        // don't apply lighting to fort in attack mode.
+    } else {
+        gl_FragColor.rgb *= light;      // adding directional lighting.
+    }
 }
 

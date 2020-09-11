@@ -31,8 +31,9 @@ let def = (function() {
     def.T_BOMB4 = 4;
     def.T_FORT_O = 5;
     def.T_FORT_I = 6;
-    def.T_CASH = 7;
-    def.T_404 = 8;
+    def.T_FORT_I2 = 7;
+    def.T_CASH = 8;
+    def.T_404 = 9;
 
     def.SCALE = 0.25;                   // model scale 
     
@@ -58,6 +59,7 @@ let def = (function() {
     def.BOMB4_BG    = [0.9, 0.9, 0.9, 1.0];
     def.FORT_O_BG   = [0.8157, 0.8196, 0.8235, 1.0];    // #D0D1D2
     def.FORT_I_BG   = [0.1765, 0.9765, 0.9765, 1.0];
+    def.FORT_I2_BG  = [1.0, 1.0, 1.0, 1.0];
     def.CASH_BG     = [0.9765, 0.6588, 0.2471, 1.0];    // #F9A83F
 
     def.makeBg = (flagType) => {

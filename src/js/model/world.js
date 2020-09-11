@@ -197,6 +197,7 @@ export class World extends BaseNode {
     _updateByGameState(time, delta) {
         switch (state.gstate) {
         case state.S_WAITING:
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this._rotateFortO(time);
             break;
         case state.S_PLAYING:
@@ -331,15 +332,25 @@ export class World extends BaseNode {
 
     _checkFortAttack(time) {
         if (this.fortAttackStart) {
+            // Set fort in attack mode.
             this.fortAttackTime.start(performance.now(), 2000);
             this.fortAttack = true;
             this.fortAttackStart = false;
+            this.fortI.forEach( f => {
+                f.type = def.T_FORT_I2;
+                f.bg = def.FORT_I2_BG;
+            } );
         }
 
         if (this.fortAttack) {
             if (this.fortAttackTime.step(time)) {
                 this.fortAttack = false;
-                this.fortI.forEach( f => f.offset[0] = 0 );
+                this.fortI.forEach( f => {
+                    f.offset[0] = 0;
+                    f.type = def.T_FORT_I;
+                    f.bg = def.FORT_I_BG;
+                } );
+
                 // Blow up the rest of the flags.
                 this.flags.forEach( f => {
                     if (f.isActive())
