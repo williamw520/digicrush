@@ -12,13 +12,16 @@ import {v3} from "/js/engine/vector.js";
 let def = (function() {
     const def = {};
 
-    def.chars = ["1", "2", "3", "4", "5", "6", "@", "$"];
+    def.chars = ["1", "2", "3", "4", "5", "6", "0", "@", 
+                 "$", "*", "A", "B", "C", "D", "E", " "];       // have to fill up to 16 chars to force drawing to all the 4096 height; otherwise, the texture's size won't go to the full height.
     def.digitLimit = 5;
+    def.digit0Limit = 6;
 
     // flag index to char, 0-5=digits, 6=rock, 7=cash, 8=blank, 9=wildcard
-    def.F_ROCK = 6;
-    def.F_CASH = 7;
-    def.F_BLANK = 8;
+    def.F_ZERO = 6;
+    def.F_ROCK = 7;
+    def.F_CASH = 8;
+    def.F_BLANK = 16;
     def.F_WILDCARD = 9;
 
     def.T_FLAG = 0;

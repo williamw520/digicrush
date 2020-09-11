@@ -180,9 +180,9 @@ export class World extends BaseNode {
                 let firstFlag   = this.matchedFlg[firstIndex];
                 let j           = firstIndex;
                 if (powerType == def.T_404) {
-                    this.matchedFlg[j++].toFuse(firstFlag, powerType, 3);
-                    this.matchedFlg[j++].toFuse(firstFlag, powerType, 0);
-                    this.matchedFlg[j++].toFuse(firstFlag, powerType, 3);
+                    this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
+                    this.matchedFlg[j++].toFuse(firstFlag, powerType, def.F_ZERO, true);
+                    this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
                 } else {
                     this.matchedFlg[j++].toFuse(firstFlag, powerType);  // retain the flag as powerType after fusing.
                 }

@@ -33,6 +33,7 @@ let gl3d = (function() {
 
         // generate the texture images; set up the texture in webgl.
         texgen.setup("tex");
+        //texgen.drawGrid();
         def.chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
         flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), def.chars.length);
 

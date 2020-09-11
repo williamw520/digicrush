@@ -45,6 +45,7 @@ export class Flag {
         this.rflag = null;
         this.fuseTarget = null;
         this.toPowerType = 0;
+        this.elevated = false;
         this.fstate = S_ACTIVE;
         this.bg = def.makeBg(this.type);
         this.timeline = new A.Timeline(500);
@@ -106,12 +107,13 @@ export class Flag {
         this.fstate = S_BOMBED;
     }
 
-    toFuse(fuseTarget, postFusePowerType, toCh) {
+    toFuse(fuseTarget, postFusePowerType, toCh, elevated) {
         this.timeline.start(performance.now(), 200);
         this.fuseTarget = fuseTarget;
         this.toPowerType = postFusePowerType;
         if (toCh != null)
             this.ch = toCh;
+        this.elevated = elevated;
         this.fstate = S_FUSING;
     }
 
@@ -122,13 +124,12 @@ export class Flag {
     morphBomb(bombType) {
         this.fstate = S_ACTIVE
         this.type = bombType;
-        if (this.ch > def.digitLimit)
+        if (this.ch > def.digit0Limit)
             this.ch = U.rand(0, def.digitLimit);
         this.offset[0] = 0;
-        this.offset[1] = 0;
+        this.offset[1] = this.elevated ? 0.1 : 0;
         this.offset[2] = 0;
         this.bg = def.makeBg(this.type);
-        L.info("morphBomb " + this.ch);
     }
 
     match(digitIndex) {
@@ -141,7 +142,7 @@ export class Flag {
             break;
         case def.T_BOMB4:
         case def.T_404:
-            // Cycle the color of the bomb4's ring.
+            // Cycle the color of the bomb's ring.
             this.bg[0] = (Math.cos(time / 100) + 1) / 2;
             this.bg[1] = (Math.sin(time / 100) + 1) / 2;
             this.bg[2] = (Math.sin(time / 100) + 1) / 2;
