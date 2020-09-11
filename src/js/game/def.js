@@ -15,11 +15,12 @@ let def = (function() {
     // 40 chars + 24 = 64 chars.  64 x 256 = 16384, the height of the texture canvas.
     // Pad 24 chars to force to 64 chars, so the texture height can be 16384, which should be power of 2.
     def.chars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ@$* .........;.........;....".split("");
+    def.charIndex = def.chars.reduce( (map, ch, i) => (map[ch] = i, map), {} );
 
     def.digitBegin = 0;
     def.digitLimit = 5;
     def.digit0Limit = 9;
-    def.letterBegin = 10;
+    def.alphaBegin = 10;
 
     // Flag index to char
     def.F_ZERO = 9;
@@ -29,17 +30,10 @@ let def = (function() {
     def.F_BLANK = 39;
 
     // Convert the text string to texture indices.  Only works on upper case letters and digits.
-    def.textIndices = (text) => {
-        return text.split("").map( ch => {
-            let num = parseInt(ch, 10);
-            if (isNaN(num)) {
-                return def.letterBegin + (ch.charCodeAt(0) - 65);   // no checking, assume upper case.
-            } else {
-                return num == 0 ? def.F_ZERO : (num - 1);
-            }
-        })
-    }
-    // L.info(def.textIndices("ABCWXYZ").map( i => def.chars[i] ));
+    def.numIndex    = n => n == 0 ? def.F_ZERO : n - 1;
+    def.alphaIndex  = l => def.alphaBegin + (l.charCodeAt(0) - 65);
+    def.textIndices = text => text.split("").map( ch => def.charIndex[ch] );
+    // L.info(def.textIndices("ABCWXYZ@$* ").map( i => def.chars[i] ));
     // L.info(def.textIndices("123890").map( i => def.chars[i] ));
 
     def.T_FLAG = 0;
@@ -50,8 +44,9 @@ let def = (function() {
     def.T_FORT_O = 5;
     def.T_FORT_I = 6;
     def.T_FORT_I2 = 7;
-    def.T_CASH = 8;
-    def.T_404 = 9;
+    def.T_WCHAR = 8;                    // wavy character
+    def.T_CHAR  = 9;                    // non-wavy character
+    def.T_404 = 10;
 
     def.SCALE = 0.25;                   // model scale 
     
@@ -70,6 +65,9 @@ let def = (function() {
     def.FORT_I_SCALE = 0.1;
     def.CASH_X = -3.5;
     def.CASH_SCALE = 0.5;
+    def.SCORE_X = 0;
+    def.SCORE_Y = 2;
+    def.SCORE_Z = 0;
 
     def.FLAG_BG     = [0.5, 1.0, 0.0, 1.0];
     def.ROCK_BG     = [0.3961, 0.3255, 0.3255, 1.0];    // #655353
@@ -89,7 +87,7 @@ let def = (function() {
         case def.T_BOMB4:       return [...def.BOMB4_BG];
         case def.T_FORT_O:      return [...def.FORT_O_BG];
         case def.T_FORT_I:      return [...def.FORT_I_BG];
-        case def.T_CASH:        return [...def.CASH_BG];
+        case def.T_WCHAR:        return [...def.CASH_BG];
         case def.T_404:         return [...def.BOMB4_BG];
         default:                return [...def.FLAG_BG];
         }

@@ -34,7 +34,7 @@ void main() {
     float y2;
 
     // compute wave transformation.
-    if (u_model_type == 8) {       // T_CASH = 8
+    if (u_model_type == 8) {       // T_WCHAR = 8
         float amplitude = 1.0 - strength; 
         float waveLen   = 2.0 * strength;
         y += amplitude * ( (x + strength) / waveLen ) * sin(PI_2 * (x - u_wave_period));

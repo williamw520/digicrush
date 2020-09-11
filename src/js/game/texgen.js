@@ -23,7 +23,7 @@ let texgen = (function() {
         canvas = document.getElementById(canvasId);
         canvas.width  = U.ensurePowerOf2(canvas.width);
         canvas.height = U.ensurePowerOf2(canvas.height);
-        L.info(canvas.height);
+        //L.info(canvas.height);
         lineWidth = lineW || 256;
         lineHeight = lineH || 256;
 

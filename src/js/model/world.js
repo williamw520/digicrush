@@ -29,14 +29,17 @@ export class World extends BaseNode {
         this.fortO = [];
         this.fortI = [];
         this.cash  = [];
-        this._makeFortItems();
-        this._makeCash();
+        this.score = [];
+        this.popup = [];
         this.fortIX = 0;
         this.fortAttackStart = false;
         this.fortAttack = false;
         this.fortAttackTime = new A.Timeline(2000);
         this.deadSpin   = new A.Timeline(2000);
         this.deadFlying = new A.Timeline(2000);
+        this._initScore();
+        this._makeFortItems();
+        this._makeCash();
     }
 
     onUpdate(time, delta, parent) {
@@ -381,8 +384,12 @@ export class World extends BaseNode {
 
     _makeCash() {
         let rotRightFace = pg.yrot(90);
-        this.cash.push(FF.makeCash([def.CASH_X, 0, 0], def.CASH_SCALE, rotRightFace));
+        this.cash.push(FF.makeChar("$", [def.CASH_X, 0, 0], def.CASH_SCALE, rotRightFace, true));
     }
-    
+
+    _initScore() {
+//        this.score = [...Array(7).keys()].map( (_, i) => FF.makeLetter([def.SCORE_X + i * 0.15, def.SCORE_Y, def.SCORE_Z], 0.10, "0") );
+    }
+
 }
 

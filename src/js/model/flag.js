@@ -296,12 +296,12 @@ export let FF = (function() {
         return f;
     }
 
-    FF.makeCash = (pos, scale, rotMatrix) => {
-        let f = new Flag(def.T_CASH, pos);
+    FF.makeChar = (chr, pos, scale, rotMatrix, wavy) => {
+        let f = new Flag(wavy ? def.T_WCHAR : def.T_CHAR, pos);
+        f.ch = def.charIndex[chr];
         f.fstate = S_ANIMATE;
         f.scale = scale;
         f.rotMatrix = rotMatrix;
-        f.ch = def.F_CASH;
         return f;
     }
 
