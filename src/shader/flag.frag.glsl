@@ -12,19 +12,46 @@ varying vec2        v_texcoord;
 varying vec3        v_normal;
 varying float       v_slope;
 
-float BLOCK_R = 1.1;    // slightly bigger than the max radius to create a round octagon shape.
+float BLOCK_R = 1.1;    // slightly bigger than the max radius to create a rounded octagon shape.
 float FORT_O_R = 1.35;
 float FORT_I_R = 1.08;
 float BOMB_R1 = 1.0; 
 float BOMB_R2 = 0.85;
 float BOMB_R3 = 0.85;
 
+vec2 ut1 = vec2( 0.0,  1.0);
+vec2 ut2 = vec2(-1.0,  0.5);
+vec2 ut3 = vec2( 1.0,  0.5);
+
+vec2 lt1 = vec2( 0.0, -1.0);
+vec2 lt2 = vec2(-1.0, -0.5);
+vec2 lt3 = vec2( 1.0, -0.5);
+
+vec2 rtl = vec2(-1.0, -0.5);        // rect top left
+vec2 rbr = vec2( 1.0,  0.5);        // rect bottom right
+
+
+bool inTriangle(vec3 pt, vec2 t1, vec2 t2, vec2 t3) {
+    float A = 1.0/2.0 * (-t2.y * t3.x + t1.y * (-t2.x + t3.x) + t1.x * (t2.y - t3.y) + t2.x * t3.y);
+    float sign = A < 0.0 ? -1.0 : 1.0;
+    float s = (t1.y * t3.x - t1.x * t3.y + (t3.y - t1.y) * pt.x + (t1.x - t3.x) * pt.y) * sign;
+    float t = (t1.x * t2.y - t1.y * t2.x + (t1.y - t2.y) * pt.x + (t2.x - t1.x) * pt.y) * sign;
+    return s > 0.0 && t > 0.0 && (s + t) < 2.0 * A * sign;
+}
+
+bool inRect(vec3 pt, vec2 rtl, vec2 rbr) {
+    return pt.x >= rtl.x && pt.x <= rbr.x  &&  pt.y >= rtl.y && pt.y <= rbr.y;
+}
 
 vec4 colorByShape() {
     vec4 color = u_background;                          // use the background color by default
     float distance = sqrt(dot(v_pos, v_pos));
 
-    if (u_model_type_f == 1) {                          // T_ROCK = 1
+    if (u_model_type_f == 0) {                          // T_FLAG = 0
+        if (!(inTriangle(v_pos, ut1, ut2, ut3) || inTriangle(v_pos, lt1, lt2, lt3) || inRect(v_pos, rtl, rbr))) {
+            color = vec4(0.0, 0.0, 0.0, 0.0);
+        }
+    } else if (u_model_type_f == 1) {                   // T_ROCK = 1
         if (distance > BLOCK_R) {
             color = vec4(0.0, 0.0, 0.0, 0.0);
         }
@@ -64,8 +91,10 @@ void main() {
         // Texture's color is transparent; not on the digit drawing.
         color = colorByShape();
     } else {
-        // has texture color; on the digit drawing.
-        if (u_model_type_f == 1) {                          // T_ROCK = 1
+        // has texture color; on the digit letter drawing.
+        if (u_model_type_f == 0) {                          // T_FLAG = 0
+            color = vec4(0.0, 0.0, 1.0, 1.0);
+        } else if (u_model_type_f == 1) {                   // T_ROCK = 1
             color = vec4(1.0, 1.0, 0.50, 1.0);
         } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
             color = vec4(1.0, 1.0, 1.0, 1.0);
