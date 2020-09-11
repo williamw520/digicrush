@@ -46,10 +46,10 @@ export class Flag {
         this.fuseTarget = null;
         this.toPowerType = 0;
         this.elevated = false;
-        this.fstate = S_ACTIVE;
         this.bg = def.makeBg(this.type);
         this.timeline = new A.Timeline(500);
         this.animateDir = 1;
+        this.fstate = S_ACTIVE;
     }
 
     clone() {
@@ -153,7 +153,7 @@ export class Flag {
         case S_ACTIVE:
             this._updatePhysics(delta);
             break;
-        case S_ANIMATE:
+        case S_ANIMATE:                             // this is item's internal animation; animation at item group level should be done in World.
             if (this.type == def.T_FORT_I) {
                 if (!this.timeline.step(time)) {
                     this.offset[0] = this.timeline.pos / 20;

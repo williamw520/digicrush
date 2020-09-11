@@ -44,7 +44,7 @@ export class World extends BaseNode {
             this._pullback();
         this._checkDeadFlags();
         this._fixNextPtr();
-        this._updateGameState();
+        this._updateByGameState(time, delta);
 
         if (state.gstate == state.S_PLAYING) {
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
@@ -204,13 +204,15 @@ export class World extends BaseNode {
 
     }
 
-    _updateGameState() {
+    _updateByGameState(time, delta) {
         switch (state.gstate) {
         case state.S_WAITING:
+            this._rotateFortO(time);
             break;
         case state.S_PLAYING:
             this._checkLosing();
             this._checkSpawn();
+            this._rotateFortO(time);
             break;
         case state.S_PAUSED:
             break;
@@ -302,7 +304,7 @@ export class World extends BaseNode {
             let z = radius * Math.sin(angle);
             this.fortO.push(FF.makeFort(def.T_FORT_O, [def.FORT_O_X, y, z], def.FORT_O_SCALE, rotRightFace));
         }
-        
+
         count = 8;
         radius = 1.1;
         for (let i = 0; i < count; i++) {
@@ -310,6 +312,19 @@ export class World extends BaseNode {
             let y = radius * Math.cos(angle);
             let z = radius * Math.sin(angle);
             this.fortI.push(FF.makeFort(def.T_FORT_I, [def.FORT_I_X, y, z], def.FORT_I_SCALE, rotRightFace));
+        }
+    }
+
+    _rotateFortO(time) {
+        let period = time / 360000;
+        let count = 16;
+        let radius = 2;
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * (i / count - period);
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortO[i].pos[1] = y;
+            this.fortO[i].pos[2] = z;
         }
     }
 
