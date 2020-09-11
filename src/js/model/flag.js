@@ -154,13 +154,6 @@ export class Flag {
             this._updatePhysics(delta);
             break;
         case S_ANIMATE:                             // this is item's internal animation; animation at item group level should be done in World.
-            if (this.type == def.T_FORT_I) {
-                if (!this.timeline.step(time)) {
-                    this.offset[0] = this.timeline.pos / 20;
-                } else {
-                    this.timeline.start(performance.now(), 2000);
-                }
-            }
             this._updatePhysics(delta);
             break;
         case S_NOMOVE:
@@ -298,7 +291,7 @@ export let FF = (function() {
         f.fstate = S_ANIMATE;
         f.scale = scale;
         f.rotMatrix = rotMatrix;
-        f.timeline.start(performance.now(), 2000);
+        f.ch = def.F_BLANK;
         return f;
     }
 

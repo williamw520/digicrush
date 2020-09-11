@@ -213,6 +213,7 @@ export class World extends BaseNode {
             this._checkLosing();
             this._checkSpawn();
             this._rotateFortO(time);
+            this._pulseFortI(time);
             break;
         case state.S_PAUSED:
             break;
@@ -326,6 +327,11 @@ export class World extends BaseNode {
             this.fortO[i].pos[1] = y;
             this.fortO[i].pos[2] = z;
         }
+    }
+
+    _pulseFortI(time) {
+        let period = time / 3600;
+        this.fortI.forEach( f => f.offset[0] = Math.sin(2 * Math.PI * period) / 16 );
     }
 
     _makeCash() {
