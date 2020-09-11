@@ -87,7 +87,8 @@ let def = (function() {
         case def.T_BOMB4:       return [...def.BOMB4_BG];
         case def.T_FORT_O:      return [...def.FORT_O_BG];
         case def.T_FORT_I:      return [...def.FORT_I_BG];
-        case def.T_WCHAR:        return [...def.CASH_BG];
+        case def.T_WCHAR:       return [...def.CASH_BG];
+        case def.T_CHAR:        return [0, 0, 0, 1];
         case def.T_404:         return [...def.BOMB4_BG];
         default:                return [...def.FLAG_BG];
         }

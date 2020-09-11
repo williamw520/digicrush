@@ -46,7 +46,7 @@ export class Flag {
         this.fuseTarget = null;
         this.toPowerType = 0;
         this.elevated = false;
-        this.bg = def.makeBg(this.type);
+        this.bg = def.makeBg(this.type);        // default bg
         this.timeline = new A.Timeline(500);
         this.animateDir = 1;
         this.fstate = S_ACTIVE;

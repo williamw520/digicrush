@@ -48,30 +48,24 @@ vec4 colorByShape() {
     float distance = sqrt(dot(v_pos, v_pos));
 
     if (u_model_type_f == 0) {                          // T_FLAG = 0
-        if (!(inTriangle(v_pos, ut1, ut2, ut3) || inTriangle(v_pos, lt1, lt2, lt3) || inRect(v_pos, rtl, rbr))) {
+        if (!(inTriangle(v_pos, ut1, ut2, ut3) || inTriangle(v_pos, lt1, lt2, lt3) || inRect(v_pos, rtl, rbr)))
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     } else if (u_model_type_f == 1) {                   // T_ROCK = 1
-        if (distance > BLOCK_R) {
+        if (distance > BLOCK_R)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
-        if (distance > BOMB_R1 || distance < BOMB_R2) {
+        if (distance > BOMB_R1 || distance < BOMB_R2)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     } else if (u_model_type_f == 4 ||
-               u_model_type_f == 9) {                   // T_BOMB4 = 4, T_404 = 9
-        if (distance > BOMB_R1 || distance < BOMB_R3) {
+               u_model_type_f == 10) {                  // T_BOMB4 = 4, T_404 = 10
+        if (distance > BOMB_R1 || distance < BOMB_R3)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     } else if (u_model_type_f == 5) {                   // T_FORT_O = 5
-        if (distance > FORT_O_R) {
+        if (distance > FORT_O_R)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     } else if (u_model_type_f == 6) {                   // T_FORT_I = 6
-        if (distance > FORT_I_R) {
+        if (distance > FORT_I_R)
             color = vec4(0.0, 0.0, 0.0, 0.0);
-        }
     }
     return color;
 }
@@ -100,7 +94,7 @@ void main() {
         } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
             color = vec4(1.0, 1.0, 1.0, 1.0);
         } else if (u_model_type_f == 4 ||
-                   u_model_type_f == 9) {                   // T_BOMB4 = 4, T_404 = 9
+                   u_model_type_f == 10) {                  // T_BOMB4 = 4, T_404 = 10
             color = vec4(1.0, 1.0, 0.50, 1.0);
         } else {
             if (v_slope > 0.0) {

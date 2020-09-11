@@ -63,6 +63,7 @@ export class World extends BaseNode {
         this.fortO.forEach( f => f.onDraw() );
         this.fortI.forEach( f => f.onDraw() );
         this.cash.forEach(  f => f.onDraw() );
+        this.score.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
@@ -388,7 +389,7 @@ export class World extends BaseNode {
     }
 
     _initScore() {
-//        this.score = [...Array(7).keys()].map( (_, i) => FF.makeLetter([def.SCORE_X + i * 0.15, def.SCORE_Y, def.SCORE_Z], 0.10, "0") );
+        this.score = [...Array(7).keys()].map( (n, i) => FF.makeChar("0", [def.SCORE_X + i * 0.25, def.SCORE_Y, def.SCORE_Z], 0.15) );
     }
 
 }
