@@ -1,9 +1,25 @@
+/*
+  Digi Crush
+  A game to crush the digits.
+  Copyright (C) 2020 William Wong.  All rights reserved.
+  williamw520@gmail.com
+*/
 
-let GS = this;       // save the global scope
-let D = document;
-let W = window;
-let M = Math;
+// global module
+let G = (function() {
+    const G = {};
 
-let L = console;
-let assert = console.assert;
+    // Call G.setup() right after the page load event before anything else.
+    G.setup = () => {
+        let W = window;
+        window.W = W;
+        W.D = document;
+        W.M = Math;
+        W.L = console;
+        W.assert = console.assert;
+    }
 
+    return G;
+}());
+
+export default G;

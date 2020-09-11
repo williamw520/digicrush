@@ -7,6 +7,7 @@
 
 
 // The main entry point of the JS app.  Rollup starts from here to include all other module imports.
+import G from "/js/util/globals.js";
 import {v2, v3} from "/js/engine/vector.js";
 import {m4, m4u} from "/js/engine/matrix.js";
 import {pg} from "/js/engine/pregen.js";
@@ -23,6 +24,7 @@ import {SoundGenerator} from "/js/util/sound.js";
 
     window.addEventListener("load", function(event){
 
+        G.setup();                  // set up the globals at the very first chance.
         gl3d.setup();
 
         let w = new World();

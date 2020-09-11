@@ -115,7 +115,8 @@ function filesToBuild(cb) {
 
 // Copy files to DIST so they can be referenced in $DIST/digicrush
 function filesToDist(cb) {
-    return src(["src/**/globals.js"]).pipe(dest(DIST + "/digicrush"));
+//    return src(["src/**/globals.js"]).pipe(dest(DIST + "/digicrush"));
+    return cb;
 }
 
 function uglifyToHtml(cb) {
@@ -140,7 +141,7 @@ function zip(cb) {
 }
 
 // The whole build pipeline.
-const build = series(setupTmpDirs, gen, rollupJsToBuild, filesToBuild, uglifyToHtml, filesToDist, zip)
+const build = series(setupTmpDirs, gen, rollupJsToBuild, filesToBuild, uglifyToHtml, /*filesToDist,*/ zip)
 
 async function clean(cb) {
     await del([DIST + "/**", BUILD + "/**"], {force:true});
