@@ -19,6 +19,8 @@ let G = (function() {
         W.assert = console.assert;
     }
 
+    G.setup();      // call it once to do best effort setup asap; page load event handler will call it again to finalize the setup.
+
     return G;
 }());
 
