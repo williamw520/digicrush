@@ -6,26 +6,24 @@
 */
 
 import input from "/js/engine/input.js";
+import {BaseNode} from "/js/engine/basenode.js";
 
 
 // Game engine
-export class Engine {
-    constructor(world, ui) {
+export class Engine extends BaseNode {
+    constructor() {
+        super();
         this.frameId = null;                    // current frame id.
         this.prevTime = 0;                      // previous frame's time
-        this.world = world;                     // world node
-        this.ui = ui;                           // UI node
     }
 
     start() {
-        L.info("start");
         input.startup(window);
         this.prevTime = performance.now();
         this._animate(this.prevTime);           // start the first animation frame.
     }
 
     stop() {
-        L.info("stop");
         input.shutdown(window);
         if (this.frameId)
             cancelAnimationFrame(this.frameId);
@@ -39,11 +37,17 @@ export class Engine {
         let dt = currTime - this.prevTime;
         this.prevTime = currTime;
         if (dt > 0) {
-            this.world.onUpdate(currTime, dt, null);    // update game world state
-            this.ui.onUpdate(currTime, dt, null);
-            this.world.onDraw();                        // render the game world
-            this.ui.onDraw();                           // render the surrounding UI
+            this.onUpdate(currTime, dt, null);
+            this.onDraw();
         }
+    }
+
+    onUpdate(time, delta, parent) {
+        super.onUpdate(time, delta, parent);    // run onUpdate() on child nodes.
+    }
+
+    onDraw() {
+        super.onDraw();                         // run onDraw() on child nodes.
     }
 
 }

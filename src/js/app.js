@@ -15,7 +15,6 @@ import texgen from "/js/game/texgen.js";
 import gl3d from "/js/game/gl3d.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/model/world.js";
-import ui from "/js/model/ui.js";
 
 
 // app module
@@ -26,9 +25,9 @@ import ui from "/js/model/ui.js";
         G.setup();                  // set up the globals at the very first chance.
         gl3d.setup();
 
+        let e = new Engine();
         let w = new World();
-        let u = new ui.UINode(w);
-        let e = new Engine(w, u);
+        e.addChild(w);
 
         e.start();
         gl3d.start();
