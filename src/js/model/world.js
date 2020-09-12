@@ -38,13 +38,13 @@ export class World extends BaseNode {
         this.fortAttackTime = new A.Timeline(2000);
         this.popupLen = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
-        this.deadStages = new A.TimeGroup([2000, 2000, 2000]);
+        this.wonStages  = new A.TimeGroup([500, 2000, 2000]);
+        this.deadStages = new A.TimeGroup([2950, 1500, 2000]);
         this._initScore();
         this._initPopup();
         this._makeFortItems();
         this._makeCash();
-
-        this._setPopup("LEVEL " + state.level);
+        this._startGame();
     }
 
     onUpdate(time, delta, parent) {
@@ -68,16 +68,23 @@ export class World extends BaseNode {
         this.fortO.forEach( f => f.onDraw() );
         this.fortI.forEach( f => f.onDraw() );
         this.cash.forEach(  f => f.onDraw() );
-        this.popup.forEach( f => f.onDraw() );
-        // Camera angle has no effect on score display.
+
+        // Camera angle has no effect on the following display.
         let oldCameraAngle = gl3d.cameraAngle;
         gl3d.cameraAngle = 0;
+        this.popup.forEach( f => f.onDraw() );
         this.score.forEach( f => f.onDraw() );
         gl3d.cameraAngle = oldCameraAngle;
     }
 
+    // Restart game for initial play or after game over.
+    _startGame() {
+        state.gstate = state.S_INIT_WAIT;
+        state.level = 1;
+        this._setPopup("SPACE TO START", -0.2, 0, -.5);
+    }
+
     _startLevel() {
-        L.info("_startLevel");
         this._showPopup(false);
         this._showItems(this.cash, true);
         this._showItems(this.fortO, true);
@@ -85,6 +92,8 @@ export class World extends BaseNode {
         this._resetOffset(this.cash);
         this._resetOffset(this.fortO);
         this._resetOffset(this.fortI);
+        state.hitGoal   = 10;               // get from level profile
+        state.hitCount  = 0;
         state.gstate = state.S_PLAYING;
         gl3d.cameraAngle = def.PLAYING_ANGLE;
         this._spawnFlag();
@@ -92,7 +101,9 @@ export class World extends BaseNode {
 
     _handleInput() {
         if (input.isOn(input.K_SPACE) || input.isOn(input.K_RUN)) {
-            if (state.gstate == state.S_WAITING || state.gstate == state.S_DEAD_WAIT)
+            if (state.gstate == state.S_INIT_WAIT ||
+                state.gstate == state.S_WON_WAIT  ||
+                state.gstate == state.S_LOST_WAIT)
                 this._startLevel();
         }
 
@@ -209,8 +220,10 @@ export class World extends BaseNode {
                 }
 
                 for (; j <= i; j++) {
-                    this.matchedFlg[j].toFuse(firstFlag, 0);        // don't retain the flag after fusing.
+                    this.matchedFlg[j].toFuse(firstFlag, 0);        // don't retain the rest of the matched flags after fusing.
                 }
+
+                state.hitCount += (j - firstIndex);                 // the ones fusing counted as hit; the fused ones are new flags which will be counted as another hit.
 
                 i = firstIndex;                                     // skip back to firstIndex to continue the outer loop.
                 hasPowerFuse = true;
@@ -221,8 +234,10 @@ export class World extends BaseNode {
         let matchCount = this.matchedFlg.reduce( (sum, f) => f.isActive() ? sum+1 : sum, 0 );
         if (matchCount > 1) {
             this.matchedFlg.forEach( f => {
-                if (f.isActive())
+                if (f.isActive()) {
                     f.toHit();
+                    state.hitCount++;
+                }
             });
             audio.sprinkle();
         }
@@ -231,12 +246,13 @@ export class World extends BaseNode {
 
     _updateByGameState(time, delta) {
         switch (state.gstate) {
-        case state.S_WAITING:
+        case state.S_INIT_WAIT:
             this._rotateFortO(time);
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PLAYING:
+            this._checkWinning();
             this._checkLosing();
             this._checkSpawn();
             this._rotateFortO(time);
@@ -253,45 +269,73 @@ export class World extends BaseNode {
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_WON:
-            this.popup.forEach( f => f.onUpdate(time, delta, this) );
-            break;
-        case state.S_DEAD:
-            if (this.deadStages.step(time)) {
-                state.gstate = state.S_DEAD_WAIT;
+            if (this.wonStages.step(time)) {
+                state.gstate = state.S_WON_WAIT;
+                // setup for the next state.
+                gl3d.cameraAngle = 0;
                 this.flags.length = 0;
-                this._showItems(this.cash, false);
-                this._showItems(this.fortO, false);
-                this._showItems(this.fortI, false);
+                this._setPopup("NEXT LEVEL", -0.2, 0, 0);
             } else {
-                switch (this.deadStages.stage) {
+                switch (this.wonStages.stage) {
                 case 0:
                     gl3d.cameraAngle += 3;
                     break;
                 case 1:
                     gl3d.cameraAngle += 1;
+                    break;
+                case 2:
+                    break;
+                }
+            }
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_WON_WAIT:
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_LOST:
+            if (this.deadStages.step(time)) {
+                state.gstate = state.S_LOST_WAIT;
+                // setup for the next state.
+                gl3d.cameraAngle = 0;
+                this._setPopup("GAME OVER", -0.5, 0, 0);
+                this._showItems(this.cash, false);
+                this._showItems(this.fortO, false);
+                this._showItems(this.fortI, false);
+                this.flags.length = 0;
+            } else {
+                switch (this.deadStages.stage) {
+                case 0:
+                    gl3d.cameraAngle -= 3;
+                    break;
+                case 1:
+                    gl3d.cameraAngle -= 1;
                     this._collapseFort(this.deadStages.pos);
                     break;
                 case 2:
-                    //gl3d.cameraAngle += 1;
                     this._blowupFort(this.deadStages.pos);
                 }
             }
 
             this._rotateFortO(time);
             break;
-        case state.S_DEAD_WAIT:
-            gl3d.cameraAngle = 0;
-            this._setPopup("GAME OVER");
+        case state.S_LOST_WAIT:
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         }        
+    }
+
+    _checkWinning() {
+        if (state.hitCount >= state.hitGoal) {
+            state.gstate = state.S_WON;
+            this._setPopup("LEVEL WON!", -.5, -.4, 0);
+        }
     }
 
     _checkLosing() {
         let first = this._firstFlag();
         if (first) {
             if (first.pos[0] < def.LOSING_X) {
-                state.gstate = state.S_DEAD;
+                state.gstate = state.S_LOST;
                 this.deadStages.start();
             }
         }
@@ -416,8 +460,8 @@ export class World extends BaseNode {
     }
 
     _blowupFort(pos) {
-        this._expandFort(this.fortO, 6.0 * A.easeOutQuad(pos), 1, def.FORT_O_SCALE * (0.25 + pos));
-        this._expandFort(this.fortI, 4.0 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
+        this._expandFort(this.fortO, 7.0 * A.easeOutQuad(pos), 1, def.FORT_O_SCALE * (0.25 + pos));
+        this._expandFort(this.fortI, 5.5 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
     }
 
     _checkFortAttack(time) {
@@ -466,6 +510,7 @@ export class World extends BaseNode {
 
     _startBombed(f) {
         f.toBombed();
+        state.hitCount++;                               // each bombed flag counted as a hit.
         let copies = U.rand(3, 5);
         while (copies-- > 0)
             this.flags.push(f.clone().toFlyingRnd());
@@ -478,7 +523,7 @@ export class World extends BaseNode {
 
     _initScore() {
         this.score = [...Array(7).keys()].map( (n, i) => FF.makeChar("0",
-                                                                     [def.SCORE_X + i * (def.SCORE_W * 1.7), def.SCORE_Y, def.SCORE_Z],
+                                                                     [def.SCORE_X + i * (def.SCORE_W * 1.4), def.SCORE_Y, def.SCORE_Z],
                                                                      def.SCORE_W) );
         this.score.forEach( f => f.bg = [0, 0, 0, 0] );
         this.score.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
@@ -504,15 +549,18 @@ export class World extends BaseNode {
     }
 
     _initPopup() {
-        this.popup = [...Array(10).keys()].map( (n, i) => FF.makeChar(" ",
-                                                                      [def.POPUP_X + i * (def.POPUP_W * 2.2), def.POPUP_Y, def.POPUP_Z],
-                                                                      def.POPUP_W, null, true) );
+        this.popup = [...Array(def.POPUP_N).keys()].map( (n, i) => {
+            return FF.makeChar(" ",
+                               [def.POPUP_X + i * (def.POPUP_W * 2.2), def.POPUP_Y, def.POPUP_Z],
+                               def.POPUP_W, null, true)
+        } )
     }
 
-    _setPopup(msg) {
+    _setPopup(msg, offsetX, offsetY, offsetZ) {
         const txt = msg.substring(0, this.popup.length);
         this.popupLen = txt.length;
         txt.split("").map( (ch, i) => this.popup[i].ch = def.charIndex[ch] );
+        this._setOffset(this.popup, offsetX, offsetY, offsetZ);
         this._showPopup(true);
     }
 
@@ -540,8 +588,12 @@ export class World extends BaseNode {
         })
     }
 
+    _setOffset(items, x, y, z) {
+        items.forEach( f => (f.offset[0] = x, f.offset[1] = y, f.offset[2] = z) );
+    }
+
     _resetOffset(items) {
-        items.forEach( f => f.offset = [0, 0, 0] );
+        this._setOffset(items, 0, 0, 0);
     }
 
 }

@@ -23,7 +23,7 @@ const S_HIT = 4;
 const S_FLYING = 5;
 const S_FUSING = 6;
 const S_BOMBED = 7;
-const S_DEAD = 8;
+const S_LOST = 8;
 
 let workingPos = [0, 0, 0];                     // working vector
 
@@ -72,7 +72,7 @@ export class Flag {
     isActive()      { return this.fstate == S_ACTIVE    }
     isHit()         { return this.fstate == S_HIT       }
     isBombed()      { return this.fstate == S_BOMBED    }
-    isDead()        { return this.fstate == S_DEAD      }
+    isDead()        { return this.fstate == S_LOST      }
 
     isInLine()      { return this.fstate == S_ACTIVE || this.fstate == S_HIT || this.fstate == S_FUSING || this.fstate == S_BOMBED }
 
@@ -121,7 +121,7 @@ export class Flag {
     }
 
     toDead() {
-        this.fstate = S_DEAD;
+        this.fstate = S_LOST;
         state.score++;
     }
 
@@ -203,7 +203,7 @@ export class Flag {
             }
             this._updatePhysics(delta);
             break;
-        case S_DEAD:
+        case S_LOST:
             break;
         }
     }

@@ -10,17 +10,18 @@
 let A = (function() {
     const A = {};
 
-    // Timeline based on time, mapping time to a position in the range of [0, 1].
+    // Timeline based on time position, mapping time to a position in the range of [0, 1].
     A.Timeline = class {
         constructor(timeRangeMS) {
-            this._timeRange =  timeRangeMS; // the max limit of time to stop, e.g. 5000ms
-            this._start = 0;                // start time
-            this._time = 0;                 // current time
+            this.start(0, timeRangeMS);
         }
 
-        start(timeMS, rangeMS) {
-            this._start = this._time = timeMS || performance.now();
-            this._timeRange = rangeMS || this._timeRange;
+        start(startTimeMS, timeRangeMS) {
+            startTimeMS = startTimeMS || performance.now();               
+            this._start = this._time = startTimeMS;             // start time and current time
+            this._timeRange = timeRangeMS || this._timeRange;   // the max limit of time to stop
+            this._forceDone = false;                            // force to completion; animation might have completed before the allocated time range expires.
+            this._props = {};                                   // caller can store property values here to track the state of the animation.
         }
 
         step(timeMS) {
@@ -28,11 +29,22 @@ let A = (function() {
             return this.done;               // return done status
         }
 
-        get pos()       { return (this._time - this._start) / this._timeRange }     // current position in the range [0, 1]
-        get rpos()      { return (this._timeRange - (this._time - this._start)) / this._timeRange } // current reverse position in the range [1, 0]
-        get done()      { return this.pos >= 1 }                                    // is it done?
+        doneNow() {
+            this._forceDone = true;
+        }
+
+        get done()      { return this.pos >= 1 }                                        // is it done?
+        get props()     { return this._props   }                                        // caution: caller can modify this.
+        get pos()       { return this._elapse / this._timeRange }                       // current position in the range [0, 1]
+        get rpos()      { return (this._timeRange - this._elapse) / this._timeRange }   // current reverse position in the range [1, 0]
+        get _elapse()   { return this._forceDone ? this._timeRange :
+                                 Math.min(this._time - this._start, this._timeRange) }  // elapse time, upto the time range.
     }
 
+    // This allows a sequence of Timelines to run one after another.
+    // Each Timeline runs through its time range, and then the next one runs.
+    // Each Timeline is one stage.  Caller queries the current stage of the group and acts accordingly.
+    // This allows multi-stage animation.
     A.TimeGroup = class {
         constructor(timeRanges) {
             this._timelines = (timeRanges || []).map( range => new A.Timeline(range) );
@@ -47,26 +59,31 @@ let A = (function() {
         start(timeMS) {
             this._stage = 0;
             assert(this._timelines.length > this._stage);
-            this._timelines[this._stage].start(timeMS);
+            this.timeline.start(timeMS);
         }
 
         step(timeMS) {
             if (!this.done) {
-                if (this._timelines[this._stage].step(timeMS)) {
+                if (this.timeline.step(timeMS)) {
                     this._stage++;
                     if (!this.done)
-                        this._timelines[this._stage].start(timeMS);
+                        this.timeline.start(timeMS);
                 }
             }
             return this.done;
         }
 
-        stagePos(s)     { return this._timelines[s].pos     }
-        stageRPos(s)    { return this._timelines[s].rpos    }
+        stageDoneNow() {
+            if (!this.done) {
+                this.timeline.doneNow();
+            }
+        }
 
-        get pos()       { return this.stagePos(this.stage)  }
-        get rpos()      { return this.stageRPos(this.stage) }
-        get stage()     { return this._stage                }
+        get timeline()  { return this._timelines[this._stage]   }           // get the current stage's timeline.
+        get props()     { return this.timeline.props            }
+        get pos()       { return this.timeline.pos              }
+        get rpos()      { return this.timeline.rpos             }
+        get stage()     { return this._stage                    }
         get done()      { return this._stage >= this._timelines.length }
 
     }

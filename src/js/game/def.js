@@ -14,7 +14,7 @@ let def = (function() {
 
     // 40 chars + 24 = 64 chars.  64 x 256 = 16384, the height of the texture canvas.
     // Pad 24 chars to force to 64 chars, so the texture height can be 16384, which should be power of 2.
-    def.chars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ@$* .........;.........;....".split("");
+    def.chars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ@$* -!.......;.........;....".split("");
     def.charIndex = def.chars.reduce( (map, ch, i) => (map[ch] = i, map), {} );
 
     def.digitBegin = 0;
@@ -69,10 +69,11 @@ let def = (function() {
     def.SCORE_Y = 3.4;
     def.SCORE_Z = -2.5;
     def.SCORE_W = 0.3;                  // score char scale
-    def.POPUP_X = -1.5;
+    def.POPUP_X = 0;
     def.POPUP_Y = 0;
-    def.POPUP_Z = 0.5;
-    def.POPUP_W = 0.20;                 // popup char scale
+    def.POPUP_Z = 2.6;
+    def.POPUP_W = 0.075;                // popup char scale
+    def.POPUP_N = 14;                   // char count
 
     def.makeFg = (flagType) => {
         switch(flagType) {
