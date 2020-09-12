@@ -35,6 +35,7 @@ export class World extends BaseNode {
         this.fortAttackStart = false;
         this.fortAttack = false;
         this.fortAttackTime = new A.Timeline(2000);
+        this.scoreDelay = new A.Timeline(200);          // delay between score update.
         this.deadSpin   = new A.Timeline(2000);
         this.deadFlying = new A.Timeline(2000);
         this._initScore();
@@ -214,6 +215,7 @@ export class World extends BaseNode {
             this.fortO.forEach( f => f.onUpdate(time, delta, this) );
             this.fortI.forEach( f => f.onUpdate(time, delta, this) );
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
+            this._updateScore(time);
             break;
         case state.S_PAUSED:
             break;
@@ -389,7 +391,30 @@ export class World extends BaseNode {
     }
 
     _initScore() {
-        this.score = [...Array(7).keys()].map( (n, i) => FF.makeChar("0", [def.SCORE_X + i * 0.25, def.SCORE_Y, def.SCORE_Z], 0.15) );
+        this.score = [...Array(7).keys()].map( (n, i) => FF.makeChar("0",
+                                                                     [def.SCORE_X + i * (def.SCORE_W * 1.7), def.SCORE_Y, def.SCORE_Z],
+                                                                     def.SCORE_W) );
+        this.score.forEach( f => f.bg = [0, 0, 0, 0] );
+        this.score.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
+    }
+
+    _updateScore(time) {
+        if (this.scoreDelay.step(time)) {
+            this.scoreDelay.start(performance.now());
+        } else {
+            if (state.scoreDisplay < state.score) {
+                state.scoreDisplay += 1;
+            }
+            let i = this.score.length - 1;
+            let n = state.scoreDisplay;
+            while (n > 0) {
+                const digit = n % 10;
+                this.score[i].ch = def.numIndex(digit);
+                n = M.floor(n / 10);
+                if (i > 0)
+                    i--;
+            }
+        }
     }
 
 }

@@ -47,6 +47,7 @@ export class Flag {
         this.toPowerType = 0;
         this.elevated = false;
         this.bg = def.makeBg(this.type);        // default bg
+        this.fg = def.makeFg(this.type);
         this.timeline = new A.Timeline(500);
         this.animateDir = 1;
         this.fstate = S_ACTIVE;
@@ -59,6 +60,7 @@ export class Flag {
         c.velocity = [...this.velocity];
         c.force = [...this.force];
         c.bg = [...this.bg];
+        c.fg = [...this.fg];
         c.timeline = new A.Timeline(500);
         return c;
     }
@@ -120,6 +122,7 @@ export class Flag {
 
     toDead() {
         this.fstate = S_DEAD;
+        state.score++;
     }
 
     morphBomb(bombType) {
@@ -131,6 +134,7 @@ export class Flag {
         this.offset[1] = this.elevated ? 0.1 : 0;
         this.offset[2] = 0;
         this.bg = def.makeBg(this.type);
+        this.fg = def.makeFg(this.type);
     }
 
     match(digitIndex) {
@@ -209,7 +213,7 @@ export class Flag {
             let modelRotation = this.rotMatrix ? this.rotMatrix : pg.xrot(this.xrot);
             v3.setTo(workingPos, this.pos);
             v3.addTo(workingPos, this.offset);
-            flag_render.draw(gl3d.gl, this.ch, this.type, workingPos, this.scale, modelRotation, this.bg, gl3d.facingView(), this.wavePeriod);
+            flag_render.draw(gl3d.gl, this.ch, this.type, workingPos, this.scale, modelRotation, this.fg, this.bg, gl3d.facingView(), this.wavePeriod);
         }
     }
 

@@ -25,6 +25,8 @@ let state = (function() {
     state.inSeqCh = 0;                  // the digit char to spawn in sequence
     state.inSeqProbability = 0.3;       // probability to spawn in sequence
 
+    state.scoreDisplay = 0;              // current displayed score.
+    state.score = 0;                     // the score.
 
     return state;
 }());

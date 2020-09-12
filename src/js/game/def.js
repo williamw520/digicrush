@@ -65,9 +65,24 @@ let def = (function() {
     def.FORT_I_SCALE = 0.1;
     def.CASH_X = -3.5;
     def.CASH_SCALE = 0.5;
-    def.SCORE_X = 0;
-    def.SCORE_Y = 2;
-    def.SCORE_Z = 0;
+    def.SCORE_X = -1.5;
+    def.SCORE_Y = 3;
+    def.SCORE_Z = -2.5;
+    def.SCORE_W = 0.3;                  // score digit scale
+
+
+    def.makeFg = (flagType) => {
+        switch(flagType) {
+        case def.T_FLAG:        return [0.0, 0.0, 1.0, 1.0];
+        case def.T_ROCK:        return [1.0, 1.0, 0.5, 1.0];
+        case def.T_BOMB3:       return [1.0, 1.0, 1.0, 1.0];
+        case def.T_BOMB4:       return [1.0, 1.0, 1.0, 1.0];
+        case def.T_404:         return [1.0, 1.0, 1.0, 1.0];
+        case def.T_WCHAR:       return [0, 1, 0, 1];
+        case def.T_CHAR:        return [1, 1, 1, 1];
+        default:                return [0, 0, 0, 1];
+        }
+    }
 
     def.makeBg = (flagType) => {
         switch(flagType) {

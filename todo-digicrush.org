@@ -54,8 +54,8 @@
 *** The digit drops to the horizontal pathway, and starts marching to the left.
 
 * TODO:
-** WORKING Add letter set texture for UI.
-** Scoring
+** DONE Add letter set texture for UI.
+** DONE Scoring
 ** Leveling
 ** Winning sequence
 ** Losing sequence

@@ -4,6 +4,7 @@ uniform sampler2D   u_sampler;
 uniform int         u_model_type_f;
 uniform float       u_item_index;
 uniform float       u_item_count;
+uniform vec4        u_foreground;
 uniform vec4        u_background;
 uniform vec3        u_light_direction;
 
@@ -84,26 +85,16 @@ void main() {
     float light         = dot(normal, u_light_direction);
 
     if (tcolor.a == 0.0) {
-        // Texture's color is transparent; not on the digit drawing.
+        // Texture's color is transparent; not on the char drawing.
         color = colorByShape();
     } else {
-        // has texture color; on the digit letter drawing.
-        if (u_model_type_f == 0) {                          // T_FLAG = 0
-            color = vec4(0.0, 0.0, 1.0, 1.0);
-        } else if (u_model_type_f == 1) {                   // T_ROCK = 1
-            color = vec4(1.0, 1.0, 0.50, 1.0);
-        } else if (u_model_type_f == 3) {                   // T_BOMB3 = 3
-            color = vec4(1.0, 1.0, 1.0, 1.0);
-        } else if (u_model_type_f == 4 ||
-                   u_model_type_f == 10) {                  // T_BOMB4 = 4, T_404 = 10
-            color = vec4(1.0, 1.0, 0.50, 1.0);
-        } else {
-            if (v_slope > 0.0) {
-                color = mix( tcolor, vec4(0.0, 0.0, 0.0, 1.0), v_slope * 300.0 );
-            }
-            if (v_slope < 0.0) {
-                color = mix( tcolor, vec4(1.0), abs(v_slope) * 300.0 );
-            }
+        // Having texture color means it's on the char drawing.  Use foreground color.
+        color = u_foreground;
+        // Change foreground color for wave
+        if (v_slope > 0.0) {
+            color = mix( color, vec4(0.0, 0.0, 0.0, 1.0), v_slope * 300.0 );
+        } else if (v_slope < 0.0) {
+            color = mix( color, vec4(1.0), abs(v_slope) * 300.0 );
         }
     }
 

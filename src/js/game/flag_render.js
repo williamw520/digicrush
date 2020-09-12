@@ -91,9 +91,10 @@ let flag_render = (function() {
     // modelPos         - [x, y, z],  [-1 to 1, -1 to 1, -1 to 1]
     // modelScale       - (1, 0.001)
     // modelRotation    - matrix4
+    // foreground4f     - vec4, [R, G, B, A]
     // background4f     - vec4, [R, G, B, A]
     // wavePeriod       - wave progression (0, int), to be to multiply by 2PI in sin(); caller should keep incrementing it with time to produce wave movement.
-    flag_render.draw = (gl, imageIndex, modelType, modelPos, modelScale, modelRotation, background4f, facingViewMatrix, wavePeriod) => {
+    flag_render.draw = (gl, imageIndex, modelType, modelPos, modelScale, modelRotation, foreground4f, background4f, facingViewMatrix, wavePeriod) => {
         gl.uniform1i(flag_uniforms.u_sampler, 0);
         gl.uniform1f(flag_uniforms.u_item_index, imageIndex);
 
@@ -103,7 +104,8 @@ let flag_render = (function() {
         gl.uniform1f(flag_uniforms.u_model_scale, modelScale);
         gl.uniformMatrix4fv(flag_uniforms.u_model_rot, false, modelRotation);
 
-        gl.uniform4fv(flag_uniforms.u_background, background4f || [0, 0, 0, 0]);
+        gl.uniform4fv(flag_uniforms.u_foreground, foreground4f);
+        gl.uniform4fv(flag_uniforms.u_background, background4f);
         gl.uniform1f(flag_uniforms.u_wave_period, wavePeriod);
 
         // L.info("projectionMatrix", projectionMatrix);
