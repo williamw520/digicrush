@@ -9,9 +9,15 @@
 let input = (function() {
     const input = {};
 
+    let captures    = {};
     let pressed     = {};
-    let onkeydown   = (event) => pressed[event.keyCode] = performance.now();
-    let onkeyup     = (event) => delete pressed[event.keyCode];
+    let onkeydown   = (event) => {
+        if (captures[event.keyCode]) {
+            pressed[event.keyCode] = performance.now();
+            return stopEvent(event);
+        }
+    }
+    let onkeyup     = (event) => (delete pressed[event.keyCode], stopEvent(event));
 
     input.startup   = (window) => {
         window.addEventListener("keydown", onkeydown, false);
@@ -33,6 +39,10 @@ let input = (function() {
 
     input.K_RUN     = 82;                               // r
     input.K_PAUSE   = 80;                               // p
+    input.K_SPACE   = 32;                               // SPACE
+
+    [].concat(K_DIGITS, K_RIGHT, K_LEFT, [input.K_RUN, input.K_PAUSE, input.K_SPACE])
+        .forEach( c => captures[c] = true );
 
     input.digitHit  = (onPressed) => {
         keySets.forEach( keyset => {
@@ -42,6 +52,20 @@ let input = (function() {
                 }
             });
         } )
+    }
+
+    function stopEvent(evt) {
+        if (evt) {
+            if (evt.stopPropagation)
+                evt.stopPropagation();
+            if (evt.cancelBubble != null)
+                evt.cancelBubble = true;
+
+            if (evt.preventDefault)
+                evt.preventDefault();
+            evt.returnValue = false;
+        }
+        return false;
     }
 
     return input;

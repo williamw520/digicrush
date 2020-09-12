@@ -89,6 +89,10 @@ export class World extends BaseNode {
     }
 
     _handleInput() {
+        if (input.isOn(input.K_SPACE)) {
+            L.info("K_SPACE");
+        }
+        
         if (input.isOn(input.K_RUN)) {
             if (state.gstate == state.S_WAITING)
                 this._startLevel();
