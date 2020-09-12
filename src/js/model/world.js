@@ -72,8 +72,12 @@ export class World extends BaseNode {
         this.fortO.forEach( f => f.onDraw() );
         this.fortI.forEach( f => f.onDraw() );
         this.cash.forEach(  f => f.onDraw() );
-        this.score.forEach( f => f.onDraw() );
         this.popup.forEach( f => f.onDraw() );
+        // Camera angle has no effect on score display.
+        let oldCameraAngle = gl3d.cameraAngle;
+        gl3d.cameraAngle = 0;
+        this.score.forEach( f => f.onDraw() );
+        gl3d.cameraAngle = oldCameraAngle;
     }
 
     _startLevel() {
