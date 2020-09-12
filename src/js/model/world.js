@@ -78,10 +78,16 @@ export class World extends BaseNode {
 
     _startLevel() {
         L.info("_startLevel");
-        this._spawnFlag();
         this._showPopup(false);
+        this._showItems(this.cash, true);
+        this._showItems(this.fortO, true);
+        this._showItems(this.fortI, true);
+        this._resetOffset(this.cash);
+        this._resetOffset(this.fortO);
+        this._resetOffset(this.fortI);
         state.gstate = state.S_PLAYING;
         gl3d.cameraAngle = def.PLAYING_ANGLE;
+        this._spawnFlag();
     }
 
     _handleInput() {
@@ -253,9 +259,9 @@ export class World extends BaseNode {
             if (this.deadStages.step(time)) {
                 state.gstate = state.S_DEAD_WAIT;
                 this.flags.length = 0;
-                this.cash.length = 0;
-                this.fortO.length = 0;
-                this.fortI.length = 0;
+                this._showItems(this.cash, false);
+                this._showItems(this.fortO, false);
+                this._showItems(this.fortI, false);
             } else {
                 switch (this.deadStages.stage) {
                 case 0:
@@ -428,7 +434,7 @@ export class World extends BaseNode {
 
         if (this.fortAttack) {
             if (this.fortAttackTime.step(time)) {
-                audio.explosion();                                                  // big explosion at the end.                
+                audio.explosion2();                                                 // big explosion at the end.
                 this.fortAttack = false;
                 this.fortI.forEach( f => {
                     f.offset[0] = 0;
@@ -521,6 +527,21 @@ export class World extends BaseNode {
                 f.fg = [0, 0, 0, 0];
             }
         })
+    }
+
+    _showItems(items, isShow) {
+        items.forEach( f => {
+            if (isShow) {
+                f.bg = def.makeBg(f.type);
+                f.fg = def.makeFg(f.type);
+            } else {
+                f.bg = f.fg = [0, 0, 0, 0];
+            }
+        })
+    }
+
+    _resetOffset(items) {
+        items.forEach( f => f.offset = [0, 0, 0] );
     }
 
 }

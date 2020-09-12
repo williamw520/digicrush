@@ -59,8 +59,9 @@
 ** DONE Display popup message
 ** TODO Winning sequence
 ** DONE Losing sequence
-** TODO Move world initialization to startLevel.
-** TODO Clear the world at S_DEAD_WAIT state.
+** DONE Move world initialization to startLevel.
+** DONE Reset and show world items at startLevel
+** DONE Clear the world at S_DEAD_WAIT state.
 ** DONE Multi-stage animation group
 ** TODO Leveling
 ** DONE Sound effect

@@ -10,7 +10,7 @@ import flag_vert_src from "/js/gen/glsl/flag.vert.js";
 import flag_frag_src from "/js/gen/glsl/flag.frag.js";
 
 
-// flag_render module
+// flag_render module, for specially creating and rendering the flag model.
 let flag_render = (function() {
     const flag_render = {};
 

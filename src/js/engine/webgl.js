@@ -48,7 +48,7 @@ let wgl = (function() {
         let funcname = vafuncs[attrValueTuple.length];  // Look up the setter function name by the size of the tuple.
         gl[funcname](attrLoc, attrValueTuple);          // Call the setter by name.
     }
-    let vafuncs = [null, "vertexAttrib1fv", "vertexAttrib2fv", "vertexAttrib3fv", "vertexAttrib4fv"];    // put null 0th position to crash if index is out of range
+    let vafuncs = [null, "vertexAttrib1fv", "vertexAttrib2fv", "vertexAttrib3fv", "vertexAttrib4fv"];    // put null at 0th position to crash if index is out of range
 
     // Loads and compiles a shader.
     // gl - The WebGLRenderingContext.
@@ -70,13 +70,16 @@ let wgl = (function() {
         return progam;
     }
 
-    // Typical rendering loop
+    // Typical rendering loop:
+    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // onDraw() {
-    //      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //      gl.useProgram(shaderProgram1)
+    //      wgl.assignBufferToAttr(gl, buffer1, ...)
     //      gl.uniformXX(...);
     //      gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount1)
+    //
     //      gl.useProgram(shaderProgram2)
+    //      wgl.assignBufferToAttr(gl, buffer2, ...)
     //      gl.uniformXX(...);
     //      gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount2)
     // }
