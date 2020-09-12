@@ -188,18 +188,24 @@ export class World extends BaseNode {
                 let firstIndex  = i - seq + 1;                      // go back by seq count.
                 let firstFlag   = this.matchedFlg[firstIndex];
                 let j           = firstIndex;
+
                 if (powerType == def.T_404) {
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, def.F_ZERO, true);
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
-                    audio.like();
-                } else {
+                    audio.fuse3();
+                } else if (powerType == def.T_BOMB4) {
                     this.matchedFlg[j++].toFuse(firstFlag, powerType);  // retain the flag as powerType after fusing.
-                    audio.like();
+                    audio.fuse2();
+                } else if (powerType == def.T_BOMB3) {
+                    this.matchedFlg[j++].toFuse(firstFlag, powerType);  // retain the flag as powerType after fusing.
+                    audio.fuse1();
                 }
+
                 for (; j <= i; j++) {
                     this.matchedFlg[j].toFuse(firstFlag, 0);        // don't retain the flag after fusing.
                 }
+
                 i = firstIndex;                                     // skip back to firstIndex to continue the outer loop.
                 hasPowerFuse = true;
             }
