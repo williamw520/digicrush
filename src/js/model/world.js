@@ -35,12 +35,18 @@ export class World extends BaseNode {
         this.fortAttackStart = false;
         this.fortAttack = false;
         this.fortAttackTime = new A.Timeline(2000);
+        this.popupLen = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
+        this.popupDelay = new A.Timeline(200);          // delay between popup msg update.
         this.deadSpin   = new A.Timeline(2000);
         this.deadFlying = new A.Timeline(2000);
         this._initScore();
+        this._initPopup();
         this._makeFortItems();
         this._makeCash();
+
+        this._setPopup("LEVEL " + state.level);
+        this._showPopup(true);
     }
 
     onUpdate(time, delta, parent) {
@@ -65,11 +71,13 @@ export class World extends BaseNode {
         this.fortI.forEach( f => f.onDraw() );
         this.cash.forEach(  f => f.onDraw() );
         this.score.forEach( f => f.onDraw() );
+        this.popup.forEach( f => f.onDraw() );
     }
 
     _startLevel() {
         L.info("_startLevel");
         this._spawnFlag();
+        this._showPopup(false);
         state.gstate = state.S_PLAYING;
         gl3d.cameraAngle = def.PLAYING_ANGLE;
     }
@@ -202,8 +210,10 @@ export class World extends BaseNode {
     _updateByGameState(time, delta) {
         switch (state.gstate) {
         case state.S_WAITING:
-            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this._rotateFortO(time);
+            this._updatePopup(time);
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PLAYING:
             this._checkLosing();
@@ -211,18 +221,26 @@ export class World extends BaseNode {
             this._rotateFortO(time);
             this._pulseFortI(time);
             this._checkFortAttack(time);
+            this._updateScore(time);
+            this._updatePopup(time);
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
             this.fortO.forEach( f => f.onUpdate(time, delta, this) );
             this.fortI.forEach( f => f.onUpdate(time, delta, this) );
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
-            this._updateScore(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PAUSED:
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_WON:
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_DEAD:
             gl3d.cameraAngle += 2;
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         }        
     }
@@ -417,5 +435,39 @@ export class World extends BaseNode {
         }
     }
 
+    _initPopup() {
+        this.popup = [...Array(10).keys()].map( (n, i) => FF.makeChar(" ",
+                                                                      [def.POPUP_X + i * (def.POPUP_W * 2.2), def.POPUP_Y, def.POPUP_Z],
+                                                                      def.POPUP_W, null, true) );
+        this.popup.forEach( f => f.bg = [0, 0, 0, 0] );     // initially transparent
+        this.popup.forEach( f => f.fg = [0, 0, 0, 0] );     // initially transparent
+    }
+
+    _setPopup(msg) {
+        const txt = msg.substring(0, this.popup.length);
+        this.popupLen = txt.length;
+        txt.split("").map( (ch, i) => this.popup[i].ch = def.charIndex[ch] );
+    }
+
+    _showPopup(isShow) {
+        const showLen = isShow ? this.popupLen : 0;
+        for (let i = 0; i < this.popup.length; i++) {
+            if (i < showLen) {
+                this.popup[i].bg = [1, 1, 1, 1];
+                this.popup[i].fg = [.5, 0, 0, 1];
+            } else {
+                this.popup[i].bg = [0, 0, 0, 0];
+                this.popup[i].fg = [0, 0, 0, 0];
+            }
+        }
+    }
+
+    _updatePopup(time) {
+        if (this.popupDelay.step(time)) {
+            this.popupDelay.start(performance.now());
+        } else {
+        }
+    }
+        
 }
 

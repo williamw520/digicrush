@@ -68,8 +68,11 @@ let def = (function() {
     def.SCORE_X = -1.5;
     def.SCORE_Y = 3;
     def.SCORE_Z = -2.5;
-    def.SCORE_W = 0.3;                  // score digit scale
-
+    def.SCORE_W = 0.3;                  // score char scale
+    def.POPUP_X = -1.5;
+    def.POPUP_Y = 0;
+    def.POPUP_Z = 0.5;
+    def.POPUP_W = 0.20;                 // popup char scale
 
     def.makeFg = (flagType) => {
         switch(flagType) {
