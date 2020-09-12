@@ -89,7 +89,7 @@ let gl = document.getElementById("wgl").getContext("webgl");
 // // gl.useProgram(test2d_shader);
 // // wgl.assignBufferToAttr(gl, meshBuffer, test2d_attrs.a_position, 2, gl.FLOAT, false, 0, 0);
 
-// // let color = [M.random(), M.random(), M.random(), 1];
+// // let color = [Math.random(), Math.random(), Math.random(), 1];
 // // let translation = [10, 5];
 // // gl.uniform2f(test2d_uniforms.u_resolution, gl.canvas.width, gl.canvas.height);
 // // gl.uniform4fv(test2d_uniforms.u_color, color);

@@ -38,17 +38,13 @@ export class World extends BaseNode {
         this.fortAttackTime = new A.Timeline(2000);
         this.popupLen = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
-        this.popupDelay = new A.Timeline(200);          // delay between popup msg update.
-        this.deadSpin   = new A.Timeline(2000);
-        this.deadFall   = new A.Timeline(2000);
-        this.deadBlow = new A.Timeline(2000);
+        this.deadStages = new A.TimeGroup([2000, 2000, 2000]);
         this._initScore();
         this._initPopup();
         this._makeFortItems();
         this._makeCash();
 
         this._setPopup("LEVEL " + state.level);
-        this._showPopup(true);
     }
 
     onUpdate(time, delta, parent) {
@@ -89,12 +85,8 @@ export class World extends BaseNode {
     }
 
     _handleInput() {
-        if (input.isOn(input.K_SPACE)) {
-            L.info("K_SPACE");
-        }
-        
-        if (input.isOn(input.K_RUN)) {
-            if (state.gstate == state.S_WAITING)
+        if (input.isOn(input.K_SPACE) || input.isOn(input.K_RUN)) {
+            if (state.gstate == state.S_WAITING || state.gstate == state.S_DEAD_WAIT)
                 this._startLevel();
         }
 
@@ -235,7 +227,6 @@ export class World extends BaseNode {
         switch (state.gstate) {
         case state.S_WAITING:
             this._rotateFortO(time);
-            this._updatePopup(time);
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
@@ -246,7 +237,6 @@ export class World extends BaseNode {
             this._pulseFortI(time);
             this._checkFortAttack(time);
             this._updateScore(time);
-            this._updatePopup(time);
             this.flags.forEach( f => f.onUpdate(time, delta, this) );
             this.fortO.forEach( f => f.onUpdate(time, delta, this) );
             this.fortI.forEach( f => f.onUpdate(time, delta, this) );
@@ -254,51 +244,38 @@ export class World extends BaseNode {
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PAUSED:
-            this._updatePopup(time);
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_WON:
-            this._updatePopup(time);
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_DEAD:
-            if (this.deadSpin.step(time)) {
-                state.gstate = state.S_DEAD_FALL;
-                this.deadFall.start(time);
-            }
-            gl3d.cameraAngle += 3;
-            this._rotateFortO(time);
-            this._updatePopup(time);
-            this.popup.forEach( f => f.onUpdate(time, delta, this) );
-            break;
-        case state.S_DEAD_FALL:
-            if (this.deadFall.step(time)) {
-                state.gstate = state.S_DEAD_BLOW;
-                this.deadBlow.start(time);
-            } else {
-                this._collapseFort(time);
-            }
-            gl3d.cameraAngle += 1;
-            this._rotateFortO(time);
-            this._updatePopup(time);
-            this.popup.forEach( f => f.onUpdate(time, delta, this) );
-            break;
-        case state.S_DEAD_BLOW:
-            if (this.deadBlow.step(time)) {
+            if (this.deadStages.step(time)) {
                 state.gstate = state.S_DEAD_WAIT;
+                this.flags.length = 0;
+                this.cash.length = 0;
+                this.fortO.length = 0;
+                this.fortI.length = 0;
             } else {
-                this._blowupFort(time);
+                switch (this.deadStages.stage) {
+                case 0:
+                    gl3d.cameraAngle += 3;
+                    break;
+                case 1:
+                    gl3d.cameraAngle += 1;
+                    this._collapseFort(this.deadStages.pos);
+                    break;
+                case 2:
+                    //gl3d.cameraAngle += 1;
+                    this._blowupFort(this.deadStages.pos);
+                }
             }
-            gl3d.cameraAngle += 1;
+
             this._rotateFortO(time);
-            this._updatePopup(time);
-            this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_DEAD_WAIT:
             gl3d.cameraAngle = 0;
             this._setPopup("GAME OVER");
-            this._showPopup(true);
-            this._updatePopup(time);
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         }        
@@ -309,7 +286,7 @@ export class World extends BaseNode {
         if (first) {
             if (first.pos[0] < def.LOSING_X) {
                 state.gstate = state.S_DEAD;
-                this.deadSpin.start();
+                this.deadStages.start();
             }
         }
     }
@@ -414,50 +391,27 @@ export class World extends BaseNode {
         this.fortI.forEach( f => f.offset[0] = Math.sin(2 * Math.PI * period) / 16 );
     }
 
-    _collapseFort(time) {
-        let count = 16;
-        let radius = 2 * A.easeInQuad(this.deadFall.pos);
-//        let radius = 2 * this.deadFall.pos;
-        for (let i = 0; i < count; i++) {
-            let angle = 2 * Math.PI * i / count;
-            let y = radius * Math.cos(angle);
-            let z = radius * Math.sin(angle);
-            this.fortO[i].offset[1] = -y;
-            this.fortO[i].offset[2] = -z;
-        }
 
-        count = 8;
-        radius = 1.1 * A.easeInQuad(this.deadFall.pos);
-//      radius = 1.1 * this.deadFall.pos;
-        for (let i = 0; i < count; i++) {
+    _expandFort(forts, radius, sign, scale) {
+        let count = forts.length;
+        forts.forEach( (f, i) => {
             let angle = 2 * Math.PI * i / count;
             let y = radius * Math.cos(angle);
             let z = radius * Math.sin(angle);
-            this.fortI[i].offset[1] = -y;
-            this.fortI[i].offset[2] = -z;
-        }
+            f.offset[1] = sign * y;
+            f.offset[2] = sign * z;
+            f.scale = scale;
+        } )
     }
 
-    _blowupFort(time) {
-        let count = 16;
-        let radius = 10 * A.easeInQuad(this.deadBlow.pos);
-        for (let i = 0; i < count; i++) {
-            let angle = 2 * Math.PI * i / count;
-            let y = radius * Math.cos(angle);
-            let z = radius * Math.sin(angle);
-            this.fortO[i].offset[1] = y;
-            this.fortO[i].offset[2] = z;
-        }
+    _collapseFort(pos) {
+        this._expandFort(this.fortO, 2.0 * A.easeInQuad(pos), -1, def.FORT_O_SCALE * (1-pos));
+        this._expandFort(this.fortI, 1.1 * A.easeInQuad(pos), -1, def.FORT_I_SCALE * (1-pos));
+    }
 
-        count = 8;
-        radius = 10 * A.easeInCubic(this.deadBlow.pos);
-        for (let i = 0; i < count; i++) {
-            let angle = 2 * Math.PI * i / count;
-            let y = radius * Math.cos(angle);
-            let z = radius * Math.sin(angle);
-            this.fortI[i].offset[1] = y;
-            this.fortI[i].offset[2] = z;
-        }
+    _blowupFort(pos) {
+        this._expandFort(this.fortO, 6.0 * A.easeOutQuad(pos), 1, def.FORT_O_SCALE * (0.25 + pos));
+        this._expandFort(this.fortI, 4.0 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
     }
 
     _checkFortAttack(time) {
@@ -536,7 +490,7 @@ export class World extends BaseNode {
             while (n > 0) {
                 const digit = n % 10;
                 this.score[i].ch = def.numIndex(digit);
-                n = M.floor(n / 10);
+                n = Math.floor(n / 10);
                 if (i > 0)
                     i--;
             }
@@ -547,35 +501,27 @@ export class World extends BaseNode {
         this.popup = [...Array(10).keys()].map( (n, i) => FF.makeChar(" ",
                                                                       [def.POPUP_X + i * (def.POPUP_W * 2.2), def.POPUP_Y, def.POPUP_Z],
                                                                       def.POPUP_W, null, true) );
-        this.popup.forEach( f => f.bg = [0, 0, 0, 0] );     // initially transparent
-        this.popup.forEach( f => f.fg = [0, 0, 0, 0] );     // initially transparent
     }
 
     _setPopup(msg) {
         const txt = msg.substring(0, this.popup.length);
         this.popupLen = txt.length;
         txt.split("").map( (ch, i) => this.popup[i].ch = def.charIndex[ch] );
+        this._showPopup(true);
     }
 
     _showPopup(isShow) {
         const showLen = isShow ? this.popupLen : 0;
-        for (let i = 0; i < this.popup.length; i++) {
+        this.popup.forEach( (f, i) => {
             if (i < showLen) {
-                this.popup[i].bg = [1, 1, 1, 1];
-                this.popup[i].fg = [.5, 0, 0, 1];
+                f.bg = [1, 1, 1, 1];
+                f.fg = [.5, 0, 0, 1];
             } else {
-                this.popup[i].bg = [0, 0, 0, 0];
-                this.popup[i].fg = [0, 0, 0, 0];
+                f.bg = [0, 0, 0, 0];
+                f.fg = [0, 0, 0, 0];
             }
-        }
+        })
     }
 
-    _updatePopup(time) {
-        if (this.popupDelay.step(time)) {
-            this.popupDelay.start(performance.now());
-        } else {
-        }
-    }
-        
 }
 

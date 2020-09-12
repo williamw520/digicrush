@@ -166,7 +166,7 @@ export class Flag {
             break;
         case S_HIT:
             if (!this.timeline.step(time)) {
-                this.xrotSpeed = 8 + M.floor(6 * A.easeInQuad(this.timeline.pos));
+                this.xrotSpeed = 8 + Math.floor(6 * A.easeInQuad(this.timeline.pos));
             } else {
                 this.toFlying();
             }

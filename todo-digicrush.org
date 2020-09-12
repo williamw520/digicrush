@@ -61,7 +61,7 @@
 ** DONE Losing sequence
 ** TODO Move world initialization to startLevel.
 ** TODO Clear the world at S_DEAD_WAIT state.
-** TODO Multi-stage animation group
+** DONE Multi-stage animation group
 ** TODO Leveling
 ** DONE Sound effect
 

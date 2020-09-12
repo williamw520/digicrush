@@ -11,12 +11,8 @@ let G = (function() {
 
     // Call G.setup() right after the page load event before anything else.
     G.setup = () => {
-        let W = window;
-        window.W = W;
-        W.D = document;
-        W.M = Math;
-        W.L = console;
-        W.assert = console.assert;
+        window.L = console;
+        window.assert = console.assert;
     }
 
     G.setup();      // call it once to do best effort setup asap; page load event handler will call it again to finalize the setup.

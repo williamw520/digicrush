@@ -33,6 +33,44 @@ let A = (function() {
         get done()      { return this.pos >= 1 }                                    // is it done?
     }
 
+    A.TimeGroup = class {
+        constructor(timeRanges) {
+            this._timelines = (timeRanges || []).map( range => new A.Timeline(range) );
+            this._stage = 0;
+        }
+
+        add(timeRangeMS) {
+            this._timelines.push(new A.Timeline(timeRangeMS));
+            return this;
+        }
+
+        start(timeMS) {
+            this._stage = 0;
+            assert(this._timelines.length > this._stage);
+            this._timelines[this._stage].start(timeMS);
+        }
+
+        step(timeMS) {
+            if (!this.done) {
+                if (this._timelines[this._stage].step(timeMS)) {
+                    this._stage++;
+                    if (!this.done)
+                        this._timelines[this._stage].start(timeMS);
+                }
+            }
+            return this.done;
+        }
+
+        stagePos(s)     { return this._timelines[s].pos     }
+        stageRPos(s)    { return this._timelines[s].rpos    }
+
+        get pos()       { return this.stagePos(this.stage)  }
+        get rpos()      { return this.stageRPos(this.stage) }
+        get stage()     { return this._stage                }
+        get done()      { return this._stage >= this._timelines.length }
+
+    }
+
     // Easing functions to map position from [0, 1] to [0, 1]
     A.linear            = t => t;                                                   // no easing, no acceleration
     A.easeInQuad        = t => t*t;                                                 // accelerating from zero velocity
