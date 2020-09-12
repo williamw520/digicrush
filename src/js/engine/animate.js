@@ -19,7 +19,7 @@ let A = (function() {
         }
 
         start(timeMS, rangeMS) {
-            this._start = this._time = timeMS;
+            this._start = this._time = timeMS || performance.now();
             this._timeRange = rangeMS || this._timeRange;
         }
 

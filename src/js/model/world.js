@@ -40,7 +40,8 @@ export class World extends BaseNode {
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
         this.popupDelay = new A.Timeline(200);          // delay between popup msg update.
         this.deadSpin   = new A.Timeline(2000);
-        this.deadFlying = new A.Timeline(2000);
+        this.deadFall   = new A.Timeline(2000);
+        this.deadBlow = new A.Timeline(2000);
         this._initScore();
         this._initPopup();
         this._makeFortItems();
@@ -247,7 +248,42 @@ export class World extends BaseNode {
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_DEAD:
-            gl3d.cameraAngle += 2;
+            if (this.deadSpin.step(time)) {
+                state.gstate = state.S_DEAD_FALL;
+                this.deadFall.start(time);
+            }
+            gl3d.cameraAngle += 3;
+            this._rotateFortO(time);
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_DEAD_FALL:
+            if (this.deadFall.step(time)) {
+                state.gstate = state.S_DEAD_BLOW;
+                this.deadBlow.start(time);
+            } else {
+                this._collapseFort(time);
+            }
+            gl3d.cameraAngle += 1;
+            this._rotateFortO(time);
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_DEAD_BLOW:
+            if (this.deadBlow.step(time)) {
+                state.gstate = state.S_DEAD_WAIT;
+            } else {
+                this._blowupFort(time);
+            }
+            gl3d.cameraAngle += 1;
+            this._rotateFortO(time);
+            this._updatePopup(time);
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_DEAD_WAIT:
+            gl3d.cameraAngle = 0;
+            this._setPopup("GAME OVER");
+            this._showPopup(true);
             this._updatePopup(time);
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
@@ -259,6 +295,7 @@ export class World extends BaseNode {
         if (first) {
             if (first.pos[0] < def.LOSING_X) {
                 state.gstate = state.S_DEAD;
+                this.deadSpin.start();
             }
         }
     }
@@ -361,6 +398,52 @@ export class World extends BaseNode {
     _pulseFortI(time) {
         let period = time / 3600;
         this.fortI.forEach( f => f.offset[0] = Math.sin(2 * Math.PI * period) / 16 );
+    }
+
+    _collapseFort(time) {
+        let count = 16;
+        let radius = 2 * A.easeInQuad(this.deadFall.pos);
+//        let radius = 2 * this.deadFall.pos;
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortO[i].offset[1] = -y;
+            this.fortO[i].offset[2] = -z;
+        }
+
+        count = 8;
+        radius = 1.1 * A.easeInQuad(this.deadFall.pos);
+//      radius = 1.1 * this.deadFall.pos;
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortI[i].offset[1] = -y;
+            this.fortI[i].offset[2] = -z;
+        }
+    }
+
+    _blowupFort(time) {
+        let count = 16;
+        let radius = 10 * A.easeInQuad(this.deadBlow.pos);
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortO[i].offset[1] = y;
+            this.fortO[i].offset[2] = z;
+        }
+
+        count = 8;
+        radius = 10 * A.easeInCubic(this.deadBlow.pos);
+        for (let i = 0; i < count; i++) {
+            let angle = 2 * Math.PI * i / count;
+            let y = radius * Math.cos(angle);
+            let z = radius * Math.sin(angle);
+            this.fortI[i].offset[1] = y;
+            this.fortI[i].offset[2] = z;
+        }
     }
 
     _checkFortAttack(time) {

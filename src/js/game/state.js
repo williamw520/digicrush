@@ -17,6 +17,9 @@ let state = (function() {
     state.S_PAUSED = 2;
     state.S_WON = 3;
     state.S_DEAD = 4;
+    state.S_DEAD_FALL = 5;
+    state.S_DEAD_BLOW = 6;
+    state.S_DEAD_WAIT = 7;
     state.gstate = state.S_WAITING;     // current game state
 
     state.level = 1;
