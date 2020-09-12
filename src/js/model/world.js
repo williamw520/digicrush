@@ -12,6 +12,7 @@ import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import def from "/js/game/def.js";
 import input from "/js/engine/input.js";
+import audio from "/js/util/audio.js";
 import A from "/js/engine/animate.js";
 import U from "/js/util/util.js";
 
@@ -135,11 +136,14 @@ export class World extends BaseNode {
                 if (f.type == def.T_BOMB3) {
                     // record the range of flags to be blown up.
                     this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB3_RANGE)), Math.min(activeFlags.length, (i+def.BOMB3_RANGE+1))));
+                    audio.shot();
                 } else if (f.type == def.T_BOMB4) {
                     this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB4_RANGE)), Math.min(activeFlags.length, (i+def.BOMB4_RANGE+1))));
+                    audio.explosion();
                 } else if (f.type == def.T_404) {
                     //this.matchedBomb.push(activeFlags);
                     this.fortAttackStart = true;
+                    audio.rocket();
                 } else {
                     // for regular active flags, track the consecutive matching sequences.
                     seq++;                          // count consecutive matching flags.
@@ -175,6 +179,7 @@ export class World extends BaseNode {
         }
 
         // Check for power fusion.
+        let hasPowerFuse = false;
         for (let i = this.matchedSeq.length - 1; i >= 0; i--) {
             let seq = this.matchedSeq[i];
             let powerType = this._determinePowerType(seq, digitIndex);
@@ -186,13 +191,16 @@ export class World extends BaseNode {
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, def.F_ZERO, true);
                     this.matchedFlg[j++].toFuse(firstFlag, powerType, 3, true);
+                    audio.like();
                 } else {
                     this.matchedFlg[j++].toFuse(firstFlag, powerType);  // retain the flag as powerType after fusing.
+                    audio.like();
                 }
                 for (; j <= i; j++) {
                     this.matchedFlg[j].toFuse(firstFlag, 0);        // don't retain the flag after fusing.
                 }
                 i = firstIndex;                                     // skip back to firstIndex to continue the outer loop.
+                hasPowerFuse = true;
             }
         }
 
@@ -202,7 +210,8 @@ export class World extends BaseNode {
             this.matchedFlg.forEach( f => {
                 if (f.isActive())
                     f.toHit();
-            })
+            });
+            audio.sprinkle();
         }
 
     }
@@ -368,6 +377,7 @@ export class World extends BaseNode {
 
         if (this.fortAttack) {
             if (this.fortAttackTime.step(time)) {
+                audio.explosion();                                                  // big explosion at the end.                
                 this.fortAttack = false;
                 this.fortI.forEach( f => {
                     f.offset[0] = 0;
@@ -390,6 +400,7 @@ export class World extends BaseNode {
                         if (f.pos[0] + 1.5 > ax)
                             break;
                         this._startBombed(f);
+                        audio.shot();
                     }
                 }
             }
