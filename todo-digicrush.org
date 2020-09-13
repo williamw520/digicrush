@@ -67,5 +67,6 @@
 ** DONE Leveling
 ** DONE UI display for hit count and goal
 ** DONE UI display for level number
-** TODO Level profiles
+** DONE Level profiles
+** DONE Change flag's triangle to sideway.
 

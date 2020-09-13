@@ -20,16 +20,27 @@ float BOMB_R1 = 1.0;
 float BOMB_R2 = 0.85;
 float BOMB_R3 = 0.85;
 
-vec2 ut1 = vec2( 0.0,  1.0);
-vec2 ut2 = vec2(-1.0,  0.5);
-vec2 ut3 = vec2( 1.0,  0.5);
+vec2 ut1 = vec2(-1.0,  0.0);
+vec2 ut2 = vec2(-0.1,  1.0);
+vec2 ut3 = vec2(-0.1, -1.0);
 
-vec2 lt1 = vec2( 0.0, -1.0);
-vec2 lt2 = vec2(-1.0, -0.5);
-vec2 lt3 = vec2( 1.0, -0.5);
+vec2 lt1 = vec2( 1.0,  0.0);
+vec2 lt2 = vec2( 0.1,  1.0);
+vec2 lt3 = vec2( 0.1, -1.0);
 
-vec2 rtl = vec2(-1.0, -0.5);        // rect top left
-vec2 rbr = vec2( 1.0,  0.5);        // rect bottom right
+/* vec2 ut1 = vec2( 0.0,  1.0); */
+/* vec2 ut2 = vec2(-1.0,  0.5); */
+/* vec2 ut3 = vec2( 1.0,  0.5); */
+
+/* vec2 lt1 = vec2( 0.0, -1.0); */
+/* vec2 lt2 = vec2(-1.0, -0.5); */
+/* vec2 lt3 = vec2( 1.0, -0.5); */
+
+vec2 rtl = vec2(-0.1, -1.0);        // rect top left
+vec2 rbr = vec2( 0.1,  1.0);        // rect bottom right
+
+/* vec2 rtl = vec2(-1.0, -0.5);        // rect top left */
+/* vec2 rbr = vec2( 1.0,  0.5);        // rect bottom right */
 
 
 bool inTriangle(vec3 pt, vec2 t1, vec2 t2, vec2 t3) {
