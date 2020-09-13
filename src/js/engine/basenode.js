@@ -19,6 +19,22 @@ export class BaseNode {
         return node;
     }
 
+    // Derived class should call this super.onStart() to iterate through the child nodes.
+    // This gives all game nodes a chance to do initialization at startup.
+    onStart() {
+        if (this.nodes.length > 0) {
+            this.nodes.forEach( n => n.onStart() );
+        }
+    }
+
+    // Derived class should call this super.onStop() to iterate through the child nodes.
+    // This gives all game nodes a chance to do cleanup at shutdown.
+    onStop() {
+        if (this.nodes.length > 0) {
+            this.nodes.forEach( n => n.onStop() );
+        }
+    }
+
     // Derived class should call this super.onUpdate() to iterate through the child nodes.
     onUpdate(time, delta, parent) {
         if (this.nodes.length > 0) {

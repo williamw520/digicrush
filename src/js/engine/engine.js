@@ -5,7 +5,6 @@
   williamw520@gmail.com
 */
 
-import input from "/js/engine/input.js";
 import {BaseNode} from "/js/engine/basenode.js";
 
 
@@ -18,13 +17,15 @@ export class Engine extends BaseNode {
     }
 
     start() {
-        input.startup(window);
+        L.log("start");
+        super.onStart();
         this.prevTime = performance.now();
         this._animate(this.prevTime);           // start the first animation frame.
     }
 
     stop() {
-        input.shutdown(window);
+        L.log("stop");
+        super.onStop();
         if (this.frameId)
             cancelAnimationFrame(this.frameId);
         this.frameId = null;

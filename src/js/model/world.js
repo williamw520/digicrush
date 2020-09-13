@@ -11,7 +11,7 @@ import {pg} from "/js/engine/pregen.js";
 import gl3d from "/js/game/gl3d.js";
 import state from "/js/game/state.js";
 import def from "/js/game/def.js";
-import input from "/js/engine/input.js";
+import input from "/js/game/input.js";
 import audio from "/js/util/audio.js";
 import A from "/js/engine/animate.js";
 import U from "/js/util/util.js";
@@ -26,7 +26,6 @@ export class World extends BaseNode {
         this.matchedFlg = [];
         this.matchedSeq = [];
         this.matchedBomb = [];
-        this.matchedB4 = [];
         this.fortO = [];
         this.fortI = [];
         this.cash  = [];
@@ -35,7 +34,6 @@ export class World extends BaseNode {
         this.label = [];
         this.level = [];
         this.popup = [];
-        this.fortIX = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
         this.wonStages  = this._setupWonStages();
         this.lostStages = this._setupLostStages();
@@ -50,7 +48,15 @@ export class World extends BaseNode {
         this._initPopup();
         this._makeFortItems();
         this._makeCash();
+    }
+
+    onStart() {
+        input.startup(window);
         this._startGame();
+    }
+
+    onStop() {
+        input.shutdown(window);
     }
 
     onUpdate(time, delta, parent) {

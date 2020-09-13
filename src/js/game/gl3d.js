@@ -14,10 +14,9 @@ import def from "/js/game/def.js";
 import flag_render from "/js/game/flag_render.js";
 
 
-// gl3d life cycle module
+// gl3d, game specific webgl life cycle module
 let gl3d = (function() {
     const gl3d = {};
-
 
     // function throwOnGLError(err, funcName, args) {
     //     throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;

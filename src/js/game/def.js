@@ -55,7 +55,8 @@ let def = (function() {
     def.PLAYING_ANGLE = -15;
     def.SPACE_BETWEEN = 0.6;            // distance between neighboring flags
     def.WAVE_STRENGTH = 0.4;
-    def.LIGHT_DIRECTION = v3.unit([-2.5, 0.5, 3.0]);
+    def.LIGHT_DIRECTION = v3.unit([-2.5, 0.5, 3.0]);    // Note: the light direction needs to be updated in opposite of the camera angle.
+                                                        // Now when the camera swings around, the light source goes with it and only the dark side of the model is showing.
     def.POWER_ELEVATION = 0.50;
     def.BOMB3_RANGE = 2;
     def.BOMB4_RANGE = 4;

@@ -7,10 +7,6 @@
 
 
 // The main entry point of the JS app.  Rollup starts from here to include all other module imports.
-import {v2, v3} from "/js/engine/vector.js";
-import {m4, m4u} from "/js/engine/matrix.js";
-import {pg} from "/js/engine/pregen.js";
-import texgen from "/js/game/texgen.js";
 import gl3d from "/js/game/gl3d.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/model/world.js";
@@ -21,14 +17,14 @@ import {World} from "/js/model/world.js";
 
     window.addEventListener("load", function(event){
 
-        gl3d.setup();
+        gl3d.setup();               // set up the webgl and pre-generation stuff before anything else.
+        let e = new Engine();       // create a Engine instance to run the game.
+        let w = new World();        // create a World instance for the game data, actions, and commands.
+        e.addChild(w);              // attach the World instance to the engine for it to drive.
+        gl3d.start();               // start webgl.
+        e.start();                  // start the game.
 
-        let e = new Engine();
-        let w = new World();
-        e.addChild(w);
-
-        e.start();
-        gl3d.start();
+        // remember to comment out the watchdog timer.
 //      setTimeout(() => e.stop(), 120000);
     })
 

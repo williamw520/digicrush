@@ -33,16 +33,23 @@ pg.yrot = (degree) => yrot_mats[ Math.floor((v2.unit_deg(degree) + 360)) % 360 ]
 
 
 // Pre-generate facing view matrices based on a camera revolving around the y-axis.
+let facing_mats = [];
+
 pg.gen_facing_view_mats = (cameraPos) => {
     facing_mats = gen_view_projection(cameraPos);
 }
-let facing_mats = [];
+
+pg.facing_view      = (degree) => facing_mats[ Math.floor(v2.unit_deg(degree) + 360) % 360 ];
 
 // Pre-generate facing view+projection matrices based on a camera revolving around the y-axis.
+let view_projection_mats = [];
+
 pg.gen_view_projection_mats = (cameraPos, projection) => {
     view_projection_mats = gen_view_projection(cameraPos, projection);
 }
-let view_projection_mats = [];
+
+pg.view_projection  = (degree) => view_projection_mats[ Math.floor(v2.unit_deg(degree) + 360) % 360 ];
+
 
 function gen_view_projection(cameraPos, projectionMatrix) {
     let resultMatrices = [];
@@ -65,8 +72,6 @@ function gen_view_projection(cameraPos, projectionMatrix) {
     return resultMatrices;
 }
 
-pg.facing_view      = (degree) => facing_mats[ Math.floor(v2.unit_deg(degree) + 360) % 360 ];
-pg.view_projection  = (degree) => view_projection_mats[ Math.floor(v2.unit_deg(degree) + 360) % 360 ];
 
 export { pg };
 
