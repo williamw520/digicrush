@@ -29,7 +29,7 @@ import {World} from "/js/model/world.js";
 
         e.start();
         gl3d.start();
-        setTimeout(() => e.stop(), 120000);
+//      setTimeout(() => e.stop(), 120000);
     })
 
 }());
