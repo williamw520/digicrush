@@ -18,12 +18,28 @@ import flag_render from "/js/game/flag_render.js";
 let gl3d = (function() {
     const gl3d = {};
 
+
+    // function throwOnGLError(err, funcName, args) {
+    //     throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;
+    // }
+    // function validateNoneOfTheArgsAreUndefined(functionName, args) {
+    //     for (var ii = 0; ii < args.length; ++ii) {
+    //         if (args[ii] === undefined) {
+    //             console.error("undefined passed to gl." + functionName + "(" +
+    //                           WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
+    //         }
+    //     }
+    // }     
+
     let gl;
 
     gl3d.setup = () => {
 
         // Run this inside setup() to be run after index.html page load event.
         gl3d.gl = gl = document.getElementById("wgl").getContext("webgl");
+
+        // gl3d.gl = gl = WebGLDebugUtils.makeDebugContext( document.getElementById("wgl").getContext("webgl"),
+        //                                                  throwOnGLError, validateNoneOfTheArgsAreUndefined);
 
         let unitWidth = 1;
 
