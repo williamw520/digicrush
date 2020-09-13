@@ -15,7 +15,7 @@ let texgen = (function() {
 
     let canvas;
     let ctx;
-    let fontSize    = 208;      // font size in pixel
+    let fontSize    = 192;      // font size in pixel
     let lineWidth   = 256;
     let lineHeight  = 256;
 
@@ -23,7 +23,6 @@ let texgen = (function() {
         canvas = document.getElementById(canvasId);
         canvas.width  = U.ensurePowerOf2(canvas.width);
         canvas.height = U.ensurePowerOf2(canvas.height);
-        //L.info(canvas.height);
         lineWidth = lineW || 256;
         lineHeight = lineH || 256;
 
@@ -46,7 +45,7 @@ let texgen = (function() {
 
     texgen.drawAt = (text, lineNumber) => {
         let originY = lineHeight * (lineNumber - 1);
-        let centerY = originY + fontSize / 1.5;
+        let centerY = originY + fontSize / 1.4 + 2;             // adjust this against the font size.
         let centerX = (lineWidth / 2) * 0.98;
         // L.info("lineWidth", lineWidth);
         // L.info("ctx.measureText(text).width", ctx.measureText(text).width);

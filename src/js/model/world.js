@@ -110,9 +110,10 @@ export class World extends BaseNode {
         this.wonStages.doneNow();
         this.lostStages.doneNow();
         this.scoreDelay.start();
-        state.hitGoal   = 10;               // get from level profile
-        state.hitCount  = 0;
         state.calcSpeed();
+        state.calcGoal();
+        //state.hitGoal   = 10;
+        state.hitCount  = 0;
         gl3d.cameraAngle = def.PLAYING_ANGLE;
         this._spawnFlag();
     }

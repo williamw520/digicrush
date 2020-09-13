@@ -41,6 +41,10 @@ let state = (function() {
         state.speed = -(0.01 + Math.log(state.level) / 200);
     }
 
+    state.calcGoal = () => {
+        state.hitGoal = Math.floor(Math.min( (60 + Math.log(state.level)*10 ), 99 ));
+    }
+
     return state;
 }());
 
