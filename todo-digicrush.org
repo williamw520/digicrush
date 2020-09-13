@@ -57,12 +57,15 @@
 ** DONE Add letter set texture for UI.
 ** DONE Scoring
 ** DONE Display popup message
-** TODO Winning sequence
+** DONE Winning sequence
 ** DONE Losing sequence
 ** DONE Move world initialization to startLevel.
 ** DONE Reset and show world items at startLevel
 ** DONE Clear the world at S_DEAD_WAIT state.
 ** DONE Multi-stage animation group
-** TODO Leveling
 ** DONE Sound effect
+** DONE Leveling
+** TODO Level profiles
+** TODO UI display for hit count and goal
+** TODO UI display for level number
 

@@ -29,7 +29,12 @@ let input = (function() {
         window.removeEventListener("keyup", onkeyup);
     }
 
-    input.isOn      = (keyCode) => pressed[keyCode];
+    input.isOn      = (keyCode) => {
+        let flag = pressed[keyCode];
+        if (flag)
+            delete pressed[keyCode];                    // one key per check.
+        return flag;
+    }
 
 
     const K_DIGITS  = [ 49, 50, 51, 52, 53, 54 ];       // 1, 2, 3, 4, 5, 6
@@ -37,11 +42,10 @@ let input = (function() {
     const K_LEFT    = [ 85, 73, 79, 74, 75, 76 ];       // q, w, e, a, s, d
     const keySets   = [ K_DIGITS, K_RIGHT, K_LEFT ];
 
-    input.K_RUN     = 82;                               // r
-    input.K_PAUSE   = 80;                               // p
     input.K_SPACE   = 32;                               // SPACE
+    input.K_PAUSE   = 80;                               // p
 
-    [].concat(K_DIGITS, K_RIGHT, K_LEFT, [input.K_RUN, input.K_PAUSE, input.K_SPACE])
+    [].concat(K_DIGITS, K_RIGHT, K_LEFT, [input.K_PAUSE, input.K_SPACE])
         .forEach( c => captures[c] = true );
 
     input.digitHit  = (onPressed) => {

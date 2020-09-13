@@ -13,12 +13,14 @@ let state = (function() {
 
     // Game states
     state.S_INIT_WAIT = 0;
-    state.S_PLAYING = 1;
-    state.S_PAUSED = 2;
-    state.S_WON = 3;
-    state.S_WON_WAIT = 4;
-    state.S_LOST = 5;
-    state.S_LOST_WAIT = 6;
+    state.S_LEVEL_WAIT = 1;
+    state.S_PLAYING = 2;
+    state.S_PAUSED = 3;
+    state.S_WON_PENDING = 4;
+    state.S_WON = 5;
+    state.S_WON_WAIT = 6;
+    state.S_LOST = 7;
+    state.S_LOST_WAIT = 8;
 
     state.gstate = state.S_INIT_WAIT;   // current game state
 

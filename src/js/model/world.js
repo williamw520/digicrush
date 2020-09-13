@@ -33,13 +33,14 @@ export class World extends BaseNode {
         this.score = [];
         this.popup = [];
         this.fortIX = 0;
-        this.fortAttackStart = false;
-        this.fortAttack = false;
-        this.fortAttackTime = new A.Timeline(2000);
-        this.popupLen = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
-        this.wonStages  = new A.TimeGroup([500, 2000, 2000]);
-        this.deadStages = new A.TimeGroup([2950, 1500, 2000]);
+        this.wonStages  = this._setupWonStages();
+        this.lostStages = this._setupLostStages();
+        this.fortAttackStages = [this._setupFortAttackStages(500, 1700, 1700, false),
+                                 this._setupFortAttackStages(500, 400, 1700, true)];
+        this.fortAttackType = 0;
+        this.fortAttacking = false;
+        this.popupLen = 0;
         this._initScore();
         this._initPopup();
         this._makeFortItems();
@@ -85,6 +86,9 @@ export class World extends BaseNode {
     }
 
     _startLevel() {
+        if (state.gstate == state.S_PLAYING)
+            return;
+        state.gstate = state.S_PLAYING;
         this._showPopup(false);
         this._showItems(this.cash, true);
         this._showItems(this.fortO, true);
@@ -92,19 +96,31 @@ export class World extends BaseNode {
         this._resetOffset(this.cash);
         this._resetOffset(this.fortO);
         this._resetOffset(this.fortI);
+        this.fortAttacking = false;
+        this.fortAttackStages.forEach( fa => fa.doneNow() );
+        this.scoreDelay.doneNow();
+        this.wonStages.doneNow();
+        this.lostStages.doneNow();
+        this.scoreDelay.start();
         state.hitGoal   = 10;               // get from level profile
         state.hitCount  = 0;
-        state.gstate = state.S_PLAYING;
         gl3d.cameraAngle = def.PLAYING_ANGLE;
         this._spawnFlag();
     }
 
     _handleInput() {
-        if (input.isOn(input.K_SPACE) || input.isOn(input.K_RUN)) {
-            if (state.gstate == state.S_INIT_WAIT ||
-                state.gstate == state.S_WON_WAIT  ||
-                state.gstate == state.S_LOST_WAIT)
+        if (input.isOn(input.K_SPACE)) {
+            switch (state.gstate) {
+            case state.S_INIT_WAIT:
+            case state.S_WON_WAIT:
+            case state.S_LOST_WAIT:
+                this._setPopup("LEVEL " + state.level, -0.2, 0, 0);
+                state.gstate = state.S_LEVEL_WAIT;
+                break;
+            case state.S_LEVEL_WAIT:
                 this._startLevel();
+                break;
+            }
         }
 
         if (input.isOn(input.K_PAUSE)) {
@@ -159,9 +175,8 @@ export class World extends BaseNode {
                     this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB4_RANGE)), Math.min(activeFlags.length, (i+def.BOMB4_RANGE+1))));
                     audio.explosion();
                 } else if (f.type == def.T_404) {
-                    //this.matchedBomb.push(activeFlags);
-                    this.fortAttackStart = true;
                     audio.rocket();
+                    this._startFortAttack(0);
                 } else {
                     // for regular active flags, track the consecutive matching sequences.
                     seq++;                          // count consecutive matching flags.
@@ -247,13 +262,12 @@ export class World extends BaseNode {
     _updateByGameState(time, delta) {
         switch (state.gstate) {
         case state.S_INIT_WAIT:
+        case state.S_LEVEL_WAIT:
             this._rotateFortO(time);
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_PLAYING:
-            this._checkWinning();
-            this._checkLosing();
             this._checkSpawn();
             this._rotateFortO(time);
             this._pulseFortI(time);
@@ -264,8 +278,23 @@ export class World extends BaseNode {
             this.fortI.forEach( f => f.onUpdate(time, delta, this) );
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            this._checkWinning();   
+            this._checkLosing();
             break;
         case state.S_PAUSED:
+            this.popup.forEach( f => f.onUpdate(time, delta, this) );
+            break;
+        case state.S_WON_PENDING:
+            if (!this._hasPendingAnimation()) {
+                state.gstate = state.S_WON;
+                this.wonStages.start();
+            }
+            this._rotateFortO(time);
+            this._checkFortAttack(time);
+            this.flags.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_WON:
@@ -274,26 +303,28 @@ export class World extends BaseNode {
                 // setup for the next state.
                 gl3d.cameraAngle = 0;
                 this.flags.length = 0;
-                this._setPopup("NEXT LEVEL", -0.2, 0, 0);
-            } else {
-                switch (this.wonStages.stage) {
-                case 0:
-                    gl3d.cameraAngle += 3;
-                    break;
-                case 1:
-                    gl3d.cameraAngle += 1;
-                    break;
-                case 2:
-                    break;
-                }
+                this._setPopup("YOU WON!", -0.2, 0, 0);
+                state.level++;
             }
+            this._rotateFortO(time);
+            this._checkFortAttack(time);
+            this.flags.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_WON_WAIT:
+            this._rotateFortO(time);
+            this._pulseFortI(time);
+            this._updateScore(time);
+            this.fortO.forEach( f => f.onUpdate(time, delta, this) );
+            this.fortI.forEach( f => f.onUpdate(time, delta, this) );
+            this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
             break;
         case state.S_LOST:
-            if (this.deadStages.step(time)) {
+            if (this.lostStages.step(time)) {
                 state.gstate = state.S_LOST_WAIT;
                 // setup for the next state.
                 gl3d.cameraAngle = 0;
@@ -302,18 +333,6 @@ export class World extends BaseNode {
                 this._showItems(this.fortO, false);
                 this._showItems(this.fortI, false);
                 this.flags.length = 0;
-            } else {
-                switch (this.deadStages.stage) {
-                case 0:
-                    gl3d.cameraAngle -= 3;
-                    break;
-                case 1:
-                    gl3d.cameraAngle -= 1;
-                    this._collapseFort(this.deadStages.pos);
-                    break;
-                case 2:
-                    this._blowupFort(this.deadStages.pos);
-                }
             }
 
             this._rotateFortO(time);
@@ -324,11 +343,43 @@ export class World extends BaseNode {
         }        
     }
 
+    _setupWonStages() {
+        let stage0 = new A.Timeline(400, this, null, (world, tl) => {
+            gl3d.cameraAngle -= 1;
+        });
+        let stage1 = new A.Timeline(3000, this, (world, tl) => {
+            // onStart
+            world._startFortAttack(1);
+        }, (world, tl) => {
+            //world._blowupEva(tl.pos);
+        });
+        return new A.TimeGroup([stage0, stage1]);
+    }
+
     _checkWinning() {
-        if (state.hitCount >= state.hitGoal) {
-            state.gstate = state.S_WON;
-            this._setPopup("LEVEL WON!", -.5, -.4, 0);
+        if (state.gstate == state.S_PLAYING && state.hitCount >= state.hitGoal) {
+            state.gstate = state.S_WON_PENDING;
         }
+    }
+
+    _hasPendingAnimation() {
+        let hasPending = false;
+        hasPending |= this.fortAttacking;
+        return hasPending;
+    }
+
+    _setupLostStages() {
+        let stage0 = new A.Timeline(2980, this, null, (world, tl) => {
+            gl3d.cameraAngle -= 3;
+        });
+        let stage1 = new A.Timeline(1500, this, null, (world, tl) => {
+            gl3d.cameraAngle -= 1;
+            world._collapseFort(tl.pos);
+        });
+        let stage2 = new A.Timeline(2000, this, null, (world, tl) => {
+            world._blowupFort(tl.pos);
+        });
+        return new A.TimeGroup([stage0, stage1, stage2]);
     }
 
     _checkLosing() {
@@ -336,7 +387,7 @@ export class World extends BaseNode {
         if (first) {
             if (first.pos[0] < def.LOSING_X) {
                 state.gstate = state.S_LOST;
-                this.deadStages.start();
+                this.lostStages.start();
             }
         }
     }
@@ -424,7 +475,7 @@ export class World extends BaseNode {
     }
 
     _rotateFortO(time) {
-        let period = time / 360000;
+        let period = time / 300000;
         let count = 16;
         let radius = 2;
         for (let i = 0; i < count; i++) {
@@ -464,46 +515,66 @@ export class World extends BaseNode {
         this._expandFort(this.fortI, 5.5 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
     }
 
-    _checkFortAttack(time) {
-        if (this.fortAttackStart) {
-            // Set fort in attack mode.
-            this.fortAttackTime.start(performance.now(), 2000);
-            this.fortAttack = true;
-            this.fortAttackStart = false;
-            this.fortI.forEach( f => {
-                f.type = def.T_FORT_I2;
-                f.bg = def.makeBg(def.T_FORT_I2);
-            } );
-        }
-
-        if (this.fortAttack) {
-            if (this.fortAttackTime.step(time)) {
-                audio.explosion2();                                                 // big explosion at the end.
-                this.fortAttack = false;
-                this.fortI.forEach( f => {
-                    f.offset[0] = 0;
-                    f.type = def.T_FORT_I;
-                    f.bg = def.makeBg(def.T_FORT_I);
-                } );
-
-                // Blow up the rest of the flags.
-                this.flags.forEach( f => {
-                    if (f.isActive())
-                        this._startBombed(f);
-                })
-            } else {
-                let ax = this.fortAttackTime.pos * (def.BEGIN_X - def.FORT_I_X);    // apply timeline pos to the whole distance across the field.
-                this.fortI.forEach( f => f.offset[0] = ax );                        // move the offset of all fort items to ax.
-
-                for (let i = 0; i < this.flags.length; i++) {
-                    let f = this.flags[i];
-                    if (f.isActive()) {
-                        if (f.pos[0] + 1.5 > ax)
-                            break;
-                        this._startBombed(f);
-                        audio.shot();
-                    }
+    _setupFortAttackStages(range1, range2, range3, explosionAtStage2) {
+        const distance = def.BEGIN_X - def.FORT_I_X;
+        
+        let stage0 = new A.Timeline(range1, this, (world, tl) => {
+            // onStart.  Move forth a bit and lite up.
+            world.fortI.forEach( f => f.offset[0] = 0.2 );
+            world.fortI.forEach( f => f.type = def.T_FORT_I2 );
+            world.fortI.forEach( f => f.bg   = def.makeBg(f.type) );
+        });
+        
+        let stage1 = new A.Timeline(range2, this, null, (world, tl) => {
+            // onStep.
+            let ax = tl.pos * distance;                             // apply timeline pos to the whole distance across the field.
+            world.fortI.forEach( f => f.offset[0] = ax );           // move the offset of all fort items to ax.
+            // blow up active flags along the way.
+            for (let i = 0; i < world.flags.length; i++) {
+                let f = world.flags[i];
+                if (f.isActive()) {
+                    if (f.pos[0] + 1.5 > ax)
+                        break;
+                    world._startBombed(f);
+                    audio.shot();
                 }
+            }
+        });
+        
+        let stage2 = new A.Timeline(range3, this, (world, tl) => {
+            // onStart
+            if (explosionAtStage2)
+                audio.explosion2();
+        }, (world, tl) => {
+            // onStep
+            let ax = tl.rpos * distance;                            // move the whole way back
+            world.fortI.forEach( f => f.offset[0] = ax );
+        });
+
+        return new A.TimeGroup([stage0, stage1, stage2]);
+    }
+
+    _startFortAttack(attackType) {
+        if (this.fortAttacking)
+            return;
+        this.fortAttacking = true;
+        this.fortAttackType = attackType;
+        this.fortAttackStages[this.fortAttackType].start();
+    }
+
+    _checkFortAttack(time) {
+        if (this.fortAttacking) {
+            if (this.fortAttackStages[this.fortAttackType].step(time)) {
+                // done
+                this.fortAttacking = false;
+                // big explosion at the end for type 0
+                if (this.fortAttackType == 0)
+                    audio.explosion2();
+                this.flags.forEach( f => { if (f.isActive()) this._startBombed(f) } );  // blow up any remaining flags.
+                // clean up
+                this._resetOffset(this.fortI);
+                this.fortI.forEach( f => f.type = def.T_FORT_I );
+                this.fortI.forEach( f => f.bg   = def.makeBg(f.type) );
             }
         }
     }
@@ -531,7 +602,7 @@ export class World extends BaseNode {
 
     _updateScore(time) {
         if (this.scoreDelay.step(time)) {
-            this.scoreDelay.start(performance.now());
+            this.scoreDelay.start(time);
         } else {
             if (state.scoreDisplay < state.score) {
                 state.scoreDisplay += 1;
