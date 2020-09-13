@@ -53,7 +53,7 @@ let gl3d = (function() {
 
     gl3d.cameraAngle = 0;                                               // angle to turn the camera along the y-axis
 
-    gl3d.facingView  = () => pg.facing_view(gl3d.cameraAngle);
+    gl3d.facingView  = () => pg.facing_view(Math.floor(gl3d.cameraAngle));
 
     gl3d.start = () => {
         // Set the color for the clear() operation to transparent.

@@ -28,6 +28,7 @@ let state = (function() {
     state.nextLevel = 1;
     state.hitGoal  = 0;
     state.hitCount = 0;
+    state.speed = -0.01;
 
     state.inSeq = 0;                    // remaining counter for spawning flags in sequence
     state.inSeqCh = 0;                  // the digit char to spawn in sequence
@@ -35,6 +36,10 @@ let state = (function() {
 
     state.scoreDisplay = 0;              // current displayed score.
     state.score = 0;                     // the score.
+
+    state.calcSpeed = () => {
+        state.speed = -(0.01 + Math.log(state.level) / 200);
+    }
 
     return state;
 }());

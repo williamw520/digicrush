@@ -230,16 +230,16 @@ export class Flag {
             if (this.rflag) {
                 let xdelta = this.rflag.pos[0] - this.pos[0];
                 if (xdelta < (def.SPACE_BETWEEN - 0.01)) {
-                    this.velocity[0] = -0.01;
+                    this.velocity[0] = state.speed;
                     this.pos[0] = this.rflag.pos[0] - def.SPACE_BETWEEN + 0.01;
                 } else if (xdelta > (def.SPACE_BETWEEN + 0.01)) {
                     this.velocity[0] =  0.10;
                 }
                 else {
-                    this.velocity[0] = -0.01;
+                    this.velocity[0] = state.speed;
                 }
             } else {
-                this.velocity[0] = -0.01;
+                this.velocity[0] = state.speed;
             }
         }
     }

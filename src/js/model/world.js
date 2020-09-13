@@ -39,7 +39,7 @@ export class World extends BaseNode {
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
         this.wonStages  = this._setupWonStages();
         this.lostStages = this._setupLostStages();
-        this.fortAttackStages = [this._setupFortAttackStages(500, 1700, 1700, false),
+        this.fortAttackStages = [this._setupFortAttackStages(300, 800, 1700, true),
                                  this._setupFortAttackStages(500, 400, 1700, true)];
         this.fortAttackType = 0;
         this.fortAttacking = false;
@@ -110,6 +110,7 @@ export class World extends BaseNode {
         this.scoreDelay.start();
         state.hitGoal   = 10;               // get from level profile
         state.hitCount  = 0;
+        state.calcSpeed();
         gl3d.cameraAngle = def.PLAYING_ANGLE;
         this._spawnFlag();
     }
@@ -117,9 +118,18 @@ export class World extends BaseNode {
     _handleInput() {
         if (input.isOn(input.K_SPACE)) {
             switch (state.gstate) {
+            case state.S_LOST_WAIT:
+                state.nextLevel = 1;
+                state.score = 0;
+                state.scoreDisplay = 0;
+                this._showItems(this.cash, true);
+                this._showItems(this.fortO, true);
+                this._showItems(this.fortI, true);
+                this._resetOffset(this.cash);
+                this._resetOffset(this.fortO);
+                this._resetOffset(this.fortI);
             case state.S_INIT_WAIT:
             case state.S_WON_WAIT:
-            case state.S_LOST_WAIT:
                 state.level = state.nextLevel;
                 this._setPopup("LEVEL " + state.level, -0.2, 0, 0);
                 state.gstate = state.S_LEVEL_WAIT;
@@ -352,8 +362,8 @@ export class World extends BaseNode {
     }
 
     _setupWonStages() {
-        let stage0 = new A.Timeline(400, this, null, (world, tl) => {
-            gl3d.cameraAngle -= 1;
+        let stage0 = new A.Timeline(500, this, null, (world, tl) => {
+            gl3d.cameraAngle -= 1.5;
         });
         let stage1 = new A.Timeline(3000, this, (world, tl) => {
             // onStart
@@ -377,14 +387,21 @@ export class World extends BaseNode {
     }
 
     _setupLostStages() {
-        let stage0 = new A.Timeline(2980, this, null, (world, tl) => {
+        let stage0 = new A.Timeline(1500, this, () => {
+            audio.down();
+            //audio.monster();
+        }, (world, tl) => {
             gl3d.cameraAngle -= 3;
         });
-        let stage1 = new A.Timeline(1500, this, null, (world, tl) => {
+        let stage1 = new A.Timeline(500, this, () => {
+            //audio.down();
+        }, (world, tl) => {
             gl3d.cameraAngle -= 1;
             world._collapseFort(tl.pos);
         });
-        let stage2 = new A.Timeline(2000, this, null, (world, tl) => {
+        let stage2 = new A.Timeline(2000, this, () => {
+            audio.explosion2();
+        }, (world, tl) => {
             world._blowupFort(tl.pos);
         });
         return new A.TimeGroup([stage0, stage1, stage2]);
@@ -576,8 +593,8 @@ export class World extends BaseNode {
                 // done
                 this.fortAttacking = false;
                 // big explosion at the end for type 0
-                if (this.fortAttackType == 0)
-                    audio.explosion2();
+                // if (this.fortAttackType == 0)
+                //     audio.explosion2();
                 this.flags.forEach( f => { if (f.isActive()) this._startBombed(f) } );  // blow up any remaining flags.
                 // clean up
                 this._resetOffset(this.fortI);
