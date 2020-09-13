@@ -44,6 +44,8 @@ export class World extends BaseNode {
         this.fortAttackType = 0;
         this.fortAttacking = false;
         this.popupLen = 0;
+        this.lastHitType = 0;
+
         this._initScore();
         this._initPopup();
         this._makeFortItems();
@@ -184,6 +186,7 @@ export class World extends BaseNode {
         this.matchedBomb.length = 0;
         activeFlags.forEach( (f, i) => {
             if (f.match(digitIndex)) {
+                this.lastHitType = f.type;
                 if (f.type == def.T_BOMB3) {
                     // record the range of flags to be blown up.
                     this.matchedBomb.push(activeFlags.slice(Math.max(0, (i-def.BOMB3_RANGE)), Math.min(activeFlags.length, (i+def.BOMB3_RANGE+1))));
@@ -367,7 +370,11 @@ export class World extends BaseNode {
         });
         let stage1 = new A.Timeline(3000, this, (world, tl) => {
             // onStart
-            world._startFortAttack(1);
+            if (this.lastHitType != def.T_404) {
+                world._startFortAttack(1);
+            } else {
+                tl.doneNow();
+            }
         }, (world, tl) => {
             //world._blowupEva(tl.pos);
         });
@@ -585,6 +592,7 @@ export class World extends BaseNode {
         this.fortAttacking = true;
         this.fortAttackType = attackType;
         this.fortAttackStages[this.fortAttackType].start();
+        this.lastHitType = def.T_404;
     }
 
     _checkFortAttack(time) {
