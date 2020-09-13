@@ -65,7 +65,7 @@
 ** DONE Multi-stage animation group
 ** DONE Sound effect
 ** DONE Leveling
+** DONE UI display for hit count and goal
+** DONE UI display for level number
 ** TODO Level profiles
-** TODO UI display for hit count and goal
-** TODO UI display for level number
 

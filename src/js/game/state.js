@@ -25,6 +25,7 @@ let state = (function() {
     state.gstate = state.S_INIT_WAIT;   // current game state
 
     state.level = 1;
+    state.nextLevel = 1;
     state.hitGoal  = 0;
     state.hitCount = 0;
 

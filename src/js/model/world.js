@@ -32,6 +32,8 @@ export class World extends BaseNode {
         this.cash  = [];
         this.score = [];
         this.goal  = [];
+        this.label = [];
+        this.level = [];
         this.popup = [];
         this.fortIX = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
@@ -77,6 +79,8 @@ export class World extends BaseNode {
         this.popup.forEach( f => f.onDraw() );
         this.score.forEach( f => f.onDraw() );
         this.goal.forEach(  f => f.onDraw() );
+        this.level.forEach( f => f.onDraw() );
+        this.label.forEach( f => f.onDraw() );
         gl3d.cameraAngle = oldCameraAngle;
     }
 
@@ -116,6 +120,7 @@ export class World extends BaseNode {
             case state.S_INIT_WAIT:
             case state.S_WON_WAIT:
             case state.S_LOST_WAIT:
+                state.level = state.nextLevel;
                 this._setPopup("LEVEL " + state.level, -0.2, 0, 0);
                 state.gstate = state.S_LEVEL_WAIT;
                 break;
@@ -265,6 +270,7 @@ export class World extends BaseNode {
         switch (state.gstate) {
         case state.S_INIT_WAIT:
         case state.S_LEVEL_WAIT:
+            this._updateScore(time);
             this._rotateFortO(time);
             this.cash.forEach(  f => f.onUpdate(time, delta, this) );
             this.popup.forEach( f => f.onUpdate(time, delta, this) );
@@ -306,7 +312,7 @@ export class World extends BaseNode {
                 gl3d.cameraAngle = 0;
                 this.flags.length = 0;
                 this._setPopup("YOU WON!", -0.2, 0, 0);
-                state.level++;
+                state.nextLevel = state.level + 1;
             }
             this._rotateFortO(time);
             this._checkFortAttack(time);
@@ -606,6 +612,19 @@ export class World extends BaseNode {
                                                                      def.SCORE_W) );
         this.goal.forEach( f => f.bg = [0, 0, 0, 0] );
         this.goal.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
+
+        this.level = [...Array(2).keys()].map( (n, i) => FF.makeChar("0",
+                                                                     [def.LEVEL_X + i * (def.SCORE_W * 1.4), def.SCORE_Y, def.SCORE_Z],
+                                                                     def.SCORE_W) );
+        this.level.forEach( f => f.bg = [0, 0, 0, 0] );
+        this.level.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
+
+        this.label = [...Array(1).keys()].map( (n, i) => FF.makeChar("L",
+                                                                     [def.LABEL_X + i * (def.SCORE_W * 1.4), def.SCORE_Y, def.SCORE_Z],
+                                                                     def.SCORE_W) );
+        this.label.forEach( f => f.bg = [0, 0, 0, 0] );
+        this.label.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
+        
     }
 
     _updateScore(time) {
@@ -617,34 +636,10 @@ export class World extends BaseNode {
             }
 
             this._updateNumber(this.score, state.scoreDisplay);
-            // let i = this.score.length - 1;
-            // let n = state.scoreDisplay;
-            // while (n > 0) {
-            //     const digit = n % 10;
-            //     this.score[i].ch = def.numIndex(digit);
-            //     n = Math.floor(n / 10);
-            //     if (i > 0)
-            //         i--;
-            // }
-            // while (i > 0) {
-            //     this.score[i--].ch = def.numIndex(0);
-            // }
         }
 
         this._updateNumber(this.goal, Math.max(state.hitGoal - state.hitCount, 0));
-        
-        // let i = this.goal.length - 1;
-        // let n = Math.max(state.hitGoal - state.hitCount, 0);
-        // while (n > 0) {
-        //     const digit = n % 10;
-        //     this.goal[i].ch = def.numIndex(digit);
-        //     n = Math.floor(n / 10);
-        //     if (i > 0)
-        //         i--;
-        // }
-        // while (i > 0) {
-        //     this.goal[i--].ch = def.numIndex(0);
-        // }
+        this._updateNumber(this.level, state.level);
     }
 
     _updateNumber(flags, n) {
