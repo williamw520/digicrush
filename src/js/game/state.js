@@ -32,7 +32,7 @@ let state = (function() {
 
     state.inSeq = 0;                    // remaining counter for spawning flags in sequence
     state.inSeqCh = 0;                  // the digit char to spawn in sequence
-    state.inSeqProbability = 0.3;       // probability to spawn in sequence
+    state.inSeqProbability = 0.2;       // probability to spawn in sequence
 
     state.scoreDisplay = 0;              // current displayed score.
     state.score = 0;                     // the score.

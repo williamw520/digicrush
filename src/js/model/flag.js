@@ -265,25 +265,33 @@ export let FF = (function() {
             return f;
         }
 
+        // Spawn in sequence
         if (Math.random() < state.inSeqProbability) {
             // For next spawn
-            state.inSeq = U.rand(2, 5);
+            const n = U.rand(1, 100);
+            const m = 5 - Math.floor(Math.log(n));
+            state.inSeq = Math.min(2, m);
             state.inSeqCh = U.rand(0, def.digitLimit);
         }
 
+        // Spawn a ordinary flag, a rock, or a power flag
         let dice = Math.random();
         if (dice < 0.80) {
             f = new Flag(def.T_FLAG, pos);
             f.ch = U.rand(0, def.digitLimit);
-        } else if (dice >= .80 && dice < .93) {
+        } else if (dice >= .80 && dice < .90) {
             f = new Flag(def.T_ROCK, pos);
             f.ch = def.F_ROCK;
-        } else if (dice >= .93 && dice < .98) {
+        } else if (dice >= .90 && dice < .96) {
             f = new Flag(def.T_BOMB3, pos);
             f.ch = U.rand(0, def.digitLimit);
             f.morphBomb(def.T_BOMB3);
-        } else {
+        } else if (dice >= .96 && dice < .99) {
             f = new Flag(def.T_BOMB4, pos);
+            f.ch = U.rand(0, def.digitLimit);
+            f.morphBomb(def.T_BOMB3);
+        } else {
+            f = new Flag(def.T_404, pos);
             f.ch = U.rand(0, def.digitLimit);
             f.morphBomb(def.T_BOMB4);
         }
