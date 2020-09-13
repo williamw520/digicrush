@@ -69,6 +69,7 @@ let def = (function() {
     def.SCORE_Y = 3.4;
     def.SCORE_Z = -2.5;
     def.SCORE_W = 0.3;                  // score char scale
+    def.GOAL_X = 1;
     def.POPUP_X = 0;
     def.POPUP_Y = 0;
     def.POPUP_Z = 2.6;

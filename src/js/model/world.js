@@ -31,6 +31,7 @@ export class World extends BaseNode {
         this.fortI = [];
         this.cash  = [];
         this.score = [];
+        this.goal  = [];
         this.popup = [];
         this.fortIX = 0;
         this.scoreDelay = new A.Timeline(200);          // delay between score update.
@@ -75,6 +76,7 @@ export class World extends BaseNode {
         gl3d.cameraAngle = 0;
         this.popup.forEach( f => f.onDraw() );
         this.score.forEach( f => f.onDraw() );
+        this.goal.forEach(  f => f.onDraw() );
         gl3d.cameraAngle = oldCameraAngle;
     }
 
@@ -598,6 +600,12 @@ export class World extends BaseNode {
                                                                      def.SCORE_W) );
         this.score.forEach( f => f.bg = [0, 0, 0, 0] );
         this.score.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
+
+        this.goal  = [...Array(2).keys()].map( (n, i) => FF.makeChar("0",
+                                                                     [def.GOAL_X + i * (def.SCORE_W * 1.4), def.SCORE_Y, def.SCORE_Z],
+                                                                     def.SCORE_W) );
+        this.goal.forEach( f => f.bg = [0, 0, 0, 0] );
+        this.goal.forEach( f => f.fg = [0.25, 1, 0.25, 1] )
     }
 
     _updateScore(time) {
@@ -607,15 +615,47 @@ export class World extends BaseNode {
             if (state.scoreDisplay < state.score) {
                 state.scoreDisplay += 1;
             }
-            let i = this.score.length - 1;
-            let n = state.scoreDisplay;
-            while (n > 0) {
-                const digit = n % 10;
-                this.score[i].ch = def.numIndex(digit);
-                n = Math.floor(n / 10);
-                if (i > 0)
-                    i--;
-            }
+
+            this._updateNumber(this.score, state.scoreDisplay);
+            // let i = this.score.length - 1;
+            // let n = state.scoreDisplay;
+            // while (n > 0) {
+            //     const digit = n % 10;
+            //     this.score[i].ch = def.numIndex(digit);
+            //     n = Math.floor(n / 10);
+            //     if (i > 0)
+            //         i--;
+            // }
+            // while (i > 0) {
+            //     this.score[i--].ch = def.numIndex(0);
+            // }
+        }
+
+        this._updateNumber(this.goal, Math.max(state.hitGoal - state.hitCount, 0));
+        
+        // let i = this.goal.length - 1;
+        // let n = Math.max(state.hitGoal - state.hitCount, 0);
+        // while (n > 0) {
+        //     const digit = n % 10;
+        //     this.goal[i].ch = def.numIndex(digit);
+        //     n = Math.floor(n / 10);
+        //     if (i > 0)
+        //         i--;
+        // }
+        // while (i > 0) {
+        //     this.goal[i--].ch = def.numIndex(0);
+        // }
+    }
+
+    _updateNumber(flags, n) {
+        flags.forEach( f => f.ch = def.numIndex(0) );
+        let i = flags.length - 1;
+        while (n > 0) {
+            const digit = n % 10;
+            flags[i].ch = def.numIndex(digit);
+            n = Math.floor(n / 10);
+            if (i > 0)
+                i--;
         }
     }
 
