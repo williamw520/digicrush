@@ -3,17 +3,30 @@
 ** Dependent libraries and packages defined in package.json.
 ** Use gulp for build.  See the exports in gulpfile.js for available commands.
 ** Gulp commands
-*** gulp liveserver
-    This runs off from the src directory, not using build or dist content at all.
+*** gulp
+    Clean the project and build the whole app from scratch.
 *** gulp build
+    Build the complete app.
+*** gulp clean
+    Remove intermediate files
+*** gulp gen
+    Compile the shader files and generate their JS versions.  Generate model object files.
+*** gulp genw
+    Watch shader source and model data source files and regenerate them on the fly.
 *** gulp glslify
     For generating the JS module files for the shaders from the .glsl files.  Other JS files import the shaders as JS modules.
-*** gulp clean
+*** gulp liveserver
+    This runs a HTTP server off from the src directory, not using build or dist content at all.
+*** gulp buildserver, gulp distserver
+    Runs runs a HTTP server off from the build directory, or from the dist/digicrush directory, for checking the final build.
 ** Directories
 *** The 'build' directory is for staging files.
 *** The 'dist' directory has the final distribution package.
 *** src/index.html is the main entry point for the app.
 *** src/test.html is the main entry point for running tests.
+*** src/js is the Javascript directory.
+*** src/shader is the shader source code directory.
+*** data/ is the model data directory.
 
 * Story
   Billions of digital currency are being siphoned off.
