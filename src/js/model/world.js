@@ -401,7 +401,7 @@ export class World extends BaseNode {
         }, (world, tl) => {
             gl3d.cameraAngle -= 3;
         });
-        let stage1 = new A.Timeline(500, this, () => {
+        let stage1 = new A.Timeline(400, this, () => {
             //audio.down();
         }, (world, tl) => {
             gl3d.cameraAngle -= 1;
@@ -545,7 +545,7 @@ export class World extends BaseNode {
 
     _blowupFort(pos) {
         this._expandFort(this.fortO, 7.0 * A.easeOutQuad(pos), 1, def.FORT_O_SCALE * (0.25 + pos));
-        this._expandFort(this.fortI, 5.5 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
+        this._expandFort(this.fortI, 4.5 * A.easeOutQuad(pos), 1, def.FORT_I_SCALE * (0.25 + pos));
     }
 
     _setupFortAttackStages(range1, range2, range3, explosionAtStage2) {
