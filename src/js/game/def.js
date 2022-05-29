@@ -12,10 +12,12 @@ import {v3} from "/js/engine/vector.js";
 let def = (function() {
     const def = {};
 
-    // 40 chars + 24 = 64 chars.  64 x 256 = 16384, the height of the texture canvas.
-    // Pad 24 chars to force to 64 chars, so the texture height can be 16384, which should be power of 2.
+    // 40 chars + 24 = 64 chars.
+    // Pad 24 chars to force to 64 chars, so the texture height can be power of 2.
     def.chars = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ@$* -!.......;.........;....".split("");
     def.charIndex = def.chars.reduce( (map, ch, i) => (map[ch] = i, map), {} );
+    def.charDim = 128;                                      // text character dimension width and height.
+    def.fontSize = 96;                                      // text character font size in pixel.
 
     def.digitBegin = 0;
     def.digitLimit = 5;

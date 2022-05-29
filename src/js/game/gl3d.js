@@ -42,14 +42,14 @@ let gl3d = (function() {
 
         let unitWidth = 1;
 
+        // generate the texture images; set up the texture in webgl.
+        texgen.setup("tex");
+        // texgen.drawGrid();
+        def.chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
+        
         flag_render.setupShader(gl);
         flag_render.useShader(gl);
         flag_render.setupModel(gl, texgen.lineWidth() / 4, unitWidth); // generate the model data.
-
-        // generate the texture images; set up the texture in webgl.
-        texgen.setup("tex");
-        //texgen.drawGrid();
-        def.chars.forEach((tx, i) => texgen.drawAt(tx, (i+1)));
         flag_render.setupTexture(gl, gl.TEXTURE0, texgen.textureCanvas(), def.chars.length);
 
         // compuate the projection matix.

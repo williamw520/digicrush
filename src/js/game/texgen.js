@@ -15,26 +15,29 @@ let texgen = (function() {
 
     let canvas;
     let ctx;
-    let fontSize    = 192;      // font size in pixel
-    let lineWidth   = 256;
-    let lineHeight  = 256;
+    let fontSize    = def.fontSize;
+    let lineWidth   = def.charDim;
+    let lineHeight  = def.charDim;
 
     texgen.setup = (canvasId, lineW, lineH) => {
         canvas = document.getElementById(canvasId);
-        canvas.width  = U.ensurePowerOf2(canvas.width);
-        canvas.height = U.ensurePowerOf2(canvas.height);
-        lineWidth = lineW || 256;
-        lineHeight = lineH || 256;
+        lineWidth  = lineW || def.charDim;
+        lineHeight = lineH || def.charDim;
+        let textCanvasWidth  = lineWidth;
+        let textCanvasHeight = lineHeight * def.chars.length;   // the height of the texture canvas.  128 x 64 = 8192
+        canvas.width  = U.ensurePowerOf2(textCanvasWidth);
+        canvas.height = U.ensurePowerOf2(textCanvasHeight);
 
         ctx = canvas.getContext("2d");
 
-        ctx.fillStyle = "#333333"; 	// text colour
+        ctx.fillStyle = "#808080"; 	// text color; doesn't matter, the frag shader will use any non-black pixels from black background.
         ctx.textAlign = "center";	// center alignment of text
         ctx.textBaseline = "middle";	// text baseline at middle
         ctx.font = fontSize + "px monospace";
     }
 
     texgen.drawGrid = () => {
+        ctx.strokeStyle = "#ff0000";
         for (let y = lineHeight; y < canvas.height; y += lineHeight) {
             ctx.beginPath();
             ctx.moveTo(0, y);
