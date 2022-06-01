@@ -7,12 +7,18 @@
   williamw520@gmail.com
 -->
 
-<html style="height: 100%; width: 100%;">
+<html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Digi Crush</title>
+
+    <style>
+     body {
+         background: #222;
+     }
+    </style>
 
     <!-- <script src="/js/util/webgl-dbg.js"></script>  -->
 
@@ -28,24 +34,18 @@
 
   </head>
 
-  <body style="height: 100%; width: 100%; margin: auto; max-width: 800px; background: #222; ">
-    <br><br>
-    <canvas id="wgl" width="800" height="400" style="border: 1px solid #626262; background: #111;"></canvas>
-    <div style="color: white; font-size: 16pt;">
-      <p>
-        The system in cyber space is being attacked.  Stop the attack by crushing the digits in the incoming stream.
-        Duplicate digits can be eliminated.
-      </p>
-      <p>
-        Press 1-6 to pick the digit to eliminate.
-      </p>
-      <p>
-        Consecutive digits can be fused into bombs:
-        <div style="margin-left: 2rem;">
-          3-digit bomb, 4-digit bomb, and the 404 super-bomb.
+  <body>
+    <div style="display: flex; justify-content: center; flex-flow: row; ">
+      <div></div>
+      <div style="display: flex; justify-content: center; flex-flow: column; padding: 1rem;">
+        <canvas id="wgl" width="1200" height="600" style="border: 1px solid #626262; background: #111;"></canvas>
+        <div id="desc" style="color: white; font-size: 14pt;">
+          <p>
+            Press 1-6 to eliminate the digits.  Fuse consecutive digits: 3-digit bomb, 4-digit bomb, and the 404 super-bomb.
+          </p>
         </div>
-      </p>
-      </p>
+      </div>
+      <div></div>
     </div>
     <canvas id="tex" width="128" height="8192" style="display: none;"></canvas>
   </body>

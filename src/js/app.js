@@ -10,6 +10,7 @@
 import gl3d from "/js/game/gl3d.js";
 import {Engine} from "/js/engine/engine.js";
 import {World} from "/js/model/world.js";
+import ui from "/js/model/ui.js";
 
 
 // app module
@@ -17,6 +18,7 @@ import {World} from "/js/model/world.js";
 
     window.addEventListener("load", function(event){
 
+        ui.setup();
         gl3d.setup();               // set up the webgl and pre-generation stuff before anything else.
         let e = new Engine();       // create a Engine instance to run the game.
         let w = new World();        // create a World instance for the game data, actions, and commands.
