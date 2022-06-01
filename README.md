@@ -1,6 +1,6 @@
 # Digicrush
 
-[Digicrush](https://williamw520.github.io/digicrush-dist/2020-09-13/ "Digicrush")
+[Digicrush](https://williamw520.github.io/digicrush-dist/digicrush-2022-05-31.html "Digicrush")
 is a puzzle/action game that can be played in a web browser.  It has a tiny size, 
 the zip version under 13K.  It is developed as a response to the challenge to 
 create a HTML5 web game in 13K ([js13kgames entry](https://js13kgames.com/entries/digicrush)).
