@@ -331,7 +331,7 @@ export class World extends BaseNode {
                 // setup for the next state.
                 gl3d.cameraAngle = 0;
                 this.flags.length = 0;
-                this._setPopup("YOU WON!", -0.2, 0, 0);
+                this._setPopup("LEVEL PASSED!", -0.7, 0, 0);
                 state.nextLevel = state.level + 1;
             }
             this._rotateFortO(time);
