@@ -42,7 +42,7 @@ let state = (function() {
     }
 
     state.calcGoal = () => {
-        state.hitGoal = Math.floor(Math.min( (60 + Math.log(state.level)*10 ), 99 ));
+        state.hitGoal = Math.floor(Math.min( (50 + Math.log(state.level)*15 ), 99 ));
     }
 
     return state;
