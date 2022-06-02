@@ -220,6 +220,9 @@ export class Flag {
     _updatePhysics(delta) {
         this._adjustToNeighbors();
         v3.addTo(this.pos, this.velocity);
+        if (this.isInLine()) {
+            this.pos[0] += state.speedBump;
+        }
         v3.addTo(this.velocity, this.force);
         this.wavePeriod += delta * 0.001;
         this.xrot += this.xrotSpeed;
@@ -228,17 +231,18 @@ export class Flag {
     _adjustToNeighbors() {
         if (this.isInLine()) {
             if (this.rflag) {
+                // moving backward to right.
                 let xdelta = this.rflag.pos[0] - this.pos[0];
                 if (xdelta < (def.SPACE_BETWEEN - 0.01)) {
                     this.velocity[0] = state.speed;
                     this.pos[0] = this.rflag.pos[0] - def.SPACE_BETWEEN + 0.01;
                 } else if (xdelta > (def.SPACE_BETWEEN + 0.01)) {
-                    this.velocity[0] =  0.10;
-                }
-                else {
+                    this.velocity[0] = 0.10;
+                } else {
                     this.velocity[0] = state.speed;
                 }
             } else {
+                // moving forward to the left.
                 this.velocity[0] = state.speed;
             }
         }

@@ -69,6 +69,7 @@ export class World extends BaseNode {
         this._checkDeadFlags();
         this._fixNextPtr();
         this._updateByGameState(time, delta);
+        state.updateSpeedBump(this.flags.length);
         super.onUpdate(time, delta, parent);        // run onUpdate() on child nodes in the world node.
     }
 

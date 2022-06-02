@@ -28,7 +28,8 @@ let state = (function() {
     state.nextLevel = 1;
     state.hitGoal  = 0;
     state.hitCount = 0;
-    state.speed = -0.01;
+    state.speed = -0.01;                // normal speed for flags.
+    state.speedBump = 0;                // additional speed for initial flags.
 
     state.inSeq = 0;                    // remaining counter for spawning flags in sequence
     state.inSeqCh = 0;                  // the digit char to spawn in sequence
@@ -39,6 +40,11 @@ let state = (function() {
 
     state.calcSpeed = () => {
         state.speed = -(0.01 + Math.log(state.level) / 200);
+    }
+
+    state.updateSpeedBump = (flagCount) => {
+        // Speed up when less than 8 flags exist.  Don't let the player wait for the initial flags.
+        state.speedBump = -Math.floor( (8 - Math.min(flagCount, 8)) ) / 200;
     }
 
     state.calcGoal = () => {
