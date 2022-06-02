@@ -5,18 +5,17 @@
   williamw520@gmail.com
 */
 
-// input module
+// UI module
 let ui = (function() {
     const ui = {};
-
-    let wglCanvas = document.getElementById("wgl");
-    let descDiv   = document.getElementById("desc");
 
     ui.setup = () => {
         updateDim();
     }
 
     function updateDim() {
+        let wglCanvas = document.getElementById("wgl");
+        let descDiv   = document.getElementById("desc");
         let dh = descDiv.offsetHeight;
         let w = window.innerWidth * 96/100;
         let h = window.innerHeight - dh * 2;
